@@ -43,11 +43,11 @@
 }
 
 .occupation-icon {
-  background: #4285F4;
+  background: var(--google-blue);
 }
 
 .reports-icon {
-  background: #4285F4;
+  background: var(--google-blue);
 }
 
 .icon-circle svg {
@@ -106,9 +106,9 @@
   }
 
   &.active {
-    background: #4285F4;
-    color: #ffffff;
-    border-color: #4285F4;
+    background: var(--google-blue);
+    color: var(--white);
+    border-color: var(--google-blue);
   }
 }
 
@@ -117,7 +117,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #4285F4;
+  background: var(--google-blue);
   border: none;
   display: flex;
   align-items: center;
@@ -127,7 +127,7 @@
   flex-shrink: 0;
 
   &:hover {
-    background: #3574e8;
+    background: var(--google-blue-hover);
     transform: translateY(-1px);
   }
 

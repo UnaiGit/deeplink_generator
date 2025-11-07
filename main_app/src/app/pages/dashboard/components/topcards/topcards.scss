@@ -32,9 +32,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: var(--white);
     font-size: 20px;
-    box-shadow: 0px 0px 1px 0px #0000001a;
+    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.1);
     flex-shrink: 0;
   }
   
@@ -100,14 +100,14 @@
   .delta {
     padding: 0.25rem 0.5rem;
     border-radius: 9999px;
-    background: #ecfdf5; /* default positive bg */
-    color: #065f46; /* positive */
+    background: var(--success-bg-light);
+    color: var(--success-text-dark);
     font-weight: 600;
   }
   
   .delta.negative {
-    background: #fee2e2;
-    color: #991b1b;
+    background: var(--error-bg-light);
+    color: var(--error-text-dark);
   }
   
   /* Responsive design */

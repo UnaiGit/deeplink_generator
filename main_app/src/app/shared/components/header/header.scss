@@ -106,8 +106,8 @@ nav {
   }
 
   &.primary {
-    background: #4f7cff;
-    box-shadow: 0 8px 18px rgba(79, 124, 255, 0.35);
+    background: var(--primary-blue-light);
+    box-shadow: 0 8px 18px var(--primary-blue-shadow-hover);
     .icon {
       filter: brightness(0) invert(1);
     }
@@ -144,8 +144,8 @@ nav {
       position: absolute;
       top: 4px;
       right: 4px;
-      background: #ef4444;
-      color: #fff;
+      background: var(--badge-red);
+      color: var(--white);
       font-size: 11px;
       border-radius: 999px;
       width: 18px;

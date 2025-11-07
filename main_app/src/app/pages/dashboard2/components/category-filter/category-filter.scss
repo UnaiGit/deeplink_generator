@@ -16,21 +16,21 @@
   cursor: pointer;
   color: var(--text-color-dark);
   transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px var(--shadow-light-overlay);
   min-width: 140px;
 }
 
 .cat.active {
-  background: #e0f2fe;
-  border: 2px solid #0ea5e9;
-  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.2);
+  background: var(--sky-blue-light-bg);
+  border: 2px solid var(--sky-blue);
+  box-shadow: 0 2px 8px var(--sky-blue-shadow);
 }
 
 .cat-icon {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #f3f4f6;
+  background: var(--gray-150);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,7 +39,7 @@
 }
 
 .cat-icon.active-icon {
-  background: #0ea5e9;
+  background: var(--sky-blue);
 }
 
 .cat-icon img {
@@ -81,7 +81,7 @@
 }
 
 .cat.active .cat-name {
-  color: #1f2937;
+  color: var(--text-gray-dark);
 }
 
 .count { 
@@ -92,7 +92,7 @@
 }
 
 .cat.active .count {
-  color: #6b7280;
+  color: var(--text-gray-medium-alt);
 }
 
 .spacer { flex: 0 0 8px; }

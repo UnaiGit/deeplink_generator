@@ -7,9 +7,9 @@
   display: flex;
   gap: 16px;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.84);
+  background: var(--white-overlay);
   backdrop-filter: blur(8px);
-  border-top: 1px solid rgba(0,0,0,0.06);
+  border-top: 1px solid var(--overlay-very-light);
   z-index: 50;
 }
 
@@ -22,8 +22,8 @@
   padding: 10px 18px;
   font-weight: 600;
   cursor: pointer;
-  background: #eef2ff;
-  color: #1f2937;
+  background: var(--light-blue-bg);
+  color: var(--text-gray-dark);
 }
 
 .bar-btn img {
@@ -32,12 +32,12 @@
 }
 
 .bar-btn.dish {
-  background: #2563eb;
-  color: #fff;
+  background: var(--blue-button);
+  color: var(--white);
 }
 
 .bar-btn.share {
-  background: #f3f4f6;
+  background: var(--gray-150);
 }
 
 
