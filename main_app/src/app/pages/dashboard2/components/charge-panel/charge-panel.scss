@@ -1,7 +1,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.2);
+  background: var(--overlay-light);
   z-index: 70;
 }
 
@@ -12,9 +12,9 @@
   left: 16px;
   max-width: 540px;
   margin: 0 auto;
-  background: #fff;
+  background: var(--white);
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  box-shadow: 0 10px 30px var(--shadow-medium);
   padding: 16px;
   transform: translateY(24px);
   opacity: 0;
@@ -36,7 +36,7 @@
 
 .icon-btn {
   border: none;
-  background: #f3f4f6;
+  background: var(--gray-150);
   border-radius: 10px;
   width: 32px;
   height: 32px;
@@ -51,10 +51,10 @@
   padding: 8px 0;
 }
 .row.total { font-weight: 700; font-size: 16px; }
-.discount { color: #ef4444; }
+.discount { color: var(--badge-red); }
 .discount-tag {
-  background: #eafff0;
-  color: #16a34a;
+  background: var(--success-bg-alt);
+  color: var(--success-green-alt);
   border-radius: 8px;
   padding: 8px 10px;
   margin-top: 6px;
@@ -66,8 +66,8 @@
   height: 48px;
   border-radius: 12px;
   border: none;
-  background: #2563eb;
-  color: #fff;
+  background: var(--blue-button);
+  color: var(--white);
   font-weight: 700;
   cursor: pointer;
 }

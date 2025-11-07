@@ -39,11 +39,11 @@
 }
 
 .order-icon {
-  background: linear-gradient(180deg, #81aafa 0%, #2d71f7 100%);
+  background: var(--primary-blue-icon-gradient);
 }
 
 .report-icon {
-  background: linear-gradient(180deg, #81aafa 0%, #2d71f7 100%);
+  background: var(--primary-blue-icon-gradient);
 }
 
 .icon-circle svg {
@@ -134,21 +134,21 @@
 }
 
 .new-orders-badge {
-  background: linear-gradient(135deg, #5dd4c5 0%, #4ecdc4 100%);
+  background: var(--success-gradient);
   border-radius: 50px;
   padding: 0.8rem 1rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
+  box-shadow: 0 2px 8px var(--success-teal-shadow);
 }
 
 .new-orders-indicator {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
+  background: var(--white);
+  box-shadow: 0 2px 8px var(--success-teal-shadow);
   display: inline-block;
 }
 
@@ -156,7 +156,7 @@
   font-family: "Manrope", sans-serif;
   font-size: 20px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--white);
   line-height: 1;
 }
 
@@ -251,11 +251,11 @@
 }
 
 .report-stat-indicator.earnings {
-  background: #2d71f7;
+  background: var(--primary-blue);
 }
 
 .report-stat-indicator.bills {
-  background: #ffbe4c;
+  background: var(--yellow-chart);
 }
 
 .report-stat-label {
@@ -307,7 +307,7 @@
   font-family: "Manrope", sans-serif;
   font-size: 14px;
   font-weight: 600;
-  color: #2ecc71;
+  color: var(--success-green);
   display: flex;
   align-items: center;
   gap: 0.25rem;

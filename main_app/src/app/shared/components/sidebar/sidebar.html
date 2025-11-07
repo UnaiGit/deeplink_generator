@@ -77,12 +77,20 @@
     @if (navExpanded) {
       <footer class="support-card">
         <div class="card">
-          <div class="icon"><span>☎︎</span></div>
-          <div class="text">
-            <div class="title">{{ 'Support' | translate }}</div>
-            <div class="desc">{{ 'Technical support we are for you' | translate }}</div>
+          <div class="icon">
+            <img src="/icons/call.svg" alt="support" srcset="">
           </div>
-          <div class="arrow">→</div>
+          <div class="text">
+            <div class="title">{{ 'Support' | translate }}
+              <p class="desc">{{ 'Technical support we are for you' | translate }}</p>
+            </div>
+            
+            <div>
+              <div class="arrow">→</div>
+            </div>
+            
+          </div>
+         
         </div>
       </footer>
     }

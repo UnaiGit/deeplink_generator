@@ -25,22 +25,22 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #e0f2fe;
+  background: var(--primary-blue-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.header-icon {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
-}
+// .header-icon {
+//   width: 24px;
+//   height: 24px;
+//   object-fit: contain;
+// }
 
 .table-title {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--text-color-dark);
   margin: 0;
   line-height: 1.2;

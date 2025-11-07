@@ -22,7 +22,7 @@
 }
 
 .discount {
-  color: #ef4444;
+  color: var(--badge-red);
 }
 
 hr {
@@ -34,8 +34,8 @@ hr {
 
 .applied {
   margin-top: 12px;
-  background: #eafff0;
-  color: #16a34a;
+  background: var(--success-bg-alt);
+  color: var(--success-green-alt);
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 13px;

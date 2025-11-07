@@ -25,14 +25,14 @@
   align-items: center; 
   gap: 8px; 
 }
-.price { color: #2563eb; font-weight: 700; }
+.price { color: var(--blue-button); font-weight: 700; }
 
 .qty { 
   display: inline-flex; 
   align-items: center; 
   gap: 0; 
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: var(--white);
+  border: 1px solid var(--border-light-gray);
   padding: 2px;
   border-radius: 999px;
   overflow: hidden;
@@ -55,23 +55,23 @@
 }
 
 .qty-btn.minus {
-  background: #f3f4f6;
+  background: var(--gray-150);
   color: var(--text-color-dark);
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-light-gray);
 }
 
 .qty-btn.minus:hover {
-  background: #e5e7eb;
+  background: var(--border-light-gray);
 }
 
 .qty-btn.plus {
-  background: #1f2937;
-  color: #fff;
-  border: 1px solid #1f2937;
+  background: var(--dark-gray);
+  color: var(--white);
+  border: 1px solid var(--dark-gray);
 }
 
 .qty-btn.plus:hover {
-  background: #111827;
+  background: var(--dark-gray-hover);
 }
 
 .qty span {
@@ -81,7 +81,7 @@
   font-size: 14px;
   color: var(--text-color-dark);
   padding: 0 6px;
-  background: #fff;
+  background: var(--white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,8 +93,8 @@
   height: 32px; 
   border: none; 
   border-radius: 50%; 
-  background: #2563eb; 
-  color: #fff; 
+  background: var(--blue-button); 
+  color: var(--white); 
   font-size: 18px; 
   font-weight: 600;
   cursor: pointer;
@@ -105,7 +105,7 @@
 }
 
 .add:hover {
-  background: #1d4ed8;
+  background: var(--blue-button-hover);
 }
 
 

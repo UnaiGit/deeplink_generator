@@ -46,46 +46,47 @@ export class Sidebar implements OnInit {
   ) {
     // Sidebar items provided by user
     this.sidebarItems = [
-      { href: '', title: 'Home', divider: false },
+      {  title: 'Home', divider: false, disabled: true },
       { href: '/dashboard', title: 'Dashboard', active: false, icon: '/icons/dashboard.svg' },
-      { href: '/dashboard2', title: 'Dashboard2', active: false, icon: '/icons/dashboard.svg' },
-      { href: '/market', title: 'Market', active: false, icon: '/icons/market.svg' },
+      { href: '/dashboard2', title: 'Waiter panel ', active: false, icon: '/icons/dashboard.svg' },
+      { href: '/market', title: 'Market', active: false, icon: '/icons/market.svg', disabled: true },
       { href: '/analytics', title: 'Analytics', active: false, icon: '/icons/analytics.svg' },
-      { href: '/feedback', title: 'Feedback', active: false, icon: '/icons/feedback.svg' },
-      { href: '/reservations', title: 'Reservations', active: false, icon: '/icons/reservation.svg' },
-      { href: '/occupation', title: 'Occupation', active: false, icon: '/icons/occupation.svg' },
-      { href: '', title: 'Orders', divider: false },
+      { href: '/feedback', title: 'Feedback', active: false, icon: '/icons/feedback.svg', disabled: true },
+      { href: '/reservations', title: 'Reservations', active: false, icon: '/icons/reservation.svg', disabled: true },
+      { href: '/occupation', title: 'Occupation', active: false, icon: '/icons/occupation.svg', disabled: true },
+      {  title: 'Orders', divider: false, disabled: true },
       {
         href: '/menu2',
-        title: 'Menu2',
-        active: false,
-        icon: '/icons/menu.svg',
-        subItems: [
-          { href: '/menu2/all', title: 'All', active: false },
-          { href: '/menu2/new', title: 'New', active: false },
-        ],
-      },
-      {
-        href: '/menu',
         title: 'Menu',
         active: false,
         icon: '/icons/menu.svg',
-        subItems: [
-          { href: '/menu/all', title: 'All', active: false },
-          { href: '/menu/new', title: 'New', active: false },
-        ],
+        // subItems: [
+        //   { href: '/menu2/all', title: 'All', active: false },
+        //   { href: '/menu2/new', title: 'New', active: false },
+        // ],
+      },
+      {
+        href: '/menu',
+        title: 'Constructor',
+        active: false,
+        icon: '/icons/menu.svg',
+        // subItems: [
+        //   { href: '/menu/all', title: 'All', active: false },
+        //   { href: '/menu/new', title: 'New', active: false },
+        // ],
       },
       {
         href: '/categories',
         title: 'Categories',
         active: false,
         icon: '/icons/categorey.svg',
+        disabled: true,
         subItems: [
-          { href: '/categories/food', title: 'Food', active: false },
-          { href: '/categories/drinks', title: 'Drinks', active: false },
+          { href: '/categories/food', title: 'Food', active: false, disabled: true },
+          { href: '/categories/drinks', title: 'Drinks', active: false, disabled: true },
         ],
       },
-      { href: '/dishes', title: 'Dishes', active: false, icon: '/icons/dishes.svg' },
+      { href: '/dishes', title: 'Dishes', active: false, icon: '/icons/dishes.svg', disabled: true },
     ];
   }
 

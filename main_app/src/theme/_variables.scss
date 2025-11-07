@@ -5,6 +5,20 @@
 // Light Theme Colors
 :root {
   // Colors
+  
+  --support-card-bg-gradient: linear-gradient(180deg, #578DF9 0%, #2D71F7 100%);
+  --primary-blue-gradient: linear-gradient(180deg, #578DF9 0%, #2D71F7 100%);
+  --primary-blue-gradient-hover: linear-gradient(180deg, #4a7df8 0%, #1f5ef6 100%);
+  --primary-blue-gradient-border: linear-gradient(180deg, #abc6fc 0%, #2d71f7 100%);
+  --primary-blue: #2d71f7;
+  --primary-blue-light: #578df9;
+  --primary-blue-hover: rgba(21, 112, 239, 0.06);
+  --primary-blue-active: rgba(21, 112, 239, 0.12);
+  --primary-blue-shadow: rgba(79, 124, 255, 0.3);
+  --primary-blue-shadow-hover: rgba(79, 124, 255, 0.35);
+  --primary-blue-shadow-strong: rgba(79, 124, 255, 0.4);
+  --primary-blue-hover-dark: #3d6ce8;
+  --primary-blue-icon-gradient: linear-gradient(180deg, #81aafa 0%, #2d71f7 100%);
   --light-teal: #3dc19a;
   --dark-teal: #44a085;
   --dark-blue: #3e71bd;
@@ -18,13 +32,56 @@
   --dark-yellow: #ebb106;
   --deep-yellow: #fec41a;
   --yellow-opaque: rgba(235, 177, 6, 0.14);
+  --yellow-chart: #ffbe4c;
   --slate-gray: #667085;
   --dull-gray: #ffffff80;
   --dark-charcoal: #333843;
   --deep-gray: #393b3d;
   --deep-slate-gray: #323338;
   --red: #dc3545;
+  --badge-red: #ef4444;
+  --error-bg-light: #fee2e2;
+  --error-text-dark: #991b1b;
   --green: #389f6e;
+  --success-green: #2ecc71;
+  --success-bg-light: #ecfdf5;
+  --success-text-dark: #065f46;
+  --success-teal: #40c4aa;
+  --success-teal-light: #5dd4c5;
+  --success-teal-medium: #4ecdc4;
+  --success-teal-shadow: rgba(78, 205, 196, 0.3);
+  --success-gradient: linear-gradient(135deg, #5dd4c5 0%, #4ecdc4 100%);
+  --google-blue: #4285F4;
+  --google-blue-hover: #3574e8;
+  --blue-button: #2563eb;
+  --blue-button-hover: #1d4ed8;
+  --blue-button-shadow: rgba(37, 99, 235, 0.3);
+  --blue-button-gradient: linear-gradient(180deg, #5b8af7 0%, #2a5ff0 100%);
+  --blue-button-gradient-shadow: rgba(42, 95, 240, 0.35);
+  --sky-blue: #0ea5e9;
+  --sky-blue-light-bg: #e0f2fe;
+  --sky-blue-shadow: rgba(14, 165, 233, 0.2);
+  --icon-green: #10b981;
+  --icon-blue: #3b82f6;
+  --icon-orange: #f59e0b;
+  --dark-gray: #1f2937;
+  --dark-gray-hover: #111827;
+  --light-blue-bg: #eef2ff;
+  --success-green-alt: #16a34a;
+  --success-bg-alt: #eafff0;
+  --light-green-dot: #8ff7a5;
+  --dark-gradient: linear-gradient(180deg, #565657 0%, #2C2C2D 100%);
+  --overlay-dark: rgba(0, 0, 0, 0.35);
+  --overlay-light: rgba(0, 0, 0, 0.2);
+  --overlay-very-light: rgba(0, 0, 0, 0.06);
+  --shadow-dark: rgba(0, 0, 0, 0.22);
+  --shadow-medium: rgba(0, 0, 0, 0.12);
+  --shadow-light-overlay: rgba(0, 0, 0, 0.1);
+  --white-overlay: rgba(255, 255, 255, 0.84);
+  --border-light-gray: #e5e7eb;
+  --gray-hover: #d1d5db;
+  --text-gray-dark: #1f2937;
+  --text-gray-medium-alt: #6b7280;
 
   // Theme Colors
   --surface-1: #fafafa;

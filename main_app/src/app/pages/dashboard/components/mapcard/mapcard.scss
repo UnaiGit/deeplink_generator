@@ -41,7 +41,7 @@
 }
 
 .customer-icon {
-  background: #4f7cff;
+  background: var(--primary-blue-light);
 }
 
 .icon-circle svg {
@@ -163,31 +163,31 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: #4f7cff;
+  background: var(--primary-blue-light);
   border: none;
   border-radius: 8px;
-  color: #ffffff !important;
+  color: var(--white) !important;
   font-family: "Manrope", sans-serif;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(79, 124, 255, 0.3);
+  box-shadow: 0 2px 8px var(--primary-blue-shadow);
 
   &:hover {
-    background: #3d6ce8;
+    background: var(--primary-blue-hover-dark);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(79, 124, 255, 0.4);
-    color: #ffffff !important;
+    box-shadow: 0 4px 12px var(--primary-blue-shadow-strong);
+    color: var(--white) !important;
   }
 
   &:active {
     transform: translateY(0);
-    color: #ffffff !important;
+    color: var(--white) !important;
   }
 
   span {
-    color: #ffffff !important;
+    color: var(--white) !important;
   }
 
   svg {
@@ -205,10 +205,10 @@
 // Ensure white text in dark mode
 :host-context([data-theme="dark"]) {
   .discharge-button {
-    color: #ffffff !important;
+    color: var(--white) !important;
 
     span {
-      color: #ffffff !important;
+      color: var(--white) !important;
     }
   }
 }
@@ -256,7 +256,7 @@
   flex: 1;
   border-radius: 8px;
   overflow: hidden;
-  background: #f5f5f5;
+  background: var(--gray-100);
   min-height: 0; // Allows flex item to shrink below content size
 }
 
@@ -270,12 +270,12 @@
 }
 
 .locations-list::-webkit-scrollbar-thumb {
-  background: #cfd0d1;
+  background: var(--gray-400);
   border-radius: 10px;
 }
 
 .locations-list::-webkit-scrollbar-thumb:hover {
-  background: #adb5bd;
+  background: var(--gray-500);
 }
 
 // Responsive design
