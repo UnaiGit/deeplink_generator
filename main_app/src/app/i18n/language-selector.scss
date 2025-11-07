@@ -11,7 +11,7 @@
     background: var(--white);
     color: var(--text-color-dark);
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 8px var(--shadow-very-light);
   }
 
   .chev {
@@ -30,7 +30,7 @@
     border-radius: 16px;
     padding: 10px 10px;
     min-width: 220px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    box-shadow: 0 20px 40px var(--shadow-medium);
 
     li { margin: 0; }
 
@@ -49,11 +49,11 @@
       gap: 12px;
     }
 
-    .dot { width: 14px; height: 14px; background: #2d71f7; border-radius: 50%; display: inline-block; }
+    .dot { width: 14px; height: 14px; background: var(--primary-blue); border-radius: 50%; display: inline-block; }
     .label { font-size: 18px; }
 
-    button:hover { background: rgba(21, 112, 239, 0.06); }
-    button.active { background: rgba(21, 112, 239, 0.12); color: #2d71f7; }
+    button:hover { background: var(--primary-blue-hover); }
+    button.active { background: var(--primary-blue-active); color: var(--primary-blue); }
   }
 
   &.compact .icon-btn {

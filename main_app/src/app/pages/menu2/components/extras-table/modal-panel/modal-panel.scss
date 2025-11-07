@@ -1,7 +1,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--overlay-medium);
   z-index: 1000;
   backdrop-filter: blur(2px);
 }
@@ -14,7 +14,7 @@
   width: 100%;
   max-width: 480px;
   background: var(--white);
-  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.15);
+  box-shadow: -2px 0 12px var(--shadow-light-medium);
   display: flex;
   flex-direction: column;
   z-index: 1001;
@@ -116,8 +116,8 @@
   cursor: pointer;
 
   &.selected {
-    background: #e0f2fe;
-    border: 1px solid #3b82f6;
+    background: var(--blue-light-bg);
+    border: 1px solid var(--icon-blue);
   }
 
   &:hover {
@@ -125,7 +125,7 @@
   }
 
   &.selected:hover {
-    background: #bae6fd;
+    background: var(--blue-light-bg-hover);
   }
 }
 
@@ -211,7 +211,7 @@
   transition: all 0.2s ease;
 
   &:focus {
-    border-color: #4285f4;
+    border-color: var(--google-blue);
     background: var(--white);
   }
 
@@ -241,10 +241,10 @@ select.form-input {
 
 // Price Explanation Box
 .price-explanation-box {
-  background: #fff7ed;
+  background: var(--orange-light-bg);
   border-radius: 8px;
   padding: 16px;
-  border: 1px solid #fed7aa;
+  border: 1px solid var(--orange-light-border);
 }
 
 .price-rules {
@@ -289,8 +289,8 @@ select.form-input {
   }
 
   &.selected {
-    background: #e0f2fe;
-    border-color: #3b82f6;
+    background: var(--blue-light-bg);
+    border-color: var(--icon-blue);
   }
 }
 
@@ -351,11 +351,11 @@ select.form-input {
   }
 
   &.selected {
-    background: #4285f4;
-    border-color: #4285f4;
+    background: var(--google-blue);
+    border-color: var(--google-blue);
 
     .radio-label {
-      color: white;
+      color: var(--text-color-light);
     }
   }
 
@@ -454,15 +454,15 @@ select.form-input {
 .add-subcategory-button {
   width: 100%;
   padding: 14px 24px;
-  background: linear-gradient(180deg, #578df9 0%, #2d71f7 100%);
+  background: var(--primary-blue-gradient);
   border: none;
   border-radius: 50px;
   font-size: 14px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-color-light);
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2), 0px 0px 1px 0px rgba(0, 0, 0, 0.1),
+  box-shadow: 0px 2px 4px var(--shadow-medium), 0px 0px 1px var(--shadow-light-overlay),
     1px 1px 1px 1px var(--Primary100) inset;
   position: relative;
   isolation: isolate;
@@ -472,7 +472,7 @@ select.form-input {
     position: absolute;
     inset: -1.5px;
     border-radius: 50px;
-    background: linear-gradient(180deg, #abc6fc 0%, #2d71f7 100%);
+    background: var(--primary-blue-gradient-border);
     z-index: -1;
   }
 
@@ -481,12 +481,12 @@ select.form-input {
     position: absolute;
     inset: 0;
     border-radius: 50px;
-    background: linear-gradient(180deg, #578df9 0%, #2d71f7 100%);
+    background: var(--primary-blue-gradient);
     z-index: -1;
   }
 
   &:hover {
-    background: linear-gradient(180deg, #4a7df8 0%, #1f5ef6 100%);
+    background: var(--primary-blue-gradient-hover);
     transform: translateY(-1px);
   }
 
@@ -498,15 +498,15 @@ select.form-input {
 .update-button {
   width: 100%;
   padding: 14px 24px;
-  background: linear-gradient(180deg, #578df9 0%, #2d71f7 100%);
+  background: var(--primary-blue-gradient);
   border: none;
   border-radius: 50px;
   font-size: 14px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-color-light);
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2), 0px 0px 1px 0px rgba(0, 0, 0, 0.1),
+  box-shadow: 0px 2px 4px var(--shadow-medium), 0px 0px 1px var(--shadow-light-overlay),
     1px 1px 1px 1px var(--Primary100) inset;
   position: relative;
   isolation: isolate;
@@ -516,7 +516,7 @@ select.form-input {
     position: absolute;
     inset: -1.5px;
     border-radius: 50px;
-    background: linear-gradient(180deg, #abc6fc 0%, #2d71f7 100%);
+    background: var(--primary-blue-gradient-border);
     z-index: -1;
   }
 
@@ -525,12 +525,12 @@ select.form-input {
     position: absolute;
     inset: 0;
     border-radius: 50px;
-    background: linear-gradient(180deg, #578df9 0%, #2d71f7 100%);
+    background: var(--primary-blue-gradient);
     z-index: -1;
   }
 
   &:hover {
-    background: linear-gradient(180deg, #4a7df8 0%, #1f5ef6 100%);
+    background: var(--primary-blue-gradient-hover);
     transform: translateY(-1px);
   }
 
@@ -584,7 +584,7 @@ select.form-input {
   }
 
   &.active {
-    background-color: #4285f4;
+    background-color: var(--google-blue);
 
     &::before {
       transform: translateX(20px);
@@ -595,15 +595,15 @@ select.form-input {
 .save-button {
   width: 100%;
   padding: 14px 24px;
-  background: linear-gradient(180deg, #578df9 0%, #2d71f7 100%);
+  background: var(--primary-blue-gradient);
   border: none;
   border-radius: 50px;
   font-size: 14px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-color-light);
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2), 0px 0px 1px 0px rgba(0, 0, 0, 0.1),
+  box-shadow: 0px 2px 4px var(--shadow-medium), 0px 0px 1px var(--shadow-light-overlay),
     1px 1px 1px 1px var(--Primary100) inset;
   position: relative;
   isolation: isolate;
@@ -613,7 +613,7 @@ select.form-input {
     position: absolute;
     inset: -1.5px;
     border-radius: 50px;
-    background: linear-gradient(180deg, #abc6fc 0%, #2d71f7 100%);
+    background: var(--primary-blue-gradient-border);
     z-index: -1;
   }
 
@@ -622,12 +622,12 @@ select.form-input {
     position: absolute;
     inset: 0;
     border-radius: 50px;
-    background: linear-gradient(180deg, #578df9 0%, #2d71f7 100%);
+    background: var(--primary-blue-gradient);
     z-index: -1;
   }
 
   &:hover {
-    background: linear-gradient(180deg, #4a7df8 0%, #1f5ef6 100%);
+    background: var(--primary-blue-gradient-hover);
     transform: translateY(-1px);
   }
 
@@ -646,7 +646,7 @@ select.form-input {
   max-width: 480px;
   background: var(--white);
   border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 40px var(--shadow-dark);
   display: flex;
   flex-direction: column;
   z-index: 1002;
@@ -691,19 +691,19 @@ select.form-input {
 
 .delete-button {
   padding: 12px 24px;
-  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(180deg, var(--badge-red) 0%, var(--red-dark) 100%);
   border: none;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-color-light);
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 2px 4px var(--red-shadow);
 
   &:hover {
-    background: linear-gradient(180deg, #dc2626 0%, #b91c1c 100%);
-    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
+    background: linear-gradient(180deg, var(--red-dark) 0%, var(--red-darker) 100%);
+    box-shadow: 0 4px 8px var(--red-shadow-hover);
     transform: translateY(-1px);
   }
 

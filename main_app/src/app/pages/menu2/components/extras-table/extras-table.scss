@@ -53,14 +53,14 @@
   justify-content: center;
   gap: 8px;
   padding: 12px 24px;
-  background: linear-gradient(180deg, #578df9 0%, #2d71f7 100%);
+  background: var(--primary-blue-gradient);
   border: none;
   border-radius: 50px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2), 0px 0px 1px 0px rgba(0, 0, 0, 0.1),
+  box-shadow: 0px 2px 4px var(--shadow-medium), 0px 0px 1px var(--shadow-light-overlay),
     1px 1px 1px 1px var(--Primary100) inset;
   white-space: nowrap;
   isolation: isolate;
@@ -70,7 +70,7 @@
     position: absolute;
     inset: -1.5px;
     border-radius: 50px;
-    background: linear-gradient(180deg, #abc6fc 0%, #2d71f7 100%);
+    background: var(--primary-blue-gradient-border);
     z-index: -1;
   }
 
@@ -79,21 +79,21 @@
     position: absolute;
     inset: 0;
     border-radius: 50px;
-    background: linear-gradient(180deg, #578df9 0%, #2d71f7 100%);
+    background: var(--primary-blue-gradient);
     z-index: -1;
   }
 
-  color: #ffffff !important;
+  color: var(--text-color-light) !important;
 
   span,
   .add-icon {
-    color: #ffffff !important;
+    color: var(--text-color-light) !important;
     position: relative;
     z-index: 1;
   }
 
   &:hover {
-    background: linear-gradient(180deg, #4a7df8 0%, #1f5ef6 100%);
+    background: var(--primary-blue-gradient-hover);
     transform: translateY(-1px);
   }
 
@@ -175,7 +175,7 @@
     transition: all 0.2s ease;
 
     &:hover {
-      color: #4285f4;
+      color: var(--google-blue);
       text-decoration: underline;
     }
   }
@@ -290,8 +290,8 @@
   }
 
   &.active {
-    background: #4285f4;
-    border-color: #4285f4;
+    background: var(--google-blue);
+    border-color: var(--google-blue);
     color: var(--white);
   }
 
@@ -337,7 +337,7 @@
   }
 
   &:focus {
-    border-color: #4285f4;
+    border-color: var(--google-blue);
   }
 }
 

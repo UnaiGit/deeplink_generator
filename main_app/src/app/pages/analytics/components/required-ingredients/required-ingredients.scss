@@ -32,7 +32,7 @@
 }
 
 .ingredients-icon {
-  background: #5C85FF;
+  background: var(--blue-alt);
 }
 
 .icon-circle svg {
@@ -82,7 +82,7 @@
   transition: all 0.3s ease;
 
   &:hover {
-    background: #E5E7EB;
+    background: var(--border-light-gray);
   }
 
   svg {
@@ -152,7 +152,7 @@
   font-family: "Manrope", sans-serif;
   font-size: 14px;
   font-weight: 400;
-  color: #6B7280;
+  color: var(--text-gray-medium-alt);
   transition: color 0.3s ease;
 }
 
@@ -160,8 +160,8 @@
   font-family: "Manrope", sans-serif;
   font-size: 12px;
   font-weight: 500;
-  color: #2ecc71;
-  background: rgba(46, 204, 113, 0.15);
+  color: var(--success-green);
+  background: var(--success-green-opaque-15);
   padding: 0.25rem 0.5rem;
   border-radius: 8px;
   white-space: nowrap;

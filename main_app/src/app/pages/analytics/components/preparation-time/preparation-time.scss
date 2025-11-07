@@ -32,7 +32,7 @@
 }
 
 .preparation-icon {
-  background: #2D71F7;
+  background: var(--primary-blue);
 }
 
 .icon-circle svg {
@@ -88,7 +88,7 @@
   font-family: "Manrope", sans-serif;
   font-size: 16px;
   font-weight: 700;
-  color: #6B7280;
+  color: var(--text-gray-medium-alt);
   min-width: 35px;
   transition: color 0.3s ease;
 }
@@ -128,7 +128,7 @@
   font-family: "Manrope", sans-serif;
   font-size: 14px;
   font-weight: 500;
-  color: #6B7280;
+  color: var(--text-gray-medium-alt);
   transition: color 0.3s ease;
 }
 
@@ -142,26 +142,26 @@
   flex-shrink: 0;
 
   &.positive {
-    color: #27ae60;
+    color: var(--success-green-alt-2);
     
     .change-arrow {
-      color: #27ae60;
+      color: var(--success-green-alt-2);
     }
     
     .change-text {
-      color: #27ae60;
+      color: var(--success-green-alt-2);
     }
   }
 
   &.negative {
-    color: #DC3545;
+    color: var(--red);
     
     .change-arrow {
-      color: #DC3545;
+      color: var(--red);
     }
     
     .change-text {
-      color: #DC3545;
+      color: var(--red);
     }
   }
 }
