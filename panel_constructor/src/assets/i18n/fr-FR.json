@@ -1,0 +1,84 @@
+{
+  "notifications": {
+    "title": "Notifications",
+    "mute": "Muet 10m",
+    "reserved": {
+      "title": "Confirmation de réservation",
+      "message": "Table T02 • à 19:00"
+    },
+    "kitchen": {
+      "title": "Alerte cuisine",
+      "message": "Grill +3 commandes"
+    },
+    "payment": {
+      "title": "Paiement",
+      "message": "Table T02 demande l'addition"
+    }
+  },
+  "floors": {
+    "major": "Major",
+    "terrace": "Terrasse",
+    "main": "Principal",
+    "kitchen": "Cuisine"
+  },
+  "status": {
+    "available": "Disponible",
+    "reserved": "Réservé",
+    "occupied": "Occupé",
+    "payment": "Paiement",
+    "unsynced": "NFC non synchronisé"
+  },
+  "floorInfo": {
+    "currentlyViewing": "Affichage actuel",
+    "main": {
+      "message": "Étage principal avec 10 tables et zone bar.",
+      "tables": "Total des tables: 10"
+    },
+    "terrace": {
+      "message": "Terrasse avec sièges en plein air et 6 tables.",
+      "tables": "Total des tables: 6"
+    },
+    "kitchen": {
+      "message": "Étage cuisine réservé au personnel uniquement.",
+      "tables": "Total des tables: 3"
+    },
+    "major": {
+      "message": "Étage Major réservé aux invités VIP.",
+      "tables": "Total des tables: 8"
+    }
+  },
+  "actionCards": {
+    "build": "Construire",
+    "employees": "Employés",
+    "floors": "Étages",
+    "reservations": "Réservations"
+  },
+  "statsCards": {
+    "averageTime": "Temps moyen",
+    "occupation": "Occupation",
+    "deliveries": "Livraisons"
+  },
+  "tableInfo": {
+    "chairs": "Chaises",
+    "occupied": "occupées",
+    "timeSeated": "Temps assis",
+    "limit": "limite",
+    "order": "Commande",
+    "starters": "Entrées",
+    "mains": "Plats principaux",
+    "drinks": "Boissons",
+    "delivered": "Livré",
+    "preparing": "EN PRÉPARATION",
+    "sent": "ENVOYÉ",
+    "pending": "EN ATTENTE",
+    "nextEta": "Prochaine ETA",
+    "readyAtPass": "Prêt au passe",
+    "since": "depuis",
+    "paymentRequested": "Paiement demandé",
+    "ago": "il y a",
+    "notes": "Notes",
+    "server": "Serveur",
+    "runner": "Coureur"
+  }
+}
+

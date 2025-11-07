@@ -1,0 +1,273 @@
+.panel {
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px var(--shadow-color);
+  padding: 1.5rem;
+  transition: background-color 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.icon-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ingredients-icon {
+  background: #5C85FF;
+}
+
+.icon-circle svg {
+  width: 24px;
+  height: 24px;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.panel-title {
+  font-family: "Manrope", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-color-dark);
+  margin: 0;
+  line-height: 1.2;
+  transition: color 0.3s ease;
+}
+
+.panel-subtitle {
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-color-medium);
+  margin: 0;
+  line-height: 1.2;
+  transition: color 0.3s ease;
+}
+
+.period-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  background: var(--search-bg);
+  border: none;
+  border-radius: 20px;
+  color: var(--text-color-dark);
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #E5E7EB;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.ingredients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ingredient-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.ingredient-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.ingredient-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.ingredient-name {
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-color-dark);
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+.ingredient-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+
+.ingredient-stock-text {
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #6B7280;
+  transition: color 0.3s ease;
+}
+
+.ingredient-tag {
+  font-family: "Manrope", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #2ecc71;
+  background: rgba(46, 204, 113, 0.15);
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.ingredient-required {
+  font-family: "Manrope", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-color-dark);
+  flex-shrink: 0;
+  text-align: right;
+  transition: color 0.3s ease;
+}
+
+// Responsive design - Mobile only
+@media (max-width: 767px) {
+  .panel {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .header-left {
+    gap: 0.75rem;
+  }
+
+  .icon-circle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .icon-circle svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .panel-title {
+    font-size: 18px;
+  }
+
+  .panel-subtitle {
+    font-size: 12px;
+  }
+
+  .period-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 12px;
+    width: 100%;
+    justify-content: space-between;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  .ingredients-list {
+    gap: 0.75rem;
+  }
+
+  .ingredient-item {
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    // flex-wrap: wrap;
+  }
+
+  .ingredient-image {
+    width: 50px;
+    height: 50px;
+  }
+
+  .ingredient-details {
+    flex: 1 1 100%;
+    min-width: 0;
+    gap: 0.25rem;
+  }
+
+  .ingredient-name {
+    font-size: 13px;
+  }
+
+  .ingredient-meta {
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  .ingredient-stock-text {
+    font-size: 12px;
+  }
+
+  .ingredient-tag {
+    font-size: 11px;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .ingredient-required {
+    font-size: 16px;
+    text-align: left;
+    margin-top: 0.25rem;
+  }
+}
+

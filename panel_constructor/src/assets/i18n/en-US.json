@@ -1,0 +1,84 @@
+{
+  "notifications": {
+    "title": "Notifications",
+    "mute": "Mute 10m",
+    "reserved": {
+      "title": "Reserved confirmation",
+      "message": "Table T02 • at 19:00"
+    },
+    "kitchen": {
+      "title": "Kitchen alert",
+      "message": "Grill +3 orders"
+    },
+    "payment": {
+      "title": "Payment",
+      "message": "Table T02 request bill"
+    }
+  },
+  "floors": {
+    "major": "Major",
+    "terrace": "Terrace",
+    "main": "Main",
+    "kitchen": "Kitchen"
+  },
+  "status": {
+    "available": "Available",
+    "reserved": "Reserved",
+    "occupied": "Occupied",
+    "payment": "Payment",
+    "unsynced": "Unsynced NFC"
+  },
+  "floorInfo": {
+    "currentlyViewing": "Currently Viewing",
+    "main": {
+      "message": "Main Floor with 10 tables and bar area.",
+      "tables": "Total Tables: 10"
+    },
+    "terrace": {
+      "message": "Terrace with open-air seating and 6 tables.",
+      "tables": "Total Tables: 6"
+    },
+    "kitchen": {
+      "message": "Kitchen floor with staff-only access.",
+      "tables": "Total Tables: 3"
+    },
+    "major": {
+      "message": "Major floor reserved for VIP guests.",
+      "tables": "Total Tables: 8"
+    }
+  },
+  "actionCards": {
+    "build": "Build",
+    "employees": "Employees",
+    "floors": "Floors",
+    "reservations": "Reservations"
+  },
+  "statsCards": {
+    "averageTime": "Average time",
+    "occupation": "Occupation",
+    "deliveries": "Deliveries"
+  },
+  "tableInfo": {
+    "chairs": "Chairs",
+    "occupied": "occupied",
+    "timeSeated": "Time seated",
+    "limit": "limit",
+    "order": "Order",
+    "starters": "Starters",
+    "mains": "Mains",
+    "drinks": "Drinks",
+    "delivered": "Delivered",
+    "preparing": "PREPARING",
+    "sent": "SENT",
+    "pending": "PENDING",
+    "nextEta": "Next ETA",
+    "readyAtPass": "Ready at pass",
+    "since": "since",
+    "paymentRequested": "Payment requested",
+    "ago": "ago",
+    "notes": "Notes",
+    "server": "Server",
+    "runner": "Runner"
+  }
+}
+

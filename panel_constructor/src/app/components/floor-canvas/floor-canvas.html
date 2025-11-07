@@ -1,0 +1,15 @@
+<div class="canvas-container">
+  <canvas #floorCanvas></canvas>
+  <!-- <div class="floor-info">
+    <h3>{{ currentlyViewingLabelKey | translate }}: {{ ('floors.' + floorName()) | translate | titlecase }}</h3>
+    <p>{{ floorData.messageKey | translate }}</p>
+    <p>{{ floorData.tablesLabelKey | translate }}</p>
+  </div> -->
+  <app-table-info
+    [tableLabel]="hoveredTableLabel()"
+    [status]="hoveredTableStatus()"
+    [visible]="isTableHovered()"
+    [x]="tooltipX()"
+    [y]="tooltipY()"
+  />
+</div>

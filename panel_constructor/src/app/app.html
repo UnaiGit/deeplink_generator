@@ -1,0 +1,26 @@
+    <div class="app-container">
+          <div class="main-content">
+
+    <app-floor-tabs
+          [selectedFloor]="selectedFloor()"
+          (floorChange)="onFloorChange($event)"
+        />
+         <app-status-legend />
+<div class="floor-area">
+      <app-floor-canvas [floorName]="selectedFloor()"></app-floor-canvas>
+  </div>
+
+  <div class="footer-cards">
+    <app-action-cards></app-action-cards>
+    <app-stats-cards></app-stats-cards>
+  </div>
+</div>
+
+<div class="notifications-sidebar">
+  <app-notifications 
+    [notifications]="notifications()"
+    (muteClick)="onMuteClick()">
+  </app-notifications>
+</div>
+  
+</div>

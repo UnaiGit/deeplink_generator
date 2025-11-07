@@ -1,0 +1,226 @@
+<div class="page" [ngClass]="{ 'charge-open': showCharge }">
+  <div class="left">
+    <div class="left-header">
+      <div class="header-row">
+        <h2>{{ 'Commands' | translate }}</h2>
+        <div class="date-pill">Friday, 9 Oct 2024 - 09:50</div>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-icon icon-green">
+            <img src="/icons/dollar.png" alt="dollar" />
+          </div>
+          <div class="stat-content">
+            <div class="num">8 {{ 'Clients' | translate }}</div>
+            <div class="lbl">{{ 'Waiting to pay' | translate }}</div>
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-icon icon-blue">
+            <img src="/icons/reservation.svg" alt="booking" />
+          </div>
+          <div class="stat-content">
+            <div class="num">2 {{ 'Clients' | translate }}</div>
+            <div class="lbl">{{ 'Booking' | translate }}</div>
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-icon icon-orange">
+            <img src="/icons/occupation.svg" alt="service" />
+          </div>
+          <div class="stat-content">
+            <div class="num">1 {{ 'Clients' | translate }}</div>
+            <div class="lbl">{{ 'In service' | translate }}</div>
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-icon icon-red">
+            <img src="/icons/danger.svg" alt="not updated" />
+          </div>
+          <div class="stat-content">
+            <div class="num">3 {{ 'Clients' | translate }}</div>
+            <div class="lbl">{{ 'Not updated' | translate }}</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-title">{{ 'Categories' | translate }}</h3>
+      <app-category-filter
+        [categories]="categories"
+        [active]="activeCategory"
+        [totalItems]="getCategoryCount('All')"
+        [categoryCounts]="getAllCategoryCounts()"
+        (changed)="onCategoryChange($event)"></app-category-filter>
+    </div>
+
+    <div class="grid-scroll">
+      <div class="grid">
+        <ng-container *ngFor="let p of products">
+          <app-product-card
+            [title]="p.title"
+            [price]="p.price"
+            [image]="p.image"
+            [currentQty]="getQty(p.id)"
+            (add)="addToCart(p, $event)"
+            (decrease)="decProduct(p)"
+          ></app-product-card>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="right-panel" [class.hidden-desktop]="!showCharge">
+    <div class="panel-top">
+      <div class="panel-header">
+        <div class="bag-icon-wrapper">
+          <img src="/icons/tableicon.svg" alt="bag" class="bag-icon" />
+        </div>
+        <h2 class="table-title">{{ 'Table' | translate }} 21</h2>
+        <button class="panel-close" type="button" (click)="closeChargePanel()">×</button>
+      </div>
+      
+      <div class="tabs-container">
+      
+        <div class="tabs-numbers">
+          <button class="tab-all active">{{ 'All' | translate }}</button>
+          <button class="tab-number">1</button>
+          <button class="tab-number">2</button>
+          <button class="tab-number">3</button>
+          <button class="tab-number">4</button>
+          <button class="tab-number">5</button>
+          <button class="tab-number">6</button>
+          <button class="tab-number">7</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="order-list-scroll">
+      <div class="order-list">
+        <ng-container *ngFor="let item of cart">
+          <app-order-item
+            [title]="item.title"
+            [price]="item.price"
+            [image]="item.image"
+            [quantity]="item.quantity"
+            (increment)="inc(item)"
+            (decrement)="dec(item)"
+            (remove)="remove(item)"
+          ></app-order-item>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="panel-footer">
+      <app-summary-panel
+        [subTotal]="subTotal"
+        [discount]="discount"
+        [tax]="tax"
+        [total]="total"
+      ></app-summary-panel>
+      
+      <button class="charge-btn-main">{{ 'Charge' | translate }}</button>
+    </div>
+  </div>
+</div>
+
+<!-- Fixed bottom bar -->
+<div class="bottom-bar">
+  <button class="bar-btn" (click)="showOrdersModal = true">
+    <img src="/icons/dish.svg" alt="dish" />
+  </button>
+  <button class="bar-btn">
+    <img src="/icons/forward.svg" alt="share" />
+  </button>
+  <button class="bar-btn table-pill" [ngClass]="{ hidden: showChargeModal || showOrdersModal }" (click)="openChargePanel()">
+    <img src="/icons/tableicon.svg" alt="table" />
+    <span class="label">{{ 'Table' | translate }} 21</span>
+  </button>
+  <div class="bar-shadow"></div>
+  
+  <!-- Charge Panel Modal (mobile) -->
+  <div class="charge-modal" *ngIf="showChargeModal">
+    <div class="charge-modal-header">
+      <div class="panel-header">
+        <div class="bag-icon-wrapper">
+          <img src="/icons/tableicon.svg" alt="bag" class="bag-icon" />
+        </div>
+        <h2 class="table-title">{{ 'Table' | translate }} 21</h2>
+        <button class="panel-close" type="button" (click)="closeChargePanel()">×</button>
+      </div>
+      
+      <div class="tabs-container">
+        <div class="tabs-numbers">
+          <button class="tab-all active">{{ 'All' | translate }}</button>
+          <button class="tab-number">1</button>
+          <button class="tab-number">2</button>
+          <button class="tab-number">3</button>
+          <button class="tab-number">4</button>
+          <button class="tab-number">5</button>
+          <button class="tab-number">6</button>
+          <button class="tab-number">7</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="charge-modal-body">
+      <div class="order-list">
+        <ng-container *ngFor="let item of cart">
+          <app-order-item
+            [title]="item.title"
+            [price]="item.price"
+            [image]="item.image"
+            [quantity]="item.quantity"
+            (increment)="inc(item)"
+            (decrement)="dec(item)"
+            (remove)="remove(item)"
+          ></app-order-item>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="charge-modal-footer">
+      <app-summary-panel
+        [subTotal]="subTotal"
+        [discount]="discount"
+        [tax]="tax"
+        [total]="total"
+      ></app-summary-panel>
+      
+      <button class="charge-btn-main">{{ 'Charge' | translate }}</button>
+    </div>
+  </div>
+
+  <!-- Orders modal -->
+  
+  <div class="orders-modal" *ngIf="showOrdersModal">
+    <div class="orders-header">
+      <h3>{{ 'Orders' | translate }}</h3>
+      <div class="header-actions">
+        <button class="delete-all" type="button">
+          <img src="/icons/delete.svg" alt="delete" />
+          <span>{{ 'Delete all' | translate }}</span>
+        </button>
+        <button class="close" (click)="showOrdersModal = false">×</button>
+      </div>
+    </div>
+    <div class="orders-body">
+      <div class="order-list">
+        <ng-container *ngFor="let item of cart">
+          <app-order-item
+            [title]="item.title"
+            [price]="item.price"
+            [image]="item.image"
+            [quantity]="item.quantity"
+            (increment)="inc(item)"
+            (decrement)="dec(item)"
+            (remove)="remove(item)"
+          ></app-order-item>
+        </ng-container>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<!-- Floating table button removed in favor of bottom bar pill -->
+

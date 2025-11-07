@@ -1,0 +1,31 @@
+<div class="overlay" *ngIf="open" (click)="close()"></div>
+<aside class="charge-panel" [class.open]="open" aria-label="Charge Panel">
+  <header class="panel-header">
+    <h3>Summary</h3>
+    <button class="icon-btn" (click)="close()">✕</button>
+  </header>
+
+  <div class="summary-rows">
+    <div class="row">
+      <span>Sub Total</span>
+      <span>{{ subTotal | currency:'USD':'symbol':'1.2-2' }}</span>
+    </div>
+    <div class="row">
+      <span>Discount</span>
+      <span class="discount">- {{ discount | currency:'USD':'symbol':'1.2-2' }}</span>
+    </div>
+    <div class="row">
+      <span>Tax (10%)</span>
+      <span>{{ tax | currency:'USD':'symbol':'1.2-2' }}</span>
+    </div>
+    <hr />
+    <div class="row total">
+      <span>TOTAL</span>
+      <span>{{ total | currency:'USD':'symbol':'1.2-2' }}</span>
+    </div>
+    <div class="discount-tag">Discount Applied</div>
+  </div>
+
+  <button class="charge-btn">Charge</button>
+</aside>
+

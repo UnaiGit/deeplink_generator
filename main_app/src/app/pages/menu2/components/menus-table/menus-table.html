@@ -1,0 +1,51 @@
+<div class="menus-table-container">
+  <!-- Header -->
+  <div class="table-header">
+    <div class="header-left">
+      <div class="icon-circle">
+        <img src="/icons/menu.svg" alt="Menus" class="header-icon" />
+      </div>
+      <h2 class="table-title">Menus</h2>
+    </div>
+    <button class="add-button" type="button" (click)="onAddClick()">
+      <span class="add-icon">+</span>
+      <span>Add</span>
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <table class="menus-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Visibility</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let menu of menus">
+          <td class="category-cell">{{ menu.category }}</td>
+          <td>
+            <label class="toggle-switch">
+              <input
+                type="checkbox"
+                [checked]="menu.visibility"
+                (change)="toggleVisibility(menu)"
+              />
+              <span class="toggle-slider"></span>
+            </label>
+          </td>
+          <td class="actions-cell">
+            <button class="action-button edit-button" (click)="editMenu(menu)" type="button">
+              <img src="/icons/pen.svg" alt="Edit" />
+            </button>
+            <button class="action-button delete-button" (click)="deleteMenu(menu)" type="button">
+              <img src="/icons/delete.svg" alt="Delete" />
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

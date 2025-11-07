@@ -1,0 +1,111 @@
+.card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px var(--shadow-color);
+  padding: 10px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.thumb { position: relative; height: 140px; border-radius: 12px; overflow: hidden; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb .zoom { position: absolute; right: 8px; top: 8px; border: none; background: var(--card-bg); border-radius: 8px; width: 28px; height: 28px; transition: background-color 0.3s ease; }
+
+.title { 
+  font-weight: 700; 
+  margin: 10px 4px; 
+  font-size: 14px;
+  color: var(--text-color-dark);
+  transition: color 0.3s ease;
+}
+
+.footer { 
+  display: grid; 
+  grid-template-columns: 1fr auto; 
+  align-items: center; 
+  gap: 8px; 
+}
+.price { color: #2563eb; font-weight: 700; }
+
+.qty { 
+  display: inline-flex; 
+  align-items: center; 
+  gap: 0; 
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  padding: 2px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.qty-btn {
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.qty-btn.minus {
+  background: #f3f4f6;
+  color: var(--text-color-dark);
+  border: 1px solid #e5e7eb;
+}
+
+.qty-btn.minus:hover {
+  background: #e5e7eb;
+}
+
+.qty-btn.plus {
+  background: #1f2937;
+  color: #fff;
+  border: 1px solid #1f2937;
+}
+
+.qty-btn.plus:hover {
+  background: #111827;
+}
+
+.qty span {
+  min-width: 32px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-color-dark);
+  padding: 0 6px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+}
+
+.add { 
+  width: 32px; 
+  height: 32px; 
+  border: none; 
+  border-radius: 50%; 
+  background: #2563eb; 
+  color: #fff; 
+  font-size: 18px; 
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.add:hover {
+  background: #1d4ed8;
+}
+
+

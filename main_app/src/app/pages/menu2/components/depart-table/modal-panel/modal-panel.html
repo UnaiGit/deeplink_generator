@@ -1,0 +1,130 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onClose()">
+  <!-- Delete Confirmation Modal (Centered) -->
+  <div
+    *ngIf="isDeleteMode()"
+    class="delete-modal-container"
+    [class.open]="isOpen"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div class="modal-header">
+      <h2 class="modal-title">{{ getTitle() }}</h2>
+      <button class="close-button" type="button" (click)="onClose()">×</button>
+    </div>
+
+    <!-- Content -->
+    <div class="modal-content">
+      <p class="delete-message">{{ getDeleteMessage() }}</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer delete-footer">
+      <button class="cancel-button" type="button" (click)="onCancelDelete()">Cancel</button>
+      <button class="delete-button" type="button" (click)="onConfirmDelete()">Delete</button>
+    </div>
+  </div>
+
+  <!-- Add Section Modal (Side Panel) -->
+  <div
+    *ngIf="isAddMode()"
+    class="modal-container"
+    [class.open]="isOpen"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div class="modal-header">
+      <h2 class="modal-title">{{ getTitle() }}</h2>
+      <button class="close-button" type="button" (click)="onCancelAdd()">×</button>
+    </div>
+
+    <!-- Content -->
+    <div class="modal-content">
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <div class="input-wrapper">
+          <div class="input-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M13.5 2H2.5C1.67 2 1 2.67 1 3.5V12.5C1 13.33 1.67 14 2.5 14H13.5C14.33 14 15 13.33 15 12.5V3.5C15 2.67 14.33 2 13.5 2Z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                fill="none"
+              />
+              <path
+                d="M4 6H12M4 9H10"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+          <input
+            type="text"
+            class="form-input"
+            placeholder="Enter section name"
+            [(ngModel)]="newSectionName"
+            (keyup.enter)="onSaveNewSection()"
+            autofocus
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer add-section-footer">
+      <button class="cancel-button" type="button" (click)="onCancelAdd()">Cancel</button>
+      <button class="save-button" type="button" (click)="onSaveNewSection()" [disabled]="!newSectionName.trim()">
+        Save
+      </button>
+    </div>
+  </div>
+
+  <!-- Order of Departure List View (Side Panel) -->
+  <div
+    *ngIf="!isDeleteMode() && !isAddMode()"
+    class="modal-container"
+    [class.open]="isOpen"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="header-left-group">
+        <h2 class="modal-title">{{ getTitle() }}</h2>
+        <button class="add-button" type="button" (click)="onAddSection()">
+          <span class="add-icon">+</span>
+          <span>Add</span>
+        </button>
+      </div>
+      <button class="close-button" type="button" (click)="onClose()">×</button>
+    </div>
+
+    <!-- Sections List Content -->
+    <div class="modal-content sections-list-content">
+      <div *ngFor="let section of sections" class="section-card">
+        <div class="section-header">
+          <h3 class="section-title">{{ getSectionTitle(section) }}</h3>
+          <button class="delete-section-button" type="button" (click)="onDeleteSection(section)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              <line x1="10" y1="11" x2="10" y2="17"/>
+              <line x1="14" y1="11" x2="14" y2="17"/>
+            </svg>
+          </button>
+        </div>
+        <div class="section-items">
+          <div *ngFor="let item of section.items" class="section-item">
+            {{ item }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="update-button" type="button" (click)="onUpdateSections()">
+        Update
+      </button>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,84 @@
+{
+  "notifications": {
+    "title": "Notificaciones",
+    "mute": "Silenciar 10m",
+    "reserved": {
+      "title": "Confirmación de reserva",
+      "message": "Mesa T02 • a las 19:00"
+    },
+    "kitchen": {
+      "title": "Alerta de cocina",
+      "message": "Parrilla +3 pedidos"
+    },
+    "payment": {
+      "title": "Pago",
+      "message": "Mesa T02 solicita factura"
+    }
+  },
+  "floors": {
+    "major": "Major",
+    "terrace": "Terraza",
+    "main": "Principal",
+    "kitchen": "Cocina"
+  },
+  "status": {
+    "available": "Disponible",
+    "reserved": "Reservado",
+    "occupied": "Ocupado",
+    "payment": "Pago",
+    "unsynced": "NFC no sincronizado"
+  },
+  "floorInfo": {
+    "currentlyViewing": "Viendo actualmente",
+    "main": {
+      "message": "Planta principal con 10 mesas y área de bar.",
+      "tables": "Total de mesas: 10"
+    },
+    "terrace": {
+      "message": "Terraza con asientos al aire libre y 6 mesas.",
+      "tables": "Total de mesas: 6"
+    },
+    "kitchen": {
+      "message": "Planta de cocina solo para personal.",
+      "tables": "Total de mesas: 3"
+    },
+    "major": {
+      "message": "Planta Major reservada para invitados VIP.",
+      "tables": "Total de mesas: 8"
+    }
+  },
+  "actionCards": {
+    "build": "Construir",
+    "employees": "Empleados",
+    "floors": "Plantas",
+    "reservations": "Reservas"
+  },
+  "statsCards": {
+    "averageTime": "Tiempo promedio",
+    "occupation": "Ocupación",
+    "deliveries": "Entregas"
+  },
+  "tableInfo": {
+    "chairs": "Sillas",
+    "occupied": "ocupadas",
+    "timeSeated": "Tiempo sentado",
+    "limit": "límite",
+    "order": "Pedido",
+    "starters": "Entrantes",
+    "mains": "Platos principales",
+    "drinks": "Bebidas",
+    "delivered": "Entregado",
+    "preparing": "PREPARANDO",
+    "sent": "ENVIADO",
+    "pending": "PENDIENTE",
+    "nextEta": "Próxima ETA",
+    "readyAtPass": "Listo en el paso",
+    "since": "desde",
+    "paymentRequested": "Pago solicitado",
+    "ago": "hace",
+    "notes": "Notas",
+    "server": "Camarero",
+    "runner": "Corredor"
+  }
+}
+

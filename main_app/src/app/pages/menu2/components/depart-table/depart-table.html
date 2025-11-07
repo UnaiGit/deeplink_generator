@@ -1,0 +1,56 @@
+<div class="depart-table-container">
+  <!-- Header -->
+  <div class="table-header">
+    <div class="header-left">
+      <div class="icon-circle">
+        <img src="/icons/menu.svg" alt="Order of departures" class="header-icon" />
+      </div>
+      <h2 class="table-title">Order of departures</h2>
+    </div>
+    <button class="add-button" type="button" (click)="onAddClick()">
+      <span class="add-icon">+</span>
+      <span>Add</span>
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <table class="depart-table">
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let departure of departures">
+          <td class="order-cell">{{ departure.order }}</td>
+          <td class="name-cell">{{ departure.name }}</td>
+          <td class="actions-cell">
+            <button class="action-button edit-button" (click)="editDeparture(departure)" type="button">
+              <img src="/icons/pen.svg" alt="Edit" />
+            </button>
+            <button class="action-button delete-button" (click)="deleteDeparture(departure)" type="button">
+              <img src="/icons/delete.svg" alt="Delete" />
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal Panel (only for departure table) -->
+  <app-depart-modal-panel
+    [isOpen]="modalOpen"
+    [sections]="sections"
+    [mode]="modalMode"
+    [selectedSection]="selectedSection"
+    (close)="onModalClose()"
+    (addSection)="onAddSection($event)"
+    (deleteSection)="onDeleteSection($event)"
+    (updateSections)="onUpdateSections($event)"
+    (confirmDelete)="onConfirmDeleteSection($event)"
+    (cancelDelete)="onCancelDeleteSection()"
+  ></app-depart-modal-panel>
+</div>

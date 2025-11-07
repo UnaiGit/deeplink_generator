@@ -1,0 +1,90 @@
+<nav [class.pb]="navExpanded" [class.squeeze]="!navExpanded">
+    <span (click)="toggleSidebar()" [ngClass]="{ open: navExpanded }" class="toggle-icon">
+      <img src="/icons/toggle.svg" alt="menu" />
+    </span>
+    <span class="close-mobile" (click)="shellService.closeMobileSidebar()">×</span>
+  
+    <div class="logo-container" routerLink="/">
+      <img alt="Logo" class="logo" src="/images/logo.png.png" />
+      <h4>Exylon</h4>
+    </div>
+  
+    <div class="navbar-menu-items" dir="auto">
+      @for (item of sidebarItems; track item; let i = $index) {
+        @if (shellService.allowedAccess(item)) {
+          <div class="menu">
+            @if (!item.divider) {
+              <a (click)="activateSidebarItem(i)" [routerLink]="item.href || undefined" routerLinkActive="active" [ngClass]="{ disabled: item.disabled }" class="menu-item" id="menu-item-{{ i }}">
+                <div class="item">
+                  @if (item.icon) {
+                    @if (item.icon !== 'dot') {
+                      <span
+                        class="menu-icon"
+                        [ngClass]="{ muted: !item.active }"
+                        [ngStyle]="{
+                          '-webkit-mask-image': 'url(' + item.icon + ')',
+                          'mask-image': 'url(' + item.icon + ')',
+                        }"
+                      ></span>
+                    } @else {
+                      @if (item.active) {
+                        <i class="dot"></i>
+                      } @else {
+                        <i class="dot muted"></i>
+                      }
+                    }
+                  }
+                  <span>{{ item.title | translate }}</span>
+                </div>
+                @if (item.subItems && item.subItems.length) {
+                  <span [ngClass]="{ open: sidebarExtendedItem === i }" class="submenu-icon">
+                    <span
+                      class="chev-icon"
+                      [ngClass]="{ muted: !(item.subItems && item.subItems.length && item.active) }"
+                      [ngStyle]="{
+                        '-webkit-mask-image': 'url(/icons/chevron-down.svg)',
+                        'mask-image': 'url(/icons/chevron-down.svg)',
+                      }"
+                    ></span>
+                  </span>
+                }
+              </a>
+              @if (item.subItems && item.subItems.length) {
+                <ul [style.display]="sidebarExtendedItem === i ? 'block' : 'none'" class="sub-menu-items">
+                  @for (subItem of item.subItems; track subItem) {
+                    @if (shellService.allowedAccess(subItem)) {
+                      <li [class.disabled]="subItem.disabled">
+                        <a (click)="activateSidebarSubItem(i, subItem)" [ngClass]="{ disabled: subItem.disabled }" [routerLink]="subItem.href || undefined" routerLinkActive="active">
+                          <!-- TODO This below i tag is temporary for demo purposes replace with proper icon passed in submenu item -->
+                          <i class="mini-dot"></i>
+                          <span>{{ subItem.title | translate }}</span>
+                        </a>
+                      </li>
+                    }
+                  }
+                </ul>
+              }
+            } @else {
+              @if (item.title) {
+                <span class="section-title">{{ item.title | translate }}</span>
+              }
+              <span class="divider"></span>
+            }
+          </div>
+        }
+      }
+    </div>
+    @if (navExpanded) {
+      <footer class="support-card">
+        <div class="card">
+          <div class="icon"><span>☎︎</span></div>
+          <div class="text">
+            <div class="title">{{ 'Support' | translate }}</div>
+            <div class="desc">{{ 'Technical support we are for you' | translate }}</div>
+          </div>
+          <div class="arrow">→</div>
+        </div>
+      </footer>
+    }
+  </nav>
+  

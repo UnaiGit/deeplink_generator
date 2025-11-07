@@ -1,0 +1,131 @@
+<div class="cat-table-container">
+  <!-- Header -->
+  <div class="table-header">
+    <div class="header-left">
+      <div class="icon-circle">
+        <img src="/icons/categorey.svg" alt="Categories" class="header-icon" />
+      </div>
+      <h2 class="table-title">Categories</h2>
+    </div>
+    <button class="add-button" type="button" (click)="openCategoriesList()">
+      <span class="add-icon">+</span>
+      <span>Add</span>
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <table class="categories-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Items numb</th>
+          <th>Price</th>
+          <th>Available</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let category of categories">
+          <td class="name-cell">{{ category.name }}</td>
+          <td class="items-cell">{{ category.itemsNumber }}</td>
+          <td class="price-cell">${{ category.price.toFixed(2) }}</td>
+          <td>
+            <label class="toggle-switch">
+              <input
+                type="checkbox"
+                [checked]="category.available"
+                (change)="toggleAvailable(category)"
+              />
+              <span class="toggle-slider"></span>
+            </label>
+          </td>
+          <td class="actions-cell">
+            <button class="action-button" type="button" (click)="editCategory(category)">
+              <span class="ellipsis-vertical">⋮</span>
+            </button>
+            <button class="action-button star-button" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#fbbf24" stroke="none">
+                <path
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                />
+              </svg>
+            </button>
+            <button class="action-button" type="button" (click)="deleteCategory(category)">
+              <span class="ellipsis-horizontal">⋯</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination">
+    <div class="pagination-controls">
+      <button
+        class="pagination-button"
+        [class.disabled]="currentPage === 1"
+        (click)="goToPage(currentPage - 1)"
+        type="button"
+      >
+        <img src="/icons/arrow.svg" alt="Previous" class="arrow-left" />
+      </button>
+
+      <div class="page-numbers">
+        <button
+          *ngFor="let page of pages"
+          class="page-number"
+          [class.active]="page === currentPage"
+          [class.ellipsis]="page === -1"
+          (click)="page !== -1 && goToPage(page)"
+          [disabled]="page === -1"
+          type="button"
+        >
+          {{ page === -1 ? '...' : page }}
+        </button>
+      </div>
+
+      <button
+        class="pagination-button"
+        [class.disabled]="currentPage === totalPages"
+        (click)="goToPage(currentPage + 1)"
+        type="button"
+      >
+        <img src="/icons/arrow.svg" alt="Next" class="arrow-right" />
+      </button>
+    </div>
+
+    <div class="pagination-info">
+      <span class="show-text">show</span>
+      <select
+        class="items-per-page-select"
+        [value]="itemsPerPage"
+        (change)="changeItemsPerPage(+$any($event.target).value)"
+      >
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+      <span class="from-text">from {{ totalItems }}</span>
+    </div>
+  </div>
+
+  <!-- Modal Panel (only for category table) -->
+  <app-modal-panel
+    [isOpen]="modalOpen"
+    [context]="'category'"
+    [mode]="modalMode"
+    [data]="selectedCategory"
+    [categories]="categories"
+    [showCategoriesList]="showCategoriesList"
+    (close)="onModalClose()"
+    (save)="onModalSave($event)"
+    (delete)="onModalDelete($event)"
+    (openAdd)="openAddFromList()"
+    (editCategory)="editCategoryFromList($event)"
+    (deleteCategory)="deleteCategoryFromList($event)"
+    (updateCategories)="onUpdateCategories()"
+  ></app-modal-panel>
+</div>

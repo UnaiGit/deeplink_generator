@@ -1,0 +1,9 @@
+<div class="summary">
+  <div class="row"><span>{{ 'Sub Total' | translate }}</span><span>{{ subTotal | currency:'USD':'symbol':'1.2-2' }}</span></div>
+  <div class="row"><span>{{ 'Discount' | translate }}</span><span class="discount">- {{ discount | currency:'USD':'symbol':'1.2-2' }}</span></div>
+  <div class="row"><span>{{ 'Tax (10%)' | translate }}</span><span>{{ tax | currency:'USD':'symbol':'1.2-2' }}</span></div>
+  <hr />
+  <div class="row total"><span>{{ 'TOTAL' | translate }}</span><span>{{ total | currency:'USD':'symbol':'1.2-2' }}</span></div>
+  <div class="applied">{{ 'Discount Applied' | translate }}</div>
+</div>
+

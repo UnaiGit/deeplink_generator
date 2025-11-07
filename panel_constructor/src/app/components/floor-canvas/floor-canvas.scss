@@ -1,0 +1,241 @@
+.canvas-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: var(--canvas-bg);
+  border-radius: 16px;
+  overflow: visible; // Changed to visible so tooltip can show outside
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: grab;
+  
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.floor-info {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  background: var(--floor-info-bg);
+  padding: 20px 24px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px var(--shadow-color);
+  border: 1px solid var(--floor-info-border);
+  min-width: 280px;
+  
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-color-dark);
+  }
+  
+  p {
+    margin: 4px 0;
+    font-size: 14px;
+    color: var(--text-color-medium);
+    line-height: 1.5;
+  }
+}
+
+.table {
+  position: absolute;
+  border: 2px solid #333;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  user-select: none;
+  background: #e9eef5;
+
+  .status-pill {
+    position: absolute;
+    top: -12px;
+    left: 12px;
+    height: 28px;
+    min-width: 56px;
+    padding: 0 10px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #111827;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+
+    .pill-label { letter-spacing: 0.4px; }
+  }
+
+  .table-surface {
+    width: calc(100% - 48px);
+    height: calc(100% - 28px);
+    border-radius: 12px;
+    background: #f3f5f9;
+    box-shadow: inset 0 0 0 8px rgba(255,255,255,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .status-icon { font-size: 18px; opacity: 0.9; }
+
+  .seats {
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    span {
+      display: block;
+      width: 14px;
+      height: 24px;
+      background: #e3e8ef;
+      border-radius: 8px;
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
+    }
+  }
+
+  .seats-left { left: 8px; }
+  .seats-right { right: 8px; }
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+  }
+
+  &.edit-mode {
+    cursor: move;
+    
+    &:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+  }
+
+  &.dragging {
+    cursor: grabbing;
+    opacity: 0.8;
+    z-index: 100;
+    transform: scale(1.1);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  .table-icon {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+  }
+
+  .table-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #333;
+  }
+}
+
+/* Map status to pill colors similar to legend */
+.table--reserved .status-pill { background: #dbeafe; color: #1e3a8a; }
+.table--available .status-pill { background: #d1fae5; color: #065f46; }
+.table--no-order .status-pill { background: #fef3c7; color: #92400e; }
+.table--occupied .status-pill { background: #fee2e2; color: #991b1b; }
+.table--payment .status-pill { background: #ffedd5; color: #9a3412; }
+.table--unsynced .status-pill { background: #e5e7eb; color: #374151; }
+
+.table--available {
+  background-color: #10b981; // Green
+  border-color: #059669;
+  color: white;
+
+  .table-label {
+    color: white;
+  }
+}
+
+.table--occupied {
+  background-color: #ef4444; // Red
+  border-color: #dc2626;
+  color: white;
+
+  .table-label {
+    color: white;
+  }
+}
+
+.table--reserved {
+  background-color: #fbbf24; // Yellow
+  border-color: #f59e0b;
+  color: #111827;
+
+  .table-label {
+    color: #111827;
+  }
+}
+
+.table--payment {
+  background-color: #f97316; // Orange
+  border-color: #ea580c;
+  color: white;
+
+  .table-label {
+    color: white;
+  }
+}
+
+.table--unsynced {
+  background-color: #6b7280; // Grey
+  border-color: #4b5563;
+  color: white;
+
+  .table-label {
+    color: white;
+  }
+}
+
+.table--no-order {
+  background-color: #fbbf24; // Yellow (fallback)
+  border-color: #f59e0b;
+  color: #111827;
+
+  .table-label {
+    color: #111827;
+  }
+}
+
+.nfc-badge,
+.department-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.department-badge {
+  top: auto;
+  bottom: 4px;
+}
+  

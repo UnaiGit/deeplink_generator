@@ -1,0 +1,75 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.2);
+  z-index: 70;
+}
+
+.charge-panel {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  max-width: 540px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  padding: 16px;
+  transform: translateY(24px);
+  opacity: 0;
+  transition: all .2s ease;
+  z-index: 80;
+}
+
+.charge-panel.open {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.icon-btn {
+  border: none;
+  background: #f3f4f6;
+  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+.summary-rows { font-size: 14px; }
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+.row.total { font-weight: 700; font-size: 16px; }
+.discount { color: #ef4444; }
+.discount-tag {
+  background: #eafff0;
+  color: #16a34a;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 6px;
+}
+
+.charge-btn {
+  width: 100%;
+  margin-top: 12px;
+  height: 48px;
+  border-radius: 12px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+

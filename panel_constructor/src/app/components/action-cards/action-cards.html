@@ -1,0 +1,15 @@
+<div class="action-cards">
+  @for (card of cards; track card.id) {
+    <app-base-card class="action-card" variant="default" padding="small" [clickable]="true">
+      <div class="card-icon" [style.background-color]="card.iconColor">
+        <img [src]="card.icon" 
+             [alt]="card.translationKey | translate" 
+             class="icon-image" 
+             loading="lazy"
+             (error)="$event.target.style.display='none'" />
+      </div>
+      <div class="card-label">{{ card.translationKey | translate }}</div>
+    </app-base-card>
+  }
+</div>
+

@@ -1,0 +1,17 @@
+<div class="card">
+  <div class="thumb">
+    <img [src]="image || '/images/placeholder.png'" [alt]="title" />
+    <button class="zoom" type="button">⤢</button>
+  </div>
+  <div class="title">{{ title }}</div>
+  <div class="footer">
+    <div class="price">{{ price | currency:'USD':'symbol':'1.2-2' }}</div>
+    <div class="qty" *ngIf="isAdded">
+      <button class="qty-btn minus" (click)="dec()">−</button>
+      <span>{{ quantity }}</span>
+      <button class="qty-btn plus" (click)="inc()">+</button>
+    </div>
+    <button class="add" *ngIf="!isAdded" (click)="onAdd()">+</button>
+  </div>
+</div>
+

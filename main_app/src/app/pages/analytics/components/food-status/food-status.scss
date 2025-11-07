@@ -1,0 +1,113 @@
+.panel {
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px var(--shadow-color);
+  padding: 1.5rem;
+  transition: background-color 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.icon-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.food-status-icon {
+  background: #5C85FF;
+}
+
+.icon-circle svg {
+  width: 24px;
+  height: 24px;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.panel-title {
+  font-family: "Manrope", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-color-dark);
+  margin: 0;
+  line-height: 1.2;
+  transition: color 0.3s ease;
+}
+
+.panel-subtitle {
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-color-medium);
+  margin: 0;
+  line-height: 1.2;
+  transition: color 0.3s ease;
+}
+
+.stacked-bar-chart-wrapper {
+  margin-top: 1rem;
+}
+
+// Responsive design - Mobile only
+@media (max-width: 767px) {
+  .panel {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .header-left {
+    gap: 0.75rem;
+  }
+
+  .icon-circle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .icon-circle svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .panel-title {
+    font-size: 18px;
+  }
+
+  .panel-subtitle {
+    font-size: 12px;
+  }
+
+  .stacked-bar-chart-wrapper {
+    margin-top: 0.75rem;
+  }
+}
+

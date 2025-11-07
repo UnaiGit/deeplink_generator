@@ -1,0 +1,24 @@
+<div class="topcards-grid">
+    <div class="card" *ngFor="let c of cards">
+      <div class="card-top">
+        <div class="icon" [ngStyle]="{ background: c.iconBg }">
+          <img [src]="c.iconSrc" alt="" />
+        </div>
+        <div class="card-content">
+          <div class="title">{{ c.titleKey | translate }}</div>
+          <div class="value-row">
+            <div class="value">{{ c.value }}</div>
+            <div class="unit" *ngIf="c.unitKey">{{ c.unitKey | translate }}</div>
+          </div>
+        </div>
+      </div>
+  
+      <div class="divider"></div>
+  
+      <div class="bottom-row">
+        <div class="note">{{ c.leftNotePrefix }} {{ c.leftNoteSuffixKey | translate }}</div>
+        <div class="delta" [ngClass]="c.rightTone">{{ c.rightDelta }}</div>
+      </div>
+    </div>
+  </div>
+  

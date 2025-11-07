@@ -1,0 +1,33 @@
+<div class="notifications-container">
+  <div class="notifications-header">
+    <div class="header-left">
+      <img [src]="bellIcon" 
+           alt="bell" 
+           class="bell-icon"
+           (error)="$event.target.style.display='none'" />
+      <h2 class="header-title">{{ 'notifications.title' | translate }}</h2>
+    </div>
+    <button class="mute-button" (click)="onMuteClick()">
+      <img [src]="refreshIcon" 
+           alt="refresh" 
+           class="mute-icon"
+           (error)="$event.target.style.display='none'" />
+      <span>{{ 'notifications.mute' | translate }}</span>
+    </button>
+  </div>
+  <div class="notifications-list">
+    @for (notification of notifications(); track notification.id) {
+      <div class="notification-card" [style.background-color]="getNotificationConfig(notification.type).backgroundColor">
+        <img [src]="getNotificationConfig(notification.type).icon" 
+             [alt]="notification.type" 
+             class="notification-icon"
+             (error)="$event.target.style.display='none'" />
+        <div class="notification-content">
+          <h3 class="notification-title">{{ ('notifications.' + notification.type + '.title') | translate }}</h3>
+          <p class="notification-message">{{ ('notifications.' + notification.type + '.message') | translate }}</p>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+

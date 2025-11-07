@@ -1,0 +1,45 @@
+<div class="panel popular-orders-panel">
+  <div class="panel-header">
+    <div class="header-left">
+      <div class="icon-circle orders-icon">
+        <img src="/icons/teacup.svg" alt="Popular Orders Icon" />
+      </div>
+      <div class="header-text">
+        <h3 class="panel-title">{{ 'Popular Orders' | translate }}</h3>
+        <p class="panel-subtitle">{{ 'Most requested food dishes' | translate }}</p>
+      </div>
+    </div>
+    <button class="period-button" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="15" width="4" height="6" rx="1" fill="#6B7280" />
+        <rect x="9" y="12" width="4" height="9" rx="1" fill="#6B7280" />
+        <rect x="15" y="9" width="4" height="12" rx="1" fill="#6B7280" />
+      </svg>
+      <span>{{ selectedSort }}</span>
+      <img class="chevron" src="/icons/chevron-down.svg" alt="" />
+    </button>
+  </div>
+
+  <div class="orders-list">
+    <div class="order-item" *ngFor="let order of popularOrders">
+      <div class="order-rank">#{{ order.rank }}</div>
+      <div class="order-image">
+        <img [src]="order.image" [alt]="order.name" />
+      </div>
+      <div class="order-details">
+        <div class="order-name">{{ order.name }}</div>
+        <div class="order-meta">
+          <span class="order-price">{{ order.price }}</span>
+          <span class="order-tag">{{ order.tag }}</span>
+        </div>
+      </div>
+      <div class="order-sales">
+        <div class="sales-count">{{ order.salesCount }}</div>
+        <div class="sales-change">
+          <span class="change-arrow">↑</span>
+          <span class="change-text">Sales {{ order.salesChange }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

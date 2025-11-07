@@ -1,0 +1,43 @@
+.menu2-container {
+  padding: 24px;
+  background: var(--surface-1);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.menu2-header {
+  background: var(--gray-100);
+  padding: 10px 24px;
+  border-radius: 8px;
+}
+
+.header-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-color-dark);
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+
+.header-subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-color-medium);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.tables-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1200px) {
+  .tables-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

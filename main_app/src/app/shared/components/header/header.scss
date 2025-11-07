@@ -1,0 +1,223 @@
+nav {
+  position: relative;
+  background-color: var(--header-bg);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background-color 0.3s ease;
+}
+
+.icon {
+  width: 22px;
+  height: 22px;
+  display: block;
+  transition: filter 0.3s ease;
+}
+
+.left {
+  flex: 1 1 auto;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.search {
+  width: 360px;
+  background: var(--search-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 28px;
+  height: 46px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 6px var(--shadow-color);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
+
+  .icon {
+    opacity: 0.7;
+  }
+
+  img.icon {
+    filter: var(--icon-filter, none);
+  }
+
+  input {
+    flex: 1 1 auto;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 15px;
+    color: var(--text-color-dark);
+  }
+
+  .kbd {
+    height: 28px;
+    width: 28px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color-medium);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease;
+  }
+  .kbd img.icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+.search-icon img.icon {
+  width: 14px;
+  height: 14px;
+}
+
+.date {
+  color: var(--text-color-medium);
+  font-weight: 500;
+}
+
+.btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: none;
+  display: grid;
+  place-items: center;
+  background: var(--search-bg);
+  box-shadow: 0 2px 6px var(--shadow-color);
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &.primary {
+    background: #4f7cff;
+    box-shadow: 0 8px 18px rgba(79, 124, 255, 0.35);
+    .icon {
+      filter: brightness(0) invert(1);
+    }
+  }
+
+  &.ghost {
+    background: var(--card-bg);
+
+    img.icon {
+      filter: var(--icon-filter, none);
+    }
+  }
+
+  &.theme-toggle {
+    .theme-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-color-dark);
+
+      svg {
+        transition: transform 0.3s ease;
+      }
+    }
+
+    &:hover .theme-icon svg {
+      transform: rotate(20deg);
+    }
+  }
+
+  &.badge {
+    position: relative;
+    .count {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: #ef4444;
+      color: #fff;
+      font-size: 11px;
+      border-radius: 999px;
+      width: 18px;
+      height: 18px;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+  }
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    object-fit: cover;
+  }
+  .name {
+    font-weight: 600;
+    color: var(--text-color-dark);
+  }
+  .chev {
+    color: var(--text-color-medium);
+  }
+}
+
+/* Hamburger (mobile) */
+.hamburger {
+  display: none;
+  margin-right: 10px;
+}
+.hamburger .hamburger-bars,
+.hamburger .hamburger-bars::before,
+.hamburger .hamburger-bars::after {
+  content: "";
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--text-color-dark);
+  border-radius: 2px;
+}
+.hamburger .hamburger-bars::before { transform: translateY(-6px); }
+.hamburger .hamburger-bars::after { transform: translateY(4px); }
+
+@media (max-width: 1340px) {
+  .hamburger { display: inline-grid; }
+  .search { display: none; }
+  nav { padding: 12px 14px; }
+  .right { gap: 10px; }
+  .date { display: none; }
+  app-language-selector { display: none; }
+  /* Hide messages button (3rd .btn in the right group) */
+  .right .btn:nth-of-type(3) { display: none; }
+  /* Hide profile name text */
+  .profile .name { display: none; }
+}
+
+// Dark mode icon adjustments
+:host-context([data-theme="dark"]) {
+  .search img.icon,
+  .kbd img.icon,
+  .btn.ghost img.icon {
+    filter: brightness(0) invert(1);
+  }
+
+  .btn.primary img.icon {
+    // Already inverted, no change needed
+    filter: brightness(0) invert(1);
+  }
+}

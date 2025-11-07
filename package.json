@@ -1,0 +1,22 @@
+{
+  "name": "exylon-microfrontends",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "main_app",
+    "panel_constructor"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "start:main": "npm run start --workspace=main_app",
+    "start:panel": "npm run start --workspace=panel_constructor",
+    "start:both": "npm-run-all --parallel start:main start:panel",
+    "build:main": "npm run build --workspace=main_app",
+    "build:panel": "npm run build --workspace=panel_constructor",
+    "build:all": "npm-run-all --parallel build:main build:panel"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}
+

@@ -1,0 +1,53 @@
+.stats-cards {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  padding: 0;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.stats-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.stat-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: block;
+  object-fit: contain;
+  color: var(--text-color-dark);
+  margin-left: 0; // Override base-card centering for row layout
+  margin-right: 0; // Override base-card centering for row layout
+  // SVG icons loaded as images inherit color from CSS
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-color-medium);
+  line-height: 1.4;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-color-dark);
+  line-height: 1.2;
+}
+

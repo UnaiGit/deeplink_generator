@@ -1,0 +1,47 @@
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-weight: 500;
+  color: white;
+  white-space: nowrap;
+  
+  // Size variants
+  &.size-small {
+    padding: 2px 8px;
+    font-size: 10px;
+  }
+  
+  &.size-medium {
+    padding: 4px 12px;
+    font-size: 12px;
+  }
+  
+  &.size-large {
+    padding: 6px 16px;
+    font-size: 14px;
+  }
+  
+  // Status color variants
+  &.status-occupied {
+    background-color: #f87171; // Light red/pink
+  }
+  
+  &.status-reserved {
+    background-color: #fbbf24; // Yellow/orange
+  }
+  
+  &.status-payment {
+    background-color: #3b82f6; // Blue
+  }
+  
+  &.status-available {
+    background-color: #10b981; // Green
+  }
+  
+  &.status-unsynced {
+    background-color: #6b7280; // Grey
+  }
+}
+

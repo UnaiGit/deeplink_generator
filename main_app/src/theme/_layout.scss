@@ -1,0 +1,107 @@
+/*
+ *  Contains styles specific to the overall app layout and components like headers and footers
+ */
+
+.shell.layout-wrapper {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+
+  aside {
+    position: relative;
+  }
+
+  /* Ensure sidebar (aside.side-nav) is positioned correctly at the app level */
+  aside.side-nav {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 248px; /* matches sidebar component default */
+    z-index: 300; /* above overlays and content */
+    transition: width 0.2s ease-in-out;
+  }
+
+  main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    /* Offset main content to sit beside fixed sidebar */
+    margin-left: 248px;
+    transition: margin-left 0.2s ease-in-out;
+
+    header.main-header {
+      -webkit-box-shadow: 0 1px 5px -3px rgba(173, 171, 173, 0.5);
+      -moz-box-shadow: 0 1px 5px -3px rgba(173, 171, 173, 0.5);
+      box-shadow: 0 1px 5px -3px rgba(173, 171, 173, 0.5);
+      z-index: 30;
+    }
+
+    .content {
+      flex: 1;
+      overflow: auto;
+      z-index: 20;
+    }
+
+    /* Previous .side-nav rules were scoped under main which doesn't match DOM structure */
+  }
+
+  /* When sidebar is collapsed */
+  &.sidebar-collapsed {
+    aside.side-nav {
+      width: 80px; /* matches sidebar squeeze width */
+    }
+
+    main {
+      margin-left: 80px; /* adjust main content margin to match collapsed sidebar */
+    }
+  }
+
+  /* Mobile/off-canvas behavior */
+  @media (max-width: 1340px) {
+    aside.side-nav {
+      width: 248px;
+      transform: translateX(-100%);
+      transition: transform 0.25s ease-in-out;
+    }
+
+    main {
+      margin-left: 0; /* content takes full width */
+    }
+
+    /* Ensure collapsed variant does not leave space */
+    &.sidebar-collapsed {
+      main { margin-left: 0; }
+      aside.side-nav { width: 248px; }
+    }
+
+    &.mobile-open {
+      aside.side-nav {
+        transform: translateX(0);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      }
+
+      /* click on overlay area should feel like modal, handled by overlay class */
+    }
+  }
+
+  &.overlay {
+    /* visual handled by real backdrop element */
+  }
+}
+
+.main-container {
+  padding: 24px;
+  background: var(--surface-1);
+}
+
+/* Clickable backdrop for mobile sidebar */
+.overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(57, 59, 61, 0.4);
+  z-index: 200;
+}

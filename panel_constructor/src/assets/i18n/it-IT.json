@@ -1,0 +1,84 @@
+{
+  "notifications": {
+    "title": "Notifiche",
+    "mute": "Silenzia 10m",
+    "reserved": {
+      "title": "Conferma prenotazione",
+      "message": "Tavolo T02 • alle 19:00"
+    },
+    "kitchen": {
+      "title": "Allerta cucina",
+      "message": "Griglia +3 ordini"
+    },
+    "payment": {
+      "title": "Pagamento",
+      "message": "Tavolo T02 richiede conto"
+    }
+  },
+  "floors": {
+    "major": "Major",
+    "terrace": "Terrazza",
+    "main": "Principale",
+    "kitchen": "Cucina"
+  },
+  "status": {
+    "available": "Disponibile",
+    "reserved": "Prenotato",
+    "occupied": "Occupato",
+    "payment": "Pagamento",
+    "unsynced": "NFC non sincronizzato"
+  },
+  "floorInfo": {
+    "currentlyViewing": "Visualizzazione attuale",
+    "main": {
+      "message": "Piano principale con 10 tavoli e area bar.",
+      "tables": "Totale tavoli: 10"
+    },
+    "terrace": {
+      "message": "Terrazza con posti a sedere all'aperto e 6 tavoli.",
+      "tables": "Totale tavoli: 6"
+    },
+    "kitchen": {
+      "message": "Piano cucina riservato al solo personale.",
+      "tables": "Totale tavoli: 3"
+    },
+    "major": {
+      "message": "Piano Major riservato agli ospiti VIP.",
+      "tables": "Totale tavoli: 8"
+    }
+  },
+  "actionCards": {
+    "build": "Costruisci",
+    "employees": "Dipendenti",
+    "floors": "Piani",
+    "reservations": "Prenotazioni"
+  },
+  "statsCards": {
+    "averageTime": "Tempo medio",
+    "occupation": "Occupazione",
+    "deliveries": "Consegne"
+  },
+  "tableInfo": {
+    "chairs": "Sedie",
+    "occupied": "occupate",
+    "timeSeated": "Tempo seduto",
+    "limit": "limite",
+    "order": "Ordine",
+    "starters": "Antipasti",
+    "mains": "Piatti principali",
+    "drinks": "Bevande",
+    "delivered": "Consegnato",
+    "preparing": "IN PREPARAZIONE",
+    "sent": "INVIATO",
+    "pending": "IN ATTESA",
+    "nextEta": "Prossima ETA",
+    "readyAtPass": "Pronto al passaggio",
+    "since": "da",
+    "paymentRequested": "Pagamento richiesto",
+    "ago": "fa",
+    "notes": "Note",
+    "server": "Cameriere",
+    "runner": "Corriere"
+  }
+}
+

@@ -1,0 +1,15 @@
+<div class="stats-cards">
+  @for (stat of stats; track stat.id) {
+    <app-base-card class="stats-card" variant="default" padding="small">
+      <img [src]="stat.icon" 
+           [alt]="stat.translationKey | translate" 
+           class="stat-icon"
+           (error)="$event.target.style.display='none'" />
+      <div class="stat-content">
+        <div class="stat-label">{{ stat.translationKey | translate }}</div>
+        <div class="stat-value">{{ stat.value }}</div>
+      </div>
+    </app-base-card>
+  }
+</div>
+

@@ -1,0 +1,86 @@
+<div class="reportcard-container">
+  <!-- Left Panel: Occupation Chart -->
+  <div class="panel occupation-panel">
+    <div class="panel-header">
+      <div class="header-left">
+        <div class="icon-circle occupation-icon">
+          <img src="/icons/graph.svg" alt="Occupation" width="24" height="24" />
+        </div>
+        <div class="header-text">
+          <h3 class="panel-title">{{ 'Occupation' | translate }}</h3>
+          <p class="panel-subtitle">{{ 'Customer density' | translate }}</p>
+        </div>
+      </div>
+      <div class="period-toggle">
+        <button 
+          class="period-button" 
+          [class.active]="selectedPeriod === 'Daily'"
+          (click)="selectPeriod('Daily')"
+          type="button">
+          {{ 'Daily' | translate }}
+        </button>
+        <button 
+          class="period-button" 
+          [class.active]="selectedPeriod === 'Monthly'"
+          (click)="selectPeriod('Monthly')"
+          type="button">
+          {{ 'Monthly' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <div class="bar-chart-wrapper" #chartContainer>
+      <apx-chart
+        #barChart
+        [series]="barChartOptions.series"
+        [chart]="barChartOptions.chart"
+        [xaxis]="barChartOptions.xaxis"
+        [yaxis]="barChartOptions.yaxis"
+        [grid]="barChartOptions.grid"
+        [plotOptions]="barChartOptions.plotOptions"
+        [fill]="barChartOptions.fill"
+        [dataLabels]="barChartOptions.dataLabels"
+        [colors]="barChartOptions.colors"
+      ></apx-chart>
+    </div>
+  </div>
+
+  <!-- Right Panel: Reports List -->
+  <div class="panel reports-panel">
+    <div class="panel-header">
+      <div class="header-left">
+        <div class="icon-circle reports-icon">
+            <img src="/icons/danger.svg" alt="Reports" width="24" height="24" />
+        </div>
+        <div class="header-text">
+          <h3 class="panel-title">{{ 'Reports' | translate }}</h3>
+          <p class="panel-subtitle">{{ 'Summary of the week' | translate }}</p>
+        </div>
+      </div>
+      <button class="download-button" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="7 10 12 15 17 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="12" y1="15" x2="12" y2="3" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="reports-list">
+      @for (report of reports; track report.id) {
+        <div class="report-item">
+          <img [src]="report.thumbnail" [alt]="report.description" class="report-thumbnail" />
+          <div class="report-content">
+            <p class="report-description">{{ report.description | translate }}</p>
+            <span 
+              class="report-category" 
+              [style.background-color]="report.categoryBgColor"
+              [style.color]="report.categoryColor">
+              {{ report.category | translate }}
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

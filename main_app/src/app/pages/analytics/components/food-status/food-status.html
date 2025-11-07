@@ -1,0 +1,33 @@
+<div class="panel food-status-panel">
+  <div class="panel-header">
+    <div class="header-left">
+      <div class="icon-circle food-status-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="9" stroke="white" stroke-width="2" />
+          <circle cx="12" cy="12" r="5" fill="white" />
+          <path d="M12 3c-1.5 0-3 0.5-3 2M12 21c-1.5 0-3-0.5-3-2M3 12c0-1.5 0.5-3 2-3M21 12c0-1.5-0.5-3-2-3" stroke="white" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+      </div>
+      <div class="header-text">
+        <h3 class="panel-title">{{ 'Food Status' | translate }}</h3>
+        <p class="panel-subtitle">{{ 'Expiration Status and Availability of Ingredients' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="stacked-bar-chart-wrapper">
+    <apx-chart
+      #stackedBarChart
+      [series]="stackedBarChartOptions.series"
+      [chart]="stackedBarChartOptions.chart"
+      [xaxis]="stackedBarChartOptions.xaxis"
+      [yaxis]="stackedBarChartOptions.yaxis"
+      [grid]="stackedBarChartOptions.grid"
+      [dataLabels]="stackedBarChartOptions.dataLabels"
+      [fill]="stackedBarChartOptions.fill"
+      [plotOptions]="stackedBarChartOptions.plotOptions"
+      [colors]="stackedBarChartOptions.colors"
+    ></apx-chart>
+  </div>
+</div>
+

@@ -1,0 +1,84 @@
+{
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "mute": "10 Min stumm",
+    "reserved": {
+      "title": "Reservierungsbestätigung",
+      "message": "Tisch T02 • um 19:00"
+    },
+    "kitchen": {
+      "title": "Küchenalarm",
+      "message": "Grill +3 Bestellungen"
+    },
+    "payment": {
+      "title": "Zahlung",
+      "message": "Tisch T02 fordert Rechnung"
+    }
+  },
+  "floors": {
+    "major": "Major",
+    "terrace": "Terrasse",
+    "main": "Haupt",
+    "kitchen": "Küche"
+  },
+  "status": {
+    "available": "Verfügbar",
+    "reserved": "Reserviert",
+    "occupied": "Besetzt",
+    "payment": "Zahlung",
+    "unsynced": "Nicht synchronisiert NFC"
+  },
+  "floorInfo": {
+    "currentlyViewing": "Aktuell anzeigen",
+    "main": {
+      "message": "Hauptgeschoss mit 10 Tischen und Barbereich.",
+      "tables": "Gesamttische: 10"
+    },
+    "terrace": {
+      "message": "Terrasse mit Freiluftsitzplätzen und 6 Tischen.",
+      "tables": "Gesamttische: 6"
+    },
+    "kitchen": {
+      "message": "Küchengeschoss nur für Personal.",
+      "tables": "Gesamttische: 3"
+    },
+    "major": {
+      "message": "Major-Geschoss für VIP-Gäste reserviert.",
+      "tables": "Gesamttische: 8"
+    }
+  },
+  "actionCards": {
+    "build": "Erstellen",
+    "employees": "Mitarbeiter",
+    "floors": "Etagen",
+    "reservations": "Reservierungen"
+  },
+  "statsCards": {
+    "averageTime": "Durchschnittliche Zeit",
+    "occupation": "Belegung",
+    "deliveries": "Lieferungen"
+  },
+  "tableInfo": {
+    "chairs": "Stühle",
+    "occupied": "besetzt",
+    "timeSeated": "Sitzzeit",
+    "limit": "Limit",
+    "order": "Bestellung",
+    "starters": "Vorspeisen",
+    "mains": "Hauptgerichte",
+    "drinks": "Getränke",
+    "delivered": "Geliefert",
+    "preparing": "WIRD ZUBEREITET",
+    "sent": "GESENDET",
+    "pending": "AUSSTEHEND",
+    "nextEta": "Nächste ETA",
+    "readyAtPass": "Bereit am Pass",
+    "since": "seit",
+    "paymentRequested": "Zahlung angefordert",
+    "ago": "vor",
+    "notes": "Notizen",
+    "server": "Kellner",
+    "runner": "Läufer"
+  }
+}
+

@@ -1,0 +1,12 @@
+<span class="status-pill" 
+      [class.status-occupied]="status() === 'occupied'"
+      [class.status-reserved]="status() === 'reserved'"
+      [class.status-payment]="status() === 'payment'"
+      [class.status-available]="status() === 'available'"
+      [class.status-unsynced]="status() === 'unsynced'"
+      [class.size-small]="size() === 'small'"
+      [class.size-medium]="size() === 'medium'"
+      [class.size-large]="size() === 'large'">
+  {{ 'status.' + status() | translate }}
+</span>
+
