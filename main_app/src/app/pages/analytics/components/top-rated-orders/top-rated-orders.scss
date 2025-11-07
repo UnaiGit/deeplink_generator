@@ -35,7 +35,7 @@
 }
 
 .top-rated-icon {
-  background: linear-gradient(180deg, #81aafa 0%, #2d71f7 100%);
+  background: var(--primary-blue-icon-gradient);
 }
 
 .icon-circle svg {
@@ -179,8 +179,8 @@
   font-family: "Manrope", sans-serif;
   font-size: 12px;
   font-weight: 500;
-  color: #2ecc71;
-  background: rgba(46, 204, 113, 0.1);
+  color: var(--success-green);
+  background: var(--success-green-opaque-10);
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
   white-space: nowrap;
@@ -209,7 +209,7 @@
   font-family: "Manrope", sans-serif;
   font-size: 12px;
   font-weight: 600;
-  color: #2ecc71;
+  color: var(--success-green);
 }
 
 .change-arrow {
@@ -304,7 +304,7 @@
 }
 
 .stars {
-  color: #ffbe4c;
+  color: var(--yellow-chart);
   font-size: 16px;
 }
 
@@ -334,9 +334,9 @@
   font-family: "Manrope", sans-serif;
   font-size: 14px;
   font-weight: 600;
-  color: #27ae60;
-  background: rgba(46, 204, 113, 0.15);
-  border: 1px solid rgba(46, 204, 113, 0.2);
+  color: var(--success-green-alt-2);
+  background: var(--success-green-opaque-15);
+  border: 1px solid var(--success-green-opaque-20);
   border-radius: 8px;
   padding: 0.5rem 1rem;
   cursor: pointer;
@@ -353,7 +353,7 @@
   }
 
   &:hover {
-    background: rgba(46, 204, 113, 0.25);
+    background: var(--success-green-opaque-25);
     transform: translateY(-1px);
   }
 }

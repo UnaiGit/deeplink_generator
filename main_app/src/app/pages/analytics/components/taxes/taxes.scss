@@ -32,7 +32,7 @@
 }
 
 .taxes-icon {
-  background: linear-gradient(180deg, #81aafa 0%, #2d71f7 100%);
+  background: var(--primary-blue-icon-gradient);
 }
 
 .icon-circle svg {
@@ -119,11 +119,11 @@
 }
 
 .taxes-stat-indicator.benefit {
-  background: #2ecc71;
+  background: var(--success-green);
 }
 
 .taxes-stat-indicator.tribute {
-  background: #dc3545;
+  background: var(--red);
 }
 
 .taxes-stat-content {
@@ -180,7 +180,7 @@
   font-family: "Manrope", sans-serif;
   font-size: 14px;
   font-weight: 600;
-  color: #2ecc71;
+  color: var(--success-green);
   display: flex;
   align-items: center;
   gap: 0.25rem;
