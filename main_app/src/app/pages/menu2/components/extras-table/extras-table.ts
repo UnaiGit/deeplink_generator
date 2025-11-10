@@ -1,17 +1,16 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { Observable, of, delay } from 'rxjs';
-import { ExtrasModalPanel, ModalMode } from './modal-panel/modal-panel';
+import { ExtrasModalPanel } from './modal-panel/modal-panel';
+import { Extra } from '@/types/interfaces/menu2/extra.interface';
+import { ModalMode } from '@/types/menu2/modes.type';
 
-export interface Extra {
-  id: number;
-  name: string;
-  defaultExtras: string[];
-}
+export { }
 
 @Component({
   selector: 'app-extras-table',
-  imports: [CommonModule, ExtrasModalPanel],
+  imports: [CommonModule, TranslateModule, ExtrasModalPanel],
   templateUrl: './extras-table.html',
   styleUrl: './extras-table.scss',
 })

@@ -5,27 +5,11 @@ import { ThemeService } from '../../../../shared/services/theme';
 import {
   ChartComponent as ApexChartComponent,
   ApexChart,
-  ApexAxisChartSeries,
-  ApexXAxis,
-  ApexYAxis,
-  ApexGrid,
   ApexMarkers,
-  ApexTooltip,
   ApexStroke,
   NgApexchartsModule,
 } from 'ng-apexcharts';
-
-export type LineChartOptions = {
-  series: ApexAxisChartSeries;
-  chart: ApexChart;
-  xaxis: ApexXAxis;
-  yaxis: ApexYAxis;
-  grid: ApexGrid;
-  markers: ApexMarkers;
-  tooltip: ApexTooltip;
-  colors: string[];
-  stroke: ApexStroke;
-};
+import { LineChartOptions } from '@/types/analytics/line-chart-options.type';
 
 @Component({
   selector: 'app-premises-occupancy',

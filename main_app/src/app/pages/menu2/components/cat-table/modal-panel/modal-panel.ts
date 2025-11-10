@@ -2,8 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-export type ModalContext = 'dish' | 'category' | 'extra' | 'departure' | 'menu';
-export type ModalMode = 'add' | 'edit' | 'delete';
+import { ModalContext, ModalMode } from '@/types/menu2/modes.type';
 
 @Component({
   selector: 'app-modal-panel',

@@ -2,13 +2,10 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-export interface DepartureSection {
-  id: number;
-  order: string;
-  items: string[];
-}
+import { DepartureSection } from '@/types/interfaces/menu2/modals';
 
-export type DepartureModalMode = 'list' | 'delete-section' | 'add-section';
+import { DepartureModalMode } from '@/types/menu2/modes.type';
+export type { DepartureModalMode };
 
 @Component({
   selector: 'app-depart-modal-panel',

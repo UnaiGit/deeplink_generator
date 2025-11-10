@@ -5,11 +5,11 @@
       <div class="icon-circle">
         <img src="/icons/tuning.svg" alt="Menus" class="header-icon" />
       </div>
-      <h2 class="table-title">Menus</h2>
+      <h2 class="table-title">{{ 'Menus' | translate }}</h2>
     </div>
     <button class="add-button" type="button" (click)="onAddClick()">
       <span class="add-icon">+</span>
-      <span>Add</span>
+      <span>{{ 'Add' | translate }}</span>
     </button>
   </div>
 
@@ -18,9 +18,9 @@
     <table class="menus-table">
       <thead>
         <tr>
-          <th>Category</th>
-          <th>Visibility</th>
-          <th>Actions</th>
+          <th>{{ 'Category' | translate }}</th>
+          <th>{{ 'Visibility' | translate }}</th>
+          <th>{{ 'Actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -48,4 +48,14 @@
       </tbody>
     </table>
   </div>
+
+  <!-- Menu Modal -->
+  <app-menu-modal
+    [isOpen]="isModalOpen"
+    [mode]="modalMode"
+    [data]="selectedMenu"
+    (close)="closeModal()"
+    (save)="saveMenu($event)"
+    (delete)="confirmDeleteMenu($event)"
+  ></app-menu-modal>
 </div>

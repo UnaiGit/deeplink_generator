@@ -5,11 +5,11 @@
       <div class="icon-circle">
         <img src="/icons/caticon.svg" alt="Categories" class="header-icon" />
       </div>
-      <h2 class="table-title">Categories</h2>
+      <h2 class="table-title">{{ 'Categories' | translate }}</h2>
     </div>
     <button class="add-button" type="button" (click)="openCategoriesList()">
       <span class="add-icon">+</span>
-      <span>Add</span>
+      <span>{{ 'Add' | translate }}</span>
     </button>
   </div>
 
@@ -18,11 +18,11 @@
     <table class="categories-table">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Items numb</th>
-          <th>Price</th>
-          <th>Available</th>
-          <th>Actions</th>
+          <th>{{ 'Name' | translate }}</th>
+          <th>{{ 'Items' | translate }}</th>
+          <th>{{ 'Price' | translate }}</th>
+          <th>{{ 'Available' | translate }}</th>
+          <th>{{ 'Actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -97,7 +97,7 @@
     </div>
 
     <div class="pagination-info">
-      <span class="show-text">show</span>
+      <span class="show-text">{{ 'show' | translate }}</span>
       <select
         class="items-per-page-select"
         [value]="itemsPerPage"
@@ -108,7 +108,7 @@
         <option value="50">50</option>
         <option value="100">100</option>
       </select>
-      <span class="from-text">from {{ totalItems }}</span>
+      <span class="from-text">{{ 'from' | translate }} {{ totalItems }}</span>
     </div>
   </div>
 

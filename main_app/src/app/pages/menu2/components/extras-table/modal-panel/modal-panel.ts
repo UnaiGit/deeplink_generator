@@ -2,22 +2,9 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-export type ModalMode = 'add' | 'edit' | 'delete';
+import { ModalMode } from '@/types/menu2/modes.type';
 
-export interface Allergen {
-  id: string;
-  name: string;
-  icon: string;
-  color: string;
-  selected: boolean;
-}
-
-export interface Ingredient {
-  id: string;
-  name: string;
-  quantity: number;
-  uom: string;
-}
+import { Allergen, Ingredient } from '@/types/interfaces/menu2/modals';
 
 @Component({
   selector: 'app-extras-modal-panel',

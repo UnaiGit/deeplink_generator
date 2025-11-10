@@ -1,14 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-
-interface PreparationDish {
-  rank: number;
-  image: string;
-  name: string;
-  price: string;
-  timeChange: string;
-}
+import { PreparationDish } from '@/types/interfaces/analytics/preparation-dish.interface';
 
 @Component({
   selector: 'app-preparation-time',

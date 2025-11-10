@@ -86,7 +86,7 @@ export class Sidebar implements OnInit {
           { href: '/categories/drinks', title: 'Drinks', active: false, disabled: true },
         ],
       },
-      { href: '/dishes', title: 'Dishes', active: false, icon: '/icons/dishes.svg', disabled: true },
+      { href: '/dishes', title: 'Dishes', active: false, icon: '/icons/dishes.svg', disabled: false },
     ];
   }
 

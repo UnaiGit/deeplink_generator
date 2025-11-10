@@ -5,27 +5,9 @@ import { ThemeService } from '../../../../shared/services/theme';
 import {
   ChartComponent as ApexChartComponent,
   ApexChart,
-  ApexAxisChartSeries,
-  ApexXAxis,
-  ApexYAxis,
-  ApexGrid,
-  ApexDataLabels,
-  ApexFill,
-  ApexPlotOptions,
   NgApexchartsModule,
 } from 'ng-apexcharts';
-
-export type StackedBarChartOptions = {
-  series: ApexAxisChartSeries;
-  chart: ApexChart;
-  xaxis: ApexXAxis;
-  yaxis: ApexYAxis;
-  grid: ApexGrid;
-  dataLabels: ApexDataLabels;
-  fill: ApexFill;
-  plotOptions: ApexPlotOptions;
-  colors: string[];
-};
+import { StackedBarChartOptions } from '@/types/analytics/stacked-bar-chart-options.type';
 
 @Component({
   selector: 'app-food-status',

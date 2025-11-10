@@ -5,29 +5,12 @@ import { ThemeService } from '../../../../shared/services/theme';
 import {
   ChartComponent as ApexChartComponent,
   ApexChart,
-  ApexAxisChartSeries,
-  ApexXAxis,
-  ApexYAxis,
-  ApexGrid,
   ApexMarkers,
-  ApexTooltip,
   ApexFill,
   ApexStroke,
   NgApexchartsModule,
 } from 'ng-apexcharts';
-
-export type LineChartOptions = {
-  series: ApexAxisChartSeries;
-  chart: ApexChart;
-  xaxis: ApexXAxis;
-  yaxis: ApexYAxis;
-  grid: ApexGrid;
-  markers: ApexMarkers;
-  tooltip: ApexTooltip;
-  fill: ApexFill;
-  colors: string[];
-  stroke: ApexStroke;
-};
+import { LineChartOptions } from '@/types/analytics/line-chart-options.type';
 
 @Component({
   selector: 'app-gensales',

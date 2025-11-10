@@ -1,15 +1,7 @@
 import { Component } from '@angular/core';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { TranslateModule } from '@ngx-translate/core';
-
-interface Location {
-  id: number;
-  address: string;
-  customerCount: number;
-  pinColor: string;
-  lat: number;
-  lng: number;
-}
+import { Location } from '@/types/interfaces/dashboard/location.interface';
 
 @Component({
   selector: 'app-mapcard',
