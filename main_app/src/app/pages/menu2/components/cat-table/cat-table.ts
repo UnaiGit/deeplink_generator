@@ -1,19 +1,16 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { Observable, of, delay } from 'rxjs';
-import { ModalPanel, ModalMode } from './modal-panel/modal-panel';
+import { ModalPanel } from './modal-panel/modal-panel';
+import { Category } from '@/types/interfaces/menu2/category.interface';
+import { ModalMode } from '@/types/menu2/modes.type';
 
-export interface Category {
-  id: number;
-  name: string;
-  itemsNumber: number;
-  price: number;
-  available: boolean;
-}
+export { }
 
 @Component({
   selector: 'app-cat-table',
-  imports: [CommonModule, ModalPanel],
+  imports: [CommonModule, TranslateModule, ModalPanel],
   templateUrl: './cat-table.html',
   styleUrl: './cat-table.scss',
 })

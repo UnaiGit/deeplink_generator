@@ -1,17 +1,16 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { Observable, of, delay } from 'rxjs';
-import { DepartModalPanel, DepartureSection } from './modal-panel/modal-panel';
+import { DepartModalPanel } from './modal-panel/modal-panel';
+import { DepartureSection } from '@/types/interfaces/menu2/modals';
+import { Departure } from '@/types/interfaces/menu2/departure.interface';
 
-export interface Departure {
-  id: number;
-  order: string;
-  name: string;
-}
+export { }
 
 @Component({
   selector: 'app-depart-table',
-  imports: [CommonModule, DepartModalPanel],
+  imports: [CommonModule, TranslateModule, DepartModalPanel],
   templateUrl: './depart-table.html',
   styleUrl: './depart-table.scss',
 })

@@ -7,6 +7,9 @@ import { ProductCardComponent } from './components/product-card/product-card';
 import { CategoryFilterComponent } from './components/category-filter/category-filter';
 import { OrderItemComponent } from './components/order-item/order-item';
 import { SummaryPanelComponent } from './components/summary-panel/summary-panel';
+import { Product } from '@/types/interfaces/dashboard2/product.interface';
+import { CartItem } from '@/types/interfaces/dashboard2/cart-item.interface';
+import { CategoryCounts } from '@/types/dashboard2/category-counts.type';
 
 @Component({
   selector: 'app-dashboard2',
@@ -26,7 +29,7 @@ export class Dashboard2 implements OnInit, OnDestroy {
   categories = ['Foods', 'Desserts', 'Drinks'];
   activeCategory = 'All';
 
-  allProducts = [
+  allProducts: Product[] = [
     // Foods - 3 items
     { id: 1, title: 'Spaghetti in Meat Sauce', price: 5.76, image: '/images/food2.png', category: 'Foods' },
     { id: 2, title: 'Grilled Chicken Breast', price: 8.50, image: '/images/food.png', category: 'Foods' },
@@ -47,7 +50,7 @@ export class Dashboard2 implements OnInit, OnDestroy {
     return this.allProducts.filter(p => p.category === this.activeCategory);
   }
 
-  cart: { id: number | string; title: string; price: number; image: string; quantity: number }[] = [];
+  cart: CartItem[] = [];
   private unsubscribe?: () => void;
 
   showCharge = false;
@@ -65,15 +68,15 @@ export class Dashboard2 implements OnInit, OnDestroy {
     return this.allProducts.filter(p => p.category === category).length;
   }
 
-  getAllCategoryCounts(): { [key: string]: number } {
-    const counts: { [key: string]: number } = {};
+  getAllCategoryCounts(): CategoryCounts {
+    const counts: CategoryCounts = {};
     this.categories.forEach(cat => {
       counts[cat] = this.getCategoryCount(cat);
     });
     return counts;
   }
 
-  addToCart(p: { id: number | string; title: string; price: number; image: string }, qty: number) {
+  addToCart(p: Product, qty: number) {
     if (qty <= 0) {
       store.dispatch(removeCart({ id: p.id }));
       return;

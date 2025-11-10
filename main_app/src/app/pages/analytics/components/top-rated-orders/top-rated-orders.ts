@@ -1,19 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-
-interface TopRatedOrder {
-  rank: number;
-  image: string;
-  name: string;
-  price: string;
-  tag: string;
-  salesCount: number;
-  salesChange: string;
-  rating?: number;
-  reviews?: number;
-  likes?: string;
-}
+import { TopRatedOrder } from '@/types/interfaces/analytics/top-rated-order.interface';
 
 @Component({
   selector: 'app-top-rated-orders',

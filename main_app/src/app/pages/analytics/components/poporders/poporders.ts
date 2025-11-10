@@ -1,16 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-
-interface PopularOrder {
-  rank: number;
-  image: string;
-  name: string;
-  price: string;
-  tag: string;
-  salesCount: number;
-  salesChange: string;
-}
+import { PopularOrder } from '@/types/interfaces/analytics/popular-order.interface';
 
 @Component({
   selector: 'app-poporders',

@@ -1,0 +1,89 @@
+<div class="pastry-kitchen">
+  <div class="kitchen-header">
+    <div class="kitchen-title-section">
+      <div class="kitchen-icon">
+        <img src="/icons/donut.svg" alt="" srcset="">
+      </div>
+      <div class="kitchen-info">
+        <div class="kitchen-name-row">
+          <h3 class="kitchen-name">{{ kitchenName | translate }}</h3>
+          <span class="capacity-badge">{{ 'Capacity' | translate }}: {{ capacity }}</span>
+        </div>
+        <p class="kitchen-staff">{{ 'Staff' | translate }} : {{ staff }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="kitchen-columns">
+    @for (column of columns; track column.id) {
+      <div class="kitchen-column">
+        <div class="column-header">
+          <div class="column-title">
+          <img src="{{ column.icon }}" alt="{{ column.label | translate }}" class="column-icon">
+
+            <span class="column-label">{{ column.label | translate }}</span>
+          </div>
+          <span class="column-count">{{ column.count }}</span>
+        </div>
+
+        <div class="column-content">
+          @for (item of column.items; track item.id) {
+            <div class="order-card">
+              <div class="order-header">
+                <h4 class="dish-name">{{ item.dishName | translate }}</h4>
+                <div class="estimated-time">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                  </svg>
+                  <span>{{ 'Est' | translate }}. {{ item.estimatedTime }}</span>
+                </div>
+              </div>
+
+              <div class="order-meta">
+                <span class="table-number">{{ 'Table' | translate }} {{ item.table }}</span>
+                <span class="priority-badge">{{ 'Priority' | translate }} {{ item.priority }}</span>
+              </div>
+
+              @if (item.note) {
+                <div class="order-note">
+                  {{ 'Note' | translate }} : {{ item.note }}
+                </div>
+              }
+
+              <div class="order-actions">
+                <button class="btn-cancel" (click)="onCancel(column.id, item.id)" [attr.aria-label]="'Cancel' | translate">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                  </svg>
+                </button>
+                <button class="btn-remake" (click)="onRemake(column.id, item.id)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 4v6h6M23 20v-6h-6"/>
+                    <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/>
+                  </svg>
+                  {{ 'Remake' | translate }}
+                </button>
+                @if (column.id === 'ready') {
+                  <button class="btn-picked" (click)="onPicked(column.id, item.id)">
+                    <span>{{ 'Picked' | translate }}</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M5 12l5 5L20 7"/>
+                    </svg>
+                  </button>
+                } @else {
+                  <button class="btn-next" (click)="onNext(column.id, item.id)">
+                    {{ 'Next' | translate }}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

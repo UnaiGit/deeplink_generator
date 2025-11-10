@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { CategoryCounts } from '@/types/dashboard2/category-counts.type';
 
 @Component({
   selector: 'app-category-filter',
@@ -13,7 +14,7 @@ export class CategoryFilterComponent {
   @Input() categories: string[] = [];
   @Input() totalItems = 0;
   @Input() active = 'All';
-  @Input() categoryCounts: { [key: string]: number } = {};
+  @Input() categoryCounts: CategoryCounts = {};
   @Output() changed = new EventEmitter<string>();
 
   select(c: string) {

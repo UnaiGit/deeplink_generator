@@ -5,11 +5,11 @@
       <div class="icon-circle">
         <img src="/icons/tea.svg" alt="Dishes" class="header-icon" />
       </div>
-      <h2 class="table-title">Dishes</h2>
+      <h2 class="table-title">{{ 'Dishes' | translate }}</h2>
     </div>
     <button class="add-button" type="button" (click)="onAddClick()">
       <span class="add-icon">+</span>
-      <span>Add</span>
+      <span>{{ 'Add' | translate }}</span>
     </button>
   </div>
 
@@ -18,12 +18,12 @@
     <table class="dishes-table">
       <thead>
         <tr>
-          <th>Product Name</th>
-          <th>Category</th>
-          <th>Extras</th>
-          <th>Price</th>
-          <th>Available</th>
-          <th>Actions</th>
+          <th>{{ 'Product Name' | translate }}</th>
+          <th>{{ 'Category' | translate }}</th>
+          <th>{{ 'Extras' | translate }}</th>
+          <th>{{ 'Price' | translate }}</th>
+          <th>{{ 'Available' | translate }}</th>
+          <th>{{ 'Actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -103,7 +103,7 @@
     </div>
 
     <div class="pagination-info">
-      <span class="show-text">show</span>
+      <span class="show-text">{{ 'show' | translate }}</span>
       <select
         class="items-per-page-select"
         [value]="itemsPerPage"
@@ -114,7 +114,18 @@
         <option value="50">50</option>
         <option value="100">100</option>
       </select>
-      <span class="from-text">from {{ totalItems }}</span>
+      <span class="from-text">{{ 'from' | translate }} {{ totalItems }}</span>
     </div>
   </div>
 </div>
+
+<!-- Modal Panel -->
+<app-dish-modal-panel
+  [isOpen]="isModalOpen"
+  [mode]="modalMode"
+  [data]="selectedDish"
+  (close)="closeModal()"
+  (save)="saveDish($event)"
+  (delete)="confirmDeleteDish($event)"
+  (createExtra)="createExtra()"
+></app-dish-modal-panel>

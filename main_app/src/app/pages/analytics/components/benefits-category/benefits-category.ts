@@ -5,27 +5,9 @@ import { ThemeService } from '../../../../shared/services/theme';
 import {
   ChartComponent as ApexChartComponent,
   ApexChart,
-  ApexAxisChartSeries,
-  ApexXAxis,
-  ApexYAxis,
-  ApexGrid,
-  ApexPlotOptions,
-  ApexDataLabels,
-  ApexFill,
   NgApexchartsModule,
 } from 'ng-apexcharts';
-
-export type BarChartOptions = {
-  series: ApexAxisChartSeries;
-  chart: ApexChart;
-  xaxis: ApexXAxis;
-  yaxis: ApexYAxis;
-  grid: ApexGrid;
-  plotOptions: ApexPlotOptions;
-  dataLabels: ApexDataLabels;
-  fill: ApexFill;
-  colors: string[];
-};
+import { BarChartOptions } from '@/types/analytics/bar-chart-options.type';
 
 @Component({
   selector: 'app-benefits-category',

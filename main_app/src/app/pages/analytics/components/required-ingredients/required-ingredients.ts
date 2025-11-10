@@ -1,14 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-
-interface Ingredient {
-  image: string;
-  name: string;
-  currentStock: string;
-  usageTag: string;
-  requiredQuantity: string;
-}
+import { Ingredient } from '@/types/interfaces/analytics/ingredient.interface';
 
 @Component({
   selector: 'app-required-ingredients',

@@ -1,20 +1,16 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { Observable, of, delay } from 'rxjs';
+import { DishModalPanel } from './modal-panel/modal-panel';
+import { Dish } from '@/types/interfaces/menu2/dish.interface';
+import { DishModalMode } from '@/types/menu2/modes.type';
 
-export interface Dish {
-  id: number;
-  productName: string;
-  image: string;
-  category: string;
-  extras: number;
-  price: number;
-  available: boolean;
-}
+export { }
 
 @Component({
   selector: 'app-dishes-table',
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule, DishModalPanel],
   templateUrl: './dishes-table.html',
   styleUrl: './dishes-table.scss',
 })
@@ -22,6 +18,11 @@ export class DishesTable implements OnInit {
   @Output() addClick = new EventEmitter<void>();
   @Output() editClick = new EventEmitter<Dish>();
   @Output() deleteClick = new EventEmitter<Dish>();
+
+  // Modal state
+  isModalOpen: boolean = false;
+  modalMode: DishModalMode = 'add';
+  selectedDish: any = null;
 
   dishes: Dish[] = [];
   currentPage: number = 1;
@@ -147,15 +148,55 @@ export class DishesTable implements OnInit {
   }
 
   editDish(dish: Dish): void {
+    this.selectedDish = { ...dish };
+    this.modalMode = 'edit';
+    this.isModalOpen = true;
     this.editClick.emit(dish);
   }
 
   onAddClick(): void {
+    this.selectedDish = null;
+    this.modalMode = 'add';
+    this.isModalOpen = true;
     this.addClick.emit();
   }
 
   deleteDish(dish: Dish): void {
+    this.selectedDish = { ...dish, name: dish.productName };
+    this.modalMode = 'delete';
+    this.isModalOpen = true;
     this.deleteClick.emit(dish);
+  }
+
+  closeModal(): void {
+    this.isModalOpen = false;
+    this.selectedDish = null;
+  }
+
+  saveDish(dishData: any): void {
+    console.log('Saving dish:', dishData);
+    // Here you would typically call a service to save the dish
+    this.closeModal();
+    this.loadDishes(); // Reload the dishes list
+  }
+
+  confirmDeleteDish(dishData: any): void {
+    console.log('Deleting dish:', dishData);
+    // Here you would typically call a service to delete the dish
+    this.closeModal();
+    this.loadDishes(); // Reload the dishes list
+  }
+
+  createExtra(): void {
+    console.log('Create extra triggered');
+    // This would open the extra modal
+  }
+
+  openExtraModal(): void {
+    this.selectedDish = null;
+    this.modalMode = 'add';
+    this.isModalOpen = true;
+    // You can set a flag here to show the extra modal instead
   }
 
   goToPage(page: number): void {

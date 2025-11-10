@@ -5,13 +5,10 @@ import { ThemeService } from './../../../../shared/services/theme';
 import {
   ChartComponent as ApexChartComponent,
   ApexChart,
-  ApexNonAxisChartSeries,
-  ApexResponsive,
   ApexDataLabels,
   ApexLegend,
   ApexStroke,
   ApexPlotOptions,
-  ApexAxisChartSeries,
   ApexXAxis,
   ApexYAxis,
   ApexGrid,
@@ -20,31 +17,8 @@ import {
   ApexFill,
   NgApexchartsModule,
 } from 'ng-apexcharts';
-
-export type DonutChartOptions = {
-  series: ApexNonAxisChartSeries;
-  chart: ApexChart;
-  responsive: ApexResponsive[];
-  labels: string[];
-  colors: string[];
-  legend: ApexLegend;
-  dataLabels: ApexDataLabels;
-  stroke: ApexStroke;
-  plotOptions: ApexPlotOptions;
-};
-
-export type LineChartOptions = {
-  series: ApexAxisChartSeries;
-  chart: ApexChart;
-  xaxis: ApexXAxis;
-  yaxis: ApexYAxis;
-  grid: ApexGrid;
-  markers: ApexMarkers;
-  tooltip: ApexTooltip;
-  fill: ApexFill;
-  colors: string[];
-  stroke: ApexStroke;
-};
+import { DonutChartOptions } from '@/types/dashboard/donut-chart-options.type';
+import { LineChartOptions } from '@/types/dashboard/line-chart-options.type';
 
 @Component({
   selector: 'app-chart',

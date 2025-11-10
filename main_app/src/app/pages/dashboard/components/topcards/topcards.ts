@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { Card } from '@/types/interfaces/dashboard/card.interface';
 
 @Component({
   selector: 'app-topcards',
@@ -10,7 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrls: ['./topcards.scss'],
 })
 export class Topcards{
-  cards = [
+  cards: Card[] = [
     {
       titleKey: 'Assessment',
       value: '4.3',

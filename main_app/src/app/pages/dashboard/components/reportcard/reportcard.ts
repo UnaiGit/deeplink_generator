@@ -5,7 +5,6 @@ import { ThemeService } from './../../../../shared/services/theme';
 import {
   ChartComponent as ApexChartComponent,
   ApexChart,
-  ApexAxisChartSeries,
   ApexXAxis,
   ApexYAxis,
   ApexGrid,
@@ -14,27 +13,8 @@ import {
   ApexDataLabels,
   NgApexchartsModule,
 } from 'ng-apexcharts';
-
-export type BarChartOptions = {
-  series: ApexAxisChartSeries;
-  chart: ApexChart;
-  xaxis: ApexXAxis;
-  yaxis: ApexYAxis;
-  grid: ApexGrid;
-  plotOptions: ApexPlotOptions;
-  fill: ApexFill;
-  dataLabels: ApexDataLabels;
-  colors: string[];
-};
-
-interface ReportItem {
-  id: number;
-  description: string;
-  category: string;
-  categoryColor: string;
-  categoryBgColor: string;
-  thumbnail: string;
-}
+import { BarChartOptions } from '@/types/dashboard/bar-chart-options.type';
+import { ReportItem } from '@/types/interfaces/dashboard/report-item.interface';
 
 @Component({
   selector: 'app-reportcard',
