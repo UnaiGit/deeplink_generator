@@ -61,6 +61,11 @@ export const THEME_CONSTANTS = {
     '--notification-message': '#6b7280',
     '--floor-info-bg': '#f9fafb',
     '--floor-info-border': '#e5e7eb',
+    // Chair colors
+    '--chair-available-fill': '#e5e7eb',
+    '--chair-available-border': '#d1d5db',
+    '--chair-occupied-fill': '#ef4444',
+    '--chair-occupied-border': '#dc2626',
   },
 
   // Dark Theme Colors
@@ -107,6 +112,11 @@ export const THEME_CONSTANTS = {
     '--notification-message': '#9ca3af',
     '--floor-info-bg': '#1f2937',
     '--floor-info-border': '#374151',
+    // Chair colors for dark theme
+    '--chair-available-fill': '#9ca3af',
+    '--chair-available-border': '#d1d5db',
+    '--chair-occupied-fill': '#ef4444',
+    '--chair-occupied-border': '#dc2626',
   },
 } as const;
 

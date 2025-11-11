@@ -58,6 +58,47 @@
     "occupation": "Occupation",
     "deliveries": "Livraisons"
   },
+  "tableConfig": {
+    "title": "Table {{label}}",
+    "detailsSubtitle": "Ajustez les dimensions, la capacité et la durée de séjour.",
+    "nfcSubtitle": "Lisez, écrivez et testez le NFC pour terminer la configuration.",
+    "fields": {
+      "width": "Largeur (grille)",
+      "height": "Hauteur (grille)",
+      "capacity": "Capacité (nombre de convives)",
+      "suggestedMax": "Max suggéré : {{value}}",
+      "selected": "Sélectionné : {{value}}",
+      "maxStay": "Durée max (minutes)",
+      "maxStayPlaceholder": "ex : 30"
+    },
+    "steps": {
+      "read": {
+        "title": "Étape 1 - Lire l'UID",
+        "pending": "Aucun badge lu",
+        "complete": "UID capturé."
+      },
+      "write": {
+        "title": "Étape 2 - Écrire la charge utile",
+        "pending": "Charge utile non écrite",
+        "complete": "Charge utile écrite."
+      },
+      "test": {
+        "title": "Étape 3 - Tester le badge",
+        "pending": "Non testé",
+        "complete": "Test réussi."
+      }
+    },
+    "buttons": {
+      "cancel": "Annuler",
+      "back": "Retour",
+      "continue": "Continuer vers NFC",
+      "save": "Enregistrer",
+      "done": "Terminé",
+      "read": "Lire NFC",
+      "write": "Écrire",
+      "test": "Tester"
+    }
+  },
   "tableInfo": {
     "chairs": "Chaises",
     "occupied": "occupées",

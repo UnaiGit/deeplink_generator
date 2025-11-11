@@ -58,6 +58,47 @@
     "occupation": "Ocupación",
     "deliveries": "Entregas"
   },
+  "tableConfig": {
+    "title": "Mesa {{label}}",
+    "detailsSubtitle": "Ajusta dimensiones, capacidad y tiempo de estancia.",
+    "nfcSubtitle": "Lee, escribe y prueba el NFC para completar la configuración.",
+    "fields": {
+      "width": "Ancho (cuadrícula)",
+      "height": "Alto (cuadrícula)",
+      "capacity": "Capacidad (número de comensales)",
+      "suggestedMax": "Máx sugerido: {{value}}",
+      "selected": "Seleccionado: {{value}}",
+      "maxStay": "Estancia máxima (minutos)",
+      "maxStayPlaceholder": "ej: 30"
+    },
+    "steps": {
+      "read": {
+        "title": "Paso 1 - Leer UID",
+        "pending": "Aún no se lee la etiqueta",
+        "complete": "UID capturado."
+      },
+      "write": {
+        "title": "Paso 2 - Escribir payload",
+        "pending": "Payload no escrito",
+        "complete": "Payload escrito."
+      },
+      "test": {
+        "title": "Paso 3 - Probar toque",
+        "pending": "Sin probar",
+        "complete": "Prueba completada."
+      }
+    },
+    "buttons": {
+      "cancel": "Cancelar",
+      "back": "Atrás",
+      "continue": "Continuar a NFC",
+      "save": "Guardar",
+      "done": "Listo",
+      "read": "Leer NFC",
+      "write": "Escribir",
+      "test": "Probar"
+    }
+  },
   "tableInfo": {
     "chairs": "Sillas",
     "occupied": "ocupadas",

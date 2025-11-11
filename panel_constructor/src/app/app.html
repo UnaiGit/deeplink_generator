@@ -11,16 +11,31 @@
   </div>
 
   <div class="footer-cards">
-    <app-action-cards></app-action-cards>
+    <app-action-cards (buildClick)="onBuildClick()"></app-action-cards>
     <app-stats-cards></app-stats-cards>
   </div>
 </div>
 
-<div class="notifications-sidebar">
-  <app-notifications 
-    [notifications]="notifications()"
-    (muteClick)="onMuteClick()">
-  </app-notifications>
-</div>
+<!-- Notification Bell Icon - Always visible -->
+<button class="notification-bell-button" (click)="onNotificationIconClick()" title="Notifications">
+  <img [src]="bellIcon" alt="Notifications" class="bell-icon-button" />
+  @if (notifications().length > 0) {
+    <span class="notification-badge">{{ notifications().length }}</span>
+  }
+</button>
+
+@if (showNotifications()) {
+  <div class="notifications-sidebar" [attr.data-visible]="showNotifications()" [attr.data-count]="notifications().length">
+    <app-notifications 
+      [notifications]="notifications()"
+      (muteClick)="onMuteClick()">
+    </app-notifications>
+  </div>
+}
+
+<app-departments 
+  [isOpen]="showDepartments()"
+  (close)="onCloseDepartments()">
+</app-departments>
   
 </div>

@@ -9,34 +9,34 @@
 
 export const ICON_PATHS = {
   // Notification & Alert Icons
-  bell: '/icons/bell.svg',
+  bell: 'http://localhost:4201/icons/bell.svg',
   
   // Time & Clock Icons
-  clock: '/icons/clock.svg',
+  clock: 'http://localhost:4201/icons/clock.svg',
   
   // Payment Icons
-  card: '/icons/card.svg',
+  card: 'http://localhost:4201/icons/card.svg',
   
   // Action Icons
-  build: '/icons/build.svg',
-  employees: '/icons/employees.svg',
-  floors: '/icons/floors.svg',
-  reservations: '/icons/reservations.svg',
+  build: 'http://localhost:4201/icons/build.svg',
+  employees: 'http://localhost:4201/icons/employees.svg',
+  floors: 'http://localhost:4201/icons/floors.svg',
+  reservations: 'http://localhost:4201/icons/reservations.svg',
   
   // Stats Icons
-  chart: '/icons/chart.svg',
-  checkmark: '/icons/checkmark.svg',
+  chart: 'http://localhost:4201/icons/chart.svg',
+  checkmark: 'http://localhost:4201/icons/checkmark.svg',
   
   // Notification Icons
-  calendar: '/icons/calendar.svg',
-  chef: '/icons/chef.svg',
-  money: '/icons/money.svg',
-  refresh: '/icons/refresh.svg',
+  calendar: 'http://localhost:4201/icons/calender.svg',
+  chef: 'http://localhost:4201/icons/chef_cap.svg',
+  money: 'http://localhost:4201/icons/payment.svg',
+  refresh: 'http://localhost:4201/icons/refresh.svg',
   
   // Table Status Icons
-  lock: '/icons/lock.svg',
-  antenna: '/icons/antenna.svg',
-  time: '/icons/time.svg',
+  lock: 'http://localhost:4201/icons/lock.svg',
+  antenna: 'http://localhost:4201/icons/antenna.svg',
+  time: 'http://localhost:4201/icons/time.svg',
 } as const;
 
 /**
