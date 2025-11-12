@@ -1,4 +1,4 @@
-import { Component, input, ContentChild, TemplateRef } from '@angular/core';
+import { Component, input, output, ContentChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -11,5 +11,6 @@ export class BaseCard {
   variant = input<'default' | 'elevated' | 'outlined'>('default');
   padding = input<'none' | 'small' | 'medium' | 'large'>('medium');
   clickable = input<boolean>(false);
+  cardClick = output<MouseEvent>();
 }
 

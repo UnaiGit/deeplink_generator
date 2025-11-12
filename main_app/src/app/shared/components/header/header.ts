@@ -53,4 +53,21 @@ export class Header {
   toggleSidebar(): void {
     this.shellService.openMobileSidebar();
   }
+
+  onNotificationClick(): void {
+    console.log('Main app: Notification button clicked');
+    // Dispatch custom event to communicate with panel_constructor app
+    if (typeof window !== 'undefined') {
+      const event = new CustomEvent('showNotifications', {
+        detail: { action: 'toggle' },
+        bubbles: true,
+        cancelable: true
+      });
+      console.log('Main app: Dispatching showNotifications event', event);
+      window.dispatchEvent(event);
+      console.log('Main app: Event dispatched successfully');
+    } else {
+      console.warn('Main app: window is undefined, cannot dispatch event');
+    }
+  }
 }

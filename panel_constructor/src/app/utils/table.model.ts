@@ -12,6 +12,13 @@ export interface Table {
   height: number;
   seats?: number;
   shape?: 'rectangular' | 'round' | 'square';
+  department?: string; // Department assigned to this table
+  occupiedChairs?: number[]; // Array of chair numbers (1-indexed) that are occupied
+  widthGrid?: number;
+  heightGrid?: number;
+  capacity?: number;
+  maxStayMinutes?: number;
+  syncedAt?: string;
 }
 
 export interface TableStatusConfig {

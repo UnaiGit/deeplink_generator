@@ -46,7 +46,7 @@
       <span class="bubble"><img class="icon" src="/icons/chat.svg" alt="message" /></span>
     </button>
 
-    <button class="btn ghost badge" [attr.aria-label]="'Notifications' | translate">
+    <button class="btn ghost badge" [attr.aria-label]="'Notifications' | translate" (click)="onNotificationClick()">
       <span class="bell"><img class="icon" src="/icons/bell.svg" alt="notification" /></span>
       <span class="count">7</span>
     </button>

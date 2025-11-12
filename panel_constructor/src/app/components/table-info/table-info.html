@@ -12,14 +12,32 @@
 
     <!-- Table Status Details -->
     <div class="table-info-section">
-      <div class="info-row">
-        <span class="info-label">{{ 'tableInfo.chairs' | translate }}</span>
-        <span class="info-value">{{ chairsOccupied() }}/{{ chairsTotal() }} {{ 'tableInfo.occupied' | translate }}</span>
+      <div class="info-row highlight-row">
+        <span class="info-label">
+          <span class="icon-chair">🪑</span>
+          {{ 'tableInfo.chairs' | translate }}
+        </span>
+        <span class="info-value highlight-value">
+          <span class="occupied-count">{{ chairsOccupied() }}</span>/<span class="total-count">{{ chairsTotal() }}</span>
+          <span class="occupied-badge">{{ 'tableInfo.occupied' | translate }}</span>
+        </span>
       </div>
       <div class="info-row">
         <span class="info-label">{{ 'tableInfo.timeSeated' | translate }}</span>
         <span class="info-value">{{ timeSeated() }} ({{ 'tableInfo.limit' | translate }} {{ timeLimit() }})</span>
       </div>
+      @if (tableShape()) {
+        <div class="info-row">
+          <span class="info-label">Shape</span>
+          <span class="info-value shape-badge">{{ tableShape() | titlecase }}</span>
+        </div>
+      }
+      @if (department()) {
+        <div class="info-row">
+          <span class="info-label">Department</span>
+          <span class="info-value department-badge">{{ department() }}</span>
+        </div>
+      }
     </div>
 
     <!-- Order Progress -->

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { BaseCard } from '../../shared/components/base-card/base-card';
@@ -11,6 +11,8 @@ import { ICON_PATHS } from '../../core/constants/icon.constants';
   styleUrl: './action-cards.scss',
 })
 export class ActionCards {
+  buildClick = output<void>();
+
   cards = [
     {
       id: 'build',
@@ -37,5 +39,12 @@ export class ActionCards {
       iconColor: '#a855f7' // Purple/magenta
     }
   ];
+
+  onCardClick(cardId: string): void {
+    if (cardId === 'build') {
+      console.log('Build button is clicked');
+      this.buildClick.emit();
+    }
+  }
 }
 

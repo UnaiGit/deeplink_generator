@@ -58,6 +58,47 @@
     "occupation": "Occupation",
     "deliveries": "Deliveries"
   },
+  "tableConfig": {
+    "title": "Table {{label}}",
+    "detailsSubtitle": "Adjust dimensions, capacity, and stay limits.",
+    "nfcSubtitle": "Read, write, and test NFC to finish setup.",
+    "fields": {
+      "width": "Width (grid)",
+      "height": "Height (grid)",
+      "capacity": "Capacity (number of diners)",
+      "suggestedMax": "Suggested max: {{value}}",
+      "selected": "Selected: {{value}}",
+      "maxStay": "Max stay (minutes)",
+      "maxStayPlaceholder": "ex: 30"
+    },
+    "steps": {
+      "read": {
+        "title": "Step 1 - Read UID",
+        "pending": "No tag read yet",
+        "complete": "UID captured."
+      },
+      "write": {
+        "title": "Step 2 - Write payload",
+        "pending": "Payload not written",
+        "complete": "Payload written."
+      },
+      "test": {
+        "title": "Step 3 - Test tap",
+        "pending": "Not tested",
+        "complete": "Tap test complete."
+      }
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "back": "Back",
+      "continue": "Continue to NFC",
+      "save": "Save",
+      "done": "Done",
+      "read": "Read NFC",
+      "write": "Write",
+      "test": "Test"
+    }
+  },
   "tableInfo": {
     "chairs": "Chairs",
     "occupied": "occupied",

@@ -58,6 +58,47 @@
     "occupation": "Occupazione",
     "deliveries": "Consegne"
   },
+  "tableConfig": {
+    "title": "Tavolo {{label}}",
+    "detailsSubtitle": "Regola dimensioni, capienza e durata di permanenza.",
+    "nfcSubtitle": "Leggi, scrivi e testa l'NFC per completare la configurazione.",
+    "fields": {
+      "width": "Larghezza (griglia)",
+      "height": "Altezza (griglia)",
+      "capacity": "Capienza (numero di ospiti)",
+      "suggestedMax": "Max suggerito: {{value}}",
+      "selected": "Selezionato: {{value}}",
+      "maxStay": "Permanenza massima (minuti)",
+      "maxStayPlaceholder": "es: 30"
+    },
+    "steps": {
+      "read": {
+        "title": "Passo 1 - Leggi UID",
+        "pending": "Nessun tag letto",
+        "complete": "UID acquisito."
+      },
+      "write": {
+        "title": "Passo 2 - Scrivi payload",
+        "pending": "Payload non scritto",
+        "complete": "Payload scritto."
+      },
+      "test": {
+        "title": "Passo 3 - Test tap",
+        "pending": "Non testato",
+        "complete": "Test tap completato."
+      }
+    },
+    "buttons": {
+      "cancel": "Annulla",
+      "back": "Indietro",
+      "continue": "Continua a NFC",
+      "save": "Salva",
+      "done": "Fatto",
+      "read": "Leggi NFC",
+      "write": "Scrivi",
+      "test": "Test"
+    }
+  },
   "tableInfo": {
     "chairs": "Sedie",
     "occupied": "occupate",

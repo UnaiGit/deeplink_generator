@@ -1,7 +1,7 @@
-import { Component, input } from '@angular/core';
+import { Component, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { TableStatus } from '../../utils/table.model';
+import { Table, TableStatus } from '../../utils/table.model';
 import { StatusPill } from '../../shared/components/status-pill/status-pill';
 import { BaseCard } from '../../shared/components/base-card/base-card';
 import { ICON_PATHS } from '../../core/constants/icon.constants';
@@ -13,18 +13,25 @@ import { ICON_PATHS } from '../../core/constants/icon.constants';
   styleUrl: './table-info.scss',
 })
 export class TableInfo {
-  // Inputs for table information
-  tableId = input<string>('01');
-  tableLabel = input<string>('Table 01');
-  status = input<TableStatus>('occupied');
+  // Accept table object directly
+  table = input<Table | null>(null);
   
-  // Table details
-  chairsOccupied = input<number>(5);
-  chairsTotal = input<number>(6);
+  // Position for tooltip
+  x = input<number>(0);
+  y = input<number>(0);
+  visible = input<boolean>(false);
+  
+  // Computed values from table
+  tableLabel = computed(() => this.table()?.label || 'Table 01');
+  status = computed(() => this.table()?.status || 'available');
+  chairsTotal = computed(() => this.table()?.seats || 0);
+  chairsOccupied = computed(() => this.table()?.occupiedChairs?.length || 0);
+  tableShape = computed(() => this.table()?.shape || 'rectangular');
+  department = computed(() => this.table()?.department);
+  
+  // Sample data (can be replaced with real data from API)
   timeSeated = input<string>('00:42');
   timeLimit = input<string>('01:30');
-  
-  // Order progress
   startersDelivered = input<number>(4);
   startersTotal = input<number>(4);
   mainsPreparing = input<number>(2);
@@ -34,23 +41,12 @@ export class TableInfo {
   drinksDelivered = input<number>(3);
   drinksPending = input<number>(1);
   drinksPendingLocation = input<string>('Bar');
-  
-  // Alerts
   readyAtPassCount = input<number>(2);
   readyAtPassTime = input<string>('01:05');
   paymentRequestedTime = input<string>('03:12');
-  
-  // Notes
   notes = input<string>('Gluten-free (Ana)');
-  
-  // Staff
   serverName = input<string>('Laura M');
   runnerName = input<string>('Pedro');
-  
-  // Position for tooltip
-  x = input<number>(0);
-  y = input<number>(0);
-  visible = input<boolean>(false);
   
   // Icon paths
   bellIcon = ICON_PATHS.bell;

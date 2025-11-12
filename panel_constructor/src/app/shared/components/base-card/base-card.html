@@ -6,7 +6,8 @@
      [class.padding-small]="padding() === 'small'"
      [class.padding-medium]="padding() === 'medium'"
      [class.padding-large]="padding() === 'large'"
-     [class.clickable]="clickable()">
+     [class.clickable]="clickable()"
+     (click)="cardClick.emit($event)">
   <ng-content></ng-content>
 </div>
 
