@@ -1,0 +1,222 @@
+button[class*="btn-"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1.5px solid;
+  font-family: "Manrope", sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  position: relative;
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .btn-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    svg {
+      flex-shrink: 0;
+    }
+    
+    span {
+      white-space: nowrap;
+    }
+  }
+  
+  .btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+  
+  .btn-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+}
+
+// Size variants
+.btn-small {
+  height: 36px;
+  padding: 0 14px;
+  font-size: 14px;
+  border-radius: 18px;
+  
+  .btn-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.btn-medium {
+  height: 44px;
+  padding: 0 18px;
+  font-size: 16px;
+  border-radius: 22px;
+}
+
+.btn-large {
+  height: 52px;
+  padding: 0 24px;
+  font-size: 18px;
+  border-radius: 26px;
+  
+  .btn-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// Primary variant - with exact styling from requirements
+.btn-primary {
+  background: linear-gradient(180deg, #578DF9 0%, #2D71F7 100%);
+  border: 1.5px solid transparent;
+  color: var(--text-color-light);
+  position: relative;
+  background-clip: padding-box;
+  box-shadow: 
+    0px 2px 4px 0px rgba(0, 0, 0, 0.2),
+    0px 0px 1px 0px rgba(0, 0, 0, 0.1),
+    1px 1px 1px 1px var(--Primary100) inset;
+  
+  // Gradient border using pseudo-element
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -1.5px;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(180deg, #ABC6FC 0%, #2D71F7 100%);
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(180deg, #4a7df8 0%, #1f5ef6 100%);
+    transform: translateY(-1px);
+    box-shadow: 
+      0px 3px 6px 0px rgba(0, 0, 0, 0.25),
+      0px 0px 1px 0px rgba(0, 0, 0, 0.1),
+      1px 1px 1px 1px var(--Primary100) inset;
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 
+      0px 1px 2px 0px rgba(0, 0, 0, 0.2),
+      0px 0px 1px 0px rgba(0, 0, 0, 0.1),
+      1px 1px 1px 1px var(--Primary100) inset;
+  }
+}
+
+// Secondary variant
+.btn-secondary {
+  background: var(--white);
+  color: var(--text-gray-dark);
+  border: 1px solid var(--border-light-gray);
+  border-image: none;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+  
+  &:hover:not(:disabled) {
+    background: var(--gray-100);
+    border-color: var(--gray-hover);
+  }
+}
+
+// Danger variant
+.btn-danger {
+  background: var(--danger-color);
+  color: var(--text-color-light);
+  border: 1.5px solid var(--danger-color);
+  border-image: none;
+  box-shadow: 
+    0px 2px 4px 0px rgba(0, 0, 0, 0.2),
+    0px 0px 1px 0px rgba(0, 0, 0, 0.1);
+  
+  &:hover:not(:disabled) {
+    background: var(--danger-hover);
+    border-color: var(--danger-hover);
+  }
+}
+
+// Success variant
+.btn-success {
+  background: #10B981;
+  color: var(--text-color-light);
+  border: 1.5px solid #10B981;
+  border-image: none;
+  box-shadow: 
+    0px 2px 4px 0px rgba(0, 0, 0, 0.2),
+    0px 0px 1px 0px rgba(0, 0, 0, 0.1);
+  
+  &:hover:not(:disabled) {
+    background: #059669;
+    border-color: #059669;
+  }
+}
+
+// Outline variant
+.btn-outline {
+  background: transparent;
+  color: var(--primary-blue);
+  border: 1.5px solid var(--primary-blue);
+  border-image: none;
+  
+  &:hover:not(:disabled) {
+    background: var(--primary-blue-hover);
+  }
+}
+
+// Ghost variant
+.btn-ghost {
+  background: transparent;
+  color: var(--text-color-dark);
+  border: 1.5px solid transparent;
+  border-image: none;
+  
+  &:hover:not(:disabled) {
+    background: var(--gray-100);
+  }
+}
+
+// Full width
+.btn-full-width {
+  width: 100%;
+}
+
+// Loading state
+.btn-loading {
+  pointer-events: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+

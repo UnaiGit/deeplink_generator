@@ -34,6 +34,7 @@ export class ThemeService {
     // Grayscale
     '--white': '#fff',
     '--gray': '#e1e3e6',
+    '--gray-50': '#f9fafb',
     '--gray-100': '#f8f9fa',
     '--gray-150': '#f1f3f4',
     '--gray-200': '#e9ecef',
@@ -70,6 +71,7 @@ export class ThemeService {
     // Inverted Grayscale for Dark Theme
     '--white': '#1f2937',
     '--gray': '#4b5563',
+    '--gray-50': '#3d4651',
     '--gray-100': '#374151',
     '--gray-150': '#2d3748',
     '--gray-200': '#4b5563',

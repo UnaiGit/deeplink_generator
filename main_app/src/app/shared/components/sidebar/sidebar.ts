@@ -56,14 +56,14 @@ export class Sidebar implements OnInit {
       { href: '/occupation', title: 'Occupation', active: false, icon: '/icons/occupation.svg', disabled: true },
       {  title: 'Orders', divider: false, disabled: true },
       {
-        href: '/menu2',
+        href: '',
         title: 'Menu',
         active: false,
         icon: '/icons/menu.svg',
-        // subItems: [
-        //   { href: '/menu2/all', title: 'All', active: false },
-        //   { href: '/menu2/new', title: 'New', active: false },
-        // ],
+        subItems: [
+          { href: '/menu2', title: 'Editor Menu', active: false },
+          { href: '/employees', title: 'Employees', active: false },
+        ],
       },
       {
         href: '/menu',

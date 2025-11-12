@@ -116,6 +116,10 @@
   --shadow-light-medium: rgba(0, 0, 0, 0.15);
   --overlay-medium: rgba(0, 0, 0, 0.5);
   --gray-50: #f9fafb;
+  /* Base primary tokens for Employees page */
+  --base-primary: var(--primary-blue, #2d71f7);
+  --base-primary-10: rgba(45, 113, 247, 0.1);
+  --base-primary-20: rgba(45, 113, 247, 0.2);
 
   // Theme Colors
   --surface-1: #fafafa;

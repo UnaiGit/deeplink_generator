@@ -1,0 +1,45 @@
+.employees-page {
+  padding: 32px;
+  background: var(--surface-1, #fafafa);
+  min-height: 100vh;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-color-dark, #333843);
+  margin: 0 0 24px 0;
+  line-height: 1.2;
+}
+
+// Main row: Staff list + Employee details card (includes productivity & AI)
+.main-row {
+  display: grid;
+  grid-template-columns: 520px 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+// Bottom row: Shift schedule + Feedback alerts
+.bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 500px;
+  gap: 24px;
+}
+
+// Responsive breakpoints
+@media (max-width: 1400px) {
+  .main-row {
+    grid-template-columns: 480px 1fr;
+  }
+}
+
+@media (max-width: 1200px) {
+  .main-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .bottom-row {
+    grid-template-columns: 1fr;
+  }
+}

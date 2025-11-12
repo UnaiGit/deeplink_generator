@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { TranslateModule } from '@ngx-translate/core';
 import { Location } from '@/types/interfaces/dashboard/location.interface';
+import { Button } from '@/app/shared/components/button/button';
 
 @Component({
   selector: 'app-mapcard',
-  imports: [GoogleMapsModule, TranslateModule],
+  imports: [GoogleMapsModule, TranslateModule, Button],
   templateUrl: './mapcard.html',
   styleUrl: './mapcard.scss',
 })
@@ -125,5 +126,10 @@ export class Mapcard {
       title: location.address,
       animation: google.maps.Animation.DROP
     };
+  }
+
+  onDischarge(): void {
+    // Handle discharge button click
+    console.log('Discharge clicked');
   }
 }
