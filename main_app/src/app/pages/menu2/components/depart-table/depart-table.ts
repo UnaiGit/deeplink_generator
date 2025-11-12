@@ -24,6 +24,7 @@ export class DepartTable implements OnInit {
   sections: DepartureSection[] = [];
   modalMode: 'list' | 'delete-section' | 'add-section' = 'list';
   selectedSection: DepartureSection | null = null;
+  availableCategories: string[] = ['Starters', 'Fish', 'Meats', 'Paste', 'Wine', 'Drinks', 'Desserts', 'Atlantic'];
 
   constructor() {}
 
@@ -90,10 +91,20 @@ export class DepartTable implements OnInit {
     const newSection: DepartureSection = {
       id: this.sections.length + 1,
       order: newOrder,
-      items: [sectionName],
+      items: [],
     };
     this.sections = [...this.sections, newSection];
     this.modalMode = 'list';
+  }
+
+  onImportCategories(event: { sectionId: number; categories: string[] }): void {
+    const sectionIndex = this.sections.findIndex((s) => s.id === event.sectionId);
+    if (sectionIndex > -1) {
+      this.sections[sectionIndex].items = [
+        ...this.sections[sectionIndex].items,
+        ...event.categories.filter((cat) => !this.sections[sectionIndex].items.includes(cat)),
+      ];
+    }
   }
 
   onDeleteSection(section: DepartureSection): void {

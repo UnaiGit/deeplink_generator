@@ -1,5 +1,5 @@
-import { Component, OnInit, OnChanges, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnChanges, OnDestroy, Input, Output, EventEmitter, HostListener, ElementRef, Renderer2, Inject } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { DishModalMode } from '@/types/menu2/modes.type';
@@ -13,7 +13,7 @@ import { Allergen, ExtraToggle as Extra, ExtraGroup, Subcategory, SubcategoryIte
   styleUrl: './modal-panel.scss',
   standalone: true,
 })
-export class DishModalPanel implements OnInit, OnChanges {
+export class DishModalPanel implements OnInit, OnChanges, OnDestroy {
   @Input() isOpen: boolean = false;
   @Input() mode: DishModalMode = 'add';
   @Input() data: any = null;
@@ -29,11 +29,13 @@ export class DishModalPanel implements OnInit, OnChanges {
   showSubcategoryDropdown: boolean = false;
   showIngredientDropdown: boolean = false;
   showSuccessMessage: boolean = false;
+  showExtraGroupsModal: boolean = false;
+  showExtraGroupDropdown: boolean = false;
   selectionMode: 'Multi' | 'Min1' | 'Max3' = 'Multi';
 
   formData: any = {
     name: '',
-    kitchenDepartment: 'American Cuisine',
+    kitchenDepartment: '',
     allergens: [],
     price: 0,
     category: '',
@@ -44,16 +46,40 @@ export class DishModalPanel implements OnInit, OnChanges {
     ingredients: [],
   };
 
+  // Validation errors for Dish
+  dishValidationErrors: any = {
+    name: '',
+    kitchenDepartment: '',
+    allergens: '',
+    price: '',
+    category: '',
+    image: '',
+    description: '',
+    extras: '',
+    ingredients: '',
+  };
+
   extraFormData: any = {
     name: '',
     price: 0,
     subcategory: '',
     allergens: [],
     inventoryRule: 'deducts',
+    imagePreview: '',
     ingredients: [
       { name: 'Smoked Mayonnaise', quantity: '0.2', uom: 'kg' },
       { name: 'Cras just hate', quantity: '0.2', uom: 'kg', isNew: true },
     ],
+  };
+
+  // Validation errors for Extra
+  extraValidationErrors: any = {
+    name: '',
+    price: '',
+    subcategory: '',
+    allergens: '',
+    quantity: '',
+    uom: '',
   };
 
   kitchenDepartments: string[] = [
@@ -83,6 +109,8 @@ export class DishModalPanel implements OnInit, OnChanges {
   extraGroups: ExtraGroup[] = [
     {
       name: 'Topping Pizza',
+      color: 'rgba(247, 45, 176, 0.1)', // Pink
+      textColor: 'rgba(247, 45, 176, 1)',
       extras: [
         { name: 'Brave Seouce', selected: true },
         { name: 'Rum Sauce', selected: true },
@@ -93,12 +121,21 @@ export class DishModalPanel implements OnInit, OnChanges {
     },
     {
       name: 'Topping Burger',
+      color: 'rgba(245, 224, 66, 0.2)', // Yellow
+      textColor: 'rgba(184, 134, 11, 1)',
       extras: [
         { name: 'Aioli', selected: true },
         { name: 'Cheese', selected: true },
         { name: 'Smoked Mayonnaise', selected: true },
       ],
     },
+  ];
+
+  availableExtraGroups = [
+    { id: '1', name: 'Hamburger Sauces', selected: true },
+    { id: '2', name: 'Proteins', selected: false },
+    { id: '3', name: 'Cooking', selected: false },
+    { id: '4', name: 'Carbohydrates', selected: false },
   ];
 
   ingredientSearch: string = '';
@@ -142,6 +179,11 @@ export class DishModalPanel implements OnInit, OnChanges {
   ];
 
   filteredIngredients: string[] = [];
+  selectedIngredientFromDropdown: string = '';
+
+  // Extras Group
+  selectedExtraGroup: string = 'Doneness';
+  extraGroupOptions: string[] = ['Doneness', 'Sauce', 'Protein'];
 
   // Filter data
   filterData = {
@@ -149,6 +191,17 @@ export class DishModalPanel implements OnInit, OnChanges {
     allergen: 'Apio',
     allergenAvailable: true,
   };
+
+  private modalElement: HTMLElement | null = null;
+  private bodyElement: HTMLElement | null = null;
+
+  constructor(
+    private el: ElementRef,
+    private renderer: Renderer2,
+    @Inject(DOCUMENT) private document: Document
+  ) {
+    this.bodyElement = this.document.body;
+  }
 
   ngOnInit(): void {
     if (this.mode === 'edit' && this.data) {
@@ -166,6 +219,34 @@ export class DishModalPanel implements OnInit, OnChanges {
     } else if (this.mode === 'add') {
       this.resetForm();
     }
+
+    // Move modal to body when open to ensure it overlays everything
+    if (this.isOpen && this.bodyElement) {
+      setTimeout(() => this.moveModalToBody(), 0);
+    } else if (!this.isOpen && this.modalElement) {
+      this.removeModalFromBody();
+    }
+  }
+
+  private moveModalToBody(): void {
+    if (!this.bodyElement || !this.el.nativeElement) return;
+    
+    const modalOverlay = this.el.nativeElement.querySelector('.modal-overlay');
+    if (modalOverlay && !this.modalElement) {
+      this.modalElement = modalOverlay;
+      this.renderer.appendChild(this.bodyElement, modalOverlay);
+    }
+  }
+
+  private removeModalFromBody(): void {
+    if (this.modalElement && this.bodyElement) {
+      this.renderer.removeChild(this.bodyElement, this.modalElement);
+      this.modalElement = null;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.removeModalFromBody();
   }
 
   syncAllergens(): void {
@@ -179,7 +260,7 @@ export class DishModalPanel implements OnInit, OnChanges {
   resetForm(): void {
     this.formData = {
       name: '',
-      kitchenDepartment: 'American Cuisine',
+      kitchenDepartment: '',
       allergens: [],
       price: 0,
       category: '',
@@ -188,6 +269,25 @@ export class DishModalPanel implements OnInit, OnChanges {
       description: '',
       extras: [],
       ingredients: [],
+    };
+    this.dishValidationErrors = {
+      name: '',
+      kitchenDepartment: '',
+      allergens: '',
+      price: '',
+      category: '',
+      image: '',
+      description: '',
+      extras: '',
+      ingredients: '',
+    };
+    this.extraValidationErrors = {
+      name: '',
+      price: '',
+      subcategory: '',
+      allergens: '',
+      quantity: '',
+      uom: '',
     };
     this.allergens.forEach((allergen) => (allergen.selected = false));
     this.extraGroups.forEach((group) => {
@@ -236,7 +336,134 @@ export class DishModalPanel implements OnInit, OnChanges {
     document.getElementById('fileInput')?.click();
   }
 
+  onExtraFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.extraFormData.imagePreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  triggerExtraFileInput(): void {
+    document.getElementById('extraFileInput')?.click();
+  }
+
+  validateDishForm(): boolean {
+    let isValid = true;
+    this.dishValidationErrors = {
+      name: '',
+      kitchenDepartment: '',
+      allergens: '',
+      price: '',
+      category: '',
+      image: '',
+      description: '',
+      extras: '',
+      ingredients: '',
+    };
+
+    // Name validation
+    if (!this.formData.name || this.formData.name.trim() === '') {
+      this.dishValidationErrors.name = 'Dish name cannot be empty.';
+      isValid = false;
+    }
+
+    // Kitchen Department validation
+    if (!this.formData.kitchenDepartment || this.formData.kitchenDepartment === '') {
+      this.dishValidationErrors.kitchenDepartment = 'Please select a kitchen department.';
+      isValid = false;
+    }
+
+    // Allergens validation
+    const selectedAllergens = this.allergens.filter(a => a.selected);
+    if (selectedAllergens.length === 0) {
+      this.dishValidationErrors.allergens = 'At least one allergen must be specified or confirm \'None\'.';
+      isValid = false;
+    }
+
+    // Price validation
+    if (this.formData.price === null || this.formData.price === undefined) {
+      this.dishValidationErrors.price = 'Base price must be greater than 0.';
+      isValid = false;
+    } else if (this.formData.price <= 0) {
+      this.dishValidationErrors.price = 'Base price must be greater than 0.';
+      isValid = false;
+    }
+
+    // Category validation
+    if (!this.formData.category || this.formData.category === '') {
+      this.dishValidationErrors.category = 'Select a category for this dish.';
+      isValid = false;
+    }
+
+    // Image validation
+    if (!this.formData.imagePreview) {
+      this.dishValidationErrors.image = 'Upload a valid image file (JPG, PNG, max 2MB).';
+      isValid = false;
+    }
+
+    // Description validation
+    if (this.formData.description && this.formData.description.length > 200) {
+      this.dishValidationErrors.description = 'Description cannot exceed 200 characters.';
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  validateExtraForm(): boolean {
+    let isValid = true;
+    this.extraValidationErrors = {
+      name: '',
+      price: '',
+      subcategory: '',
+      allergens: '',
+      quantity: '',
+      uom: '',
+    };
+
+    // Name validation
+    if (!this.extraFormData.name || this.extraFormData.name.trim() === '') {
+      this.extraValidationErrors.name = 'Extra name is required.';
+      isValid = false;
+    }
+
+    // Price validation
+    if (this.extraFormData.price === null || this.extraFormData.price === undefined) {
+      this.extraValidationErrors.price = 'Enter a valid price adjustment (can be 0 or higher)';
+      isValid = false;
+    }
+
+    // Allergens validation
+    const selectedAllergens = this.allergens.filter(a => a.selected);
+    if (selectedAllergens.length === 0) {
+      this.extraValidationErrors.allergens = 'Mark any allergens or confirm \'None\'.';
+      isValid = false;
+    }
+
+    // Ingredient validation for search ingredients section
+    if (this.ingredientSearch && !this.ingredientQuantity) {
+      this.extraValidationErrors.quantity = 'must be greater than 0';
+      isValid = false;
+    }
+
+    if (this.ingredientSearch && !this.ingredientUom) {
+      this.extraValidationErrors.uom = 'Please select a unit';
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
   onSave(): void {
+    // Validate the dish form
+    if (!this.validateDishForm()) {
+      return;
+    }
+
     const selectedExtras: string[] = [];
     this.extraGroups.forEach((group) => {
       group.extras.forEach((extra) => {
@@ -249,6 +476,18 @@ export class DishModalPanel implements OnInit, OnChanges {
 
     this.save.emit(this.formData);
     this.close.emit();
+  }
+
+  onSaveExtra(): void {
+    // Validate the extra form
+    if (!this.validateExtraForm()) {
+      return;
+    }
+
+    this.showSuccessMessage = true;
+    setTimeout(() => {
+      this.showSuccessMessage = false;
+    }, 3000);
   }
 
   onDelete(): void {
@@ -347,21 +586,21 @@ export class DishModalPanel implements OnInit, OnChanges {
     }
   }
 
-  onSaveExtra(): void {
-    console.log('Saving extra:', this.extraFormData);
-    // Here you would save the extra and attach it to the dish
-    this.showSuccessMessage = true;
-    setTimeout(() => {
-      this.showSuccessMessage = false;
-    }, 3000);
-  }
-
   toggleFilters(): void {
     this.showFilters = !this.showFilters;
   }
 
   toggleSubcategoryDropdown(): void {
     this.showSubcategoryDropdown = !this.showSubcategoryDropdown;
+  }
+
+  toggleExtraGroupDropdown(): void {
+    this.showExtraGroupDropdown = !this.showExtraGroupDropdown;
+  }
+
+  selectExtraGroup(group: string): void {
+    this.selectedExtraGroup = group;
+    this.showExtraGroupDropdown = false;
   }
 
   openSubcategoryModal(): void {
@@ -403,6 +642,7 @@ export class DishModalPanel implements OnInit, OnChanges {
   }
 
   selectIngredient(ingredient: string): void {
+    this.selectedIngredientFromDropdown = ingredient;
     this.ingredientSearch = ingredient;
     this.showIngredientDropdown = false;
   }
@@ -417,6 +657,18 @@ export class DishModalPanel implements OnInit, OnChanges {
     // Open the extra modal alongside the dish modal
     this.showExtraModal = true;
     console.log('Opening Create Extra modal');
+  }
+
+  openExtraGroupsModal(): void {
+    this.showExtraGroupsModal = true;
+  }
+
+  closeExtraGroupsModal(): void {
+    this.showExtraGroupsModal = false;
+  }
+
+  toggleExtraGroup(group: any): void {
+    group.selected = !group.selected;
   }
 }
 

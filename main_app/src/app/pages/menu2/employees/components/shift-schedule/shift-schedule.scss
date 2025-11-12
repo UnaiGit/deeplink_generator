@@ -283,3 +283,219 @@
   font-size: 16px;
   color: var(--gray-400, #ced4da);
 }
+
+// Responsive breakpoints
+@media (max-width: 768px) {
+  .shift-schedule-panel {
+    padding: 16px;
+    height: auto;
+    min-height: 400px;
+  }
+
+  .schedule-header {
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .header-left {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .icon-wrapper {
+    width: 40px;
+    height: 40px;
+  }
+
+  .schedule-title {
+    font-size: 18px;
+  }
+
+  .header-right {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .btn-optimize,
+  .btn-add {
+    padding: 8px 12px;
+    font-size: 13px;
+    min-width: 0;
+    justify-content: center;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  .schedule-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--gray-400);
+      border-radius: 3px;
+    }
+  }
+
+  .schedule-grid {
+    min-width: 600px;
+  }
+
+  .grid-header,
+  .grid-row {
+    grid-template-columns: 100px repeat(7, minmax(70px, 1fr));
+  }
+
+  .grid-cell {
+    padding: 10px 8px;
+    min-height: 60px;
+    font-size: 13px;
+  }
+
+  .employee-header,
+  .day-header {
+    font-size: 13px;
+  }
+
+  .employee-name {
+    font-size: 13px;
+  }
+
+  .day-cell {
+    padding: 4px;
+    min-height: 60px;
+    gap: 4px;
+  }
+
+  .shift-block {
+    padding: 8px 10px;
+    border-radius: 8px;
+  }
+
+  .shift-time {
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+
+  .shift-role {
+    font-size: 11px;
+  }
+
+  .empty-grid-header,
+  .empty-grid-row {
+    grid-template-columns: 100px repeat(7, minmax(70px, 1fr));
+    min-width: 600px;
+  }
+
+  .empty-grid-cell {
+    padding: 10px 8px;
+    min-height: 60px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .shift-schedule-panel {
+    padding: 12px;
+    border-radius: 16px;
+    max-width: 355px;
+  }
+
+  .schedule-header {
+    margin-bottom: 12px;
+  }
+
+  .icon-wrapper {
+    width: 36px;
+    height: 36px;
+  }
+
+  .schedule-title {
+    font-size: 16px;
+  }
+
+  .btn-optimize,
+  .btn-add {
+    padding: 6px 10px;
+    font-size: 12px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  .schedule-grid {
+    min-width: 500px;
+    border-radius: 6px;
+  }
+
+  .grid-header,
+  .grid-row {
+    grid-template-columns: 80px repeat(7, minmax(60px, 1fr));
+  }
+
+  .grid-cell {
+    padding: 8px 6px;
+    min-height: 50px;
+    font-size: 12px;
+  }
+
+  .employee-header,
+  .day-header {
+    font-size: 12px;
+  }
+
+  .employee-name {
+    font-size: 12px;
+  }
+
+  .day-cell {
+    padding: 3px;
+    min-height: 50px;
+    gap: 3px;
+  }
+
+  .shift-block {
+    padding: 6px 8px;
+    border-radius: 6px;
+  }
+
+  .shift-time {
+    font-size: 10px;
+    margin-bottom: 2px;
+  }
+
+  .shift-role {
+    font-size: 10px;
+  }
+
+  .empty-grid-header,
+  .empty-grid-row {
+    grid-template-columns: 80px repeat(7, minmax(60px, 1fr));
+    min-width: 500px;
+  }
+
+  .empty-grid-cell {
+    padding: 8px 6px;
+    min-height: 50px;
+    font-size: 12px;
+  }
+
+  .empty-dash {
+    font-size: 14px;
+  }
+}

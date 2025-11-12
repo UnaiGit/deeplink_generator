@@ -535,12 +535,403 @@
 }
 
 @media (max-width: 768px) {
+  .employee-card {
+    padding: 16px;
+    height: auto;
+    min-height: 400px;
+  }
+
+  .employee-header {
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .header-left {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .employee-avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .employee-name {
+    font-size: 18px;
+  }
+
+  .employee-tags {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .tag {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .tab-buttons {
+    padding: 3px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    display: flex;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .tab-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .detail-item {
+    gap: 4px;
+  }
+
+  .detail-label {
+    font-size: 12px;
+  }
+
+  .detail-value {
+    font-size: 14px;
+
+    &.stars {
+      font-size: 15px;
+    }
+  }
+
+  .action-section {
+    margin-bottom: 16px;
+  }
+
+  .suspend-btn {
+    padding: 6px 20px;
+    font-size: 13px;
+    width: 100%;
+  }
+
+  .divider {
+    margin-bottom: 16px;
+  }
+
+  .cards-section {
+    gap: 16px;
+  }
+
+  .mini-card {
+    padding: 16px;
+  }
+
+  .card-header {
+    margin-bottom: 12px;
+  }
+
+  .icon-circle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .card-title {
+    font-size: 15px;
+  }
+
+  .stats-row {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+
+  .progress-section {
+    gap: 6px;
+  }
+
+  .progress-label {
+    font-size: 12px;
+  }
+
+  .insight-text {
+    font-size: 14px;
+  }
+
   .kpis-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .kpi-card {
+    padding: 14px;
+  }
+
+  .kpi-label {
+    font-size: 12px;
+  }
+
+  .kpi-value {
+    font-size: 22px;
+  }
+
+  .kpi-emoji {
+    font-size: 28px;
+  }
+
+  .kpi-change {
+    font-size: 12px;
+    padding: 2px 6px;
+  }
+
+  .shift-calendar {
+    gap: 10px;
   }
 
   .day-column {
     min-width: 100%;
+    padding: 12px;
+  }
+
+  .day-header {
+    font-size: 14px;
+    padding-bottom: 6px;
+  }
+
+  .shift-block {
+    padding: 10px;
+  }
+
+  .shift-time {
+    font-size: 11px;
+  }
+
+  .shift-role {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+
+  .shift-button {
+    padding: 8px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .employee-card {
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .employee-header {
+    margin-bottom: 10px;
+  }
+
+  .employee-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .employee-info {
+    gap: 4px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .employee-name {
+    font-size: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tag {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .tab-buttons {
+    margin-bottom: 12px;
+  }
+
+  .tab-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .details-grid {
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .detail-label {
+    font-size: 11px;
+  }
+
+  .detail-value {
+    font-size: 13px;
+
+    &.stars {
+      font-size: 14px;
+    }
+  }
+
+  .action-section {
+    margin-bottom: 12px;
+  }
+
+  .suspend-btn {
+    padding: 6px 16px;
+    font-size: 12px;
+  }
+
+  .divider {
+    margin-bottom: 12px;
+  }
+
+  .cards-section {
+    gap: 12px;
+  }
+
+  .mini-card {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .card-header {
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+
+  .icon-circle {
+    width: 36px;
+    height: 36px;
+  }
+
+  .card-title {
+    font-size: 14px;
+  }
+
+  .stats-row {
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+  }
+
+  .stat-value {
+    font-size: 16px;
+  }
+
+  .progress-bar {
+    height: 6px;
+  }
+
+  .insight-text {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .kpis-grid {
+    gap: 10px;
+  }
+
+  .kpi-card {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .kpi-label {
+    font-size: 11px;
+  }
+
+  .kpi-value {
+    font-size: 20px;
+  }
+
+  .kpi-emoji {
+    font-size: 24px;
+  }
+
+  .kpi-value-row {
+    gap: 8px;
+  }
+
+  .kpi-change {
+    font-size: 11px;
+    padding: 2px 5px;
+  }
+
+  .donut-chart {
+    top: 12px;
+    right: 12px;
+
+    svg {
+      transform: scale(0.8);
+    }
+  }
+
+  .day-column {
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .day-header {
+    font-size: 13px;
+  }
+
+  .shift-block {
+    padding: 8px;
+    border-radius: 10px;
+  }
+
+  .shift-time {
+    font-size: 10px;
+  }
+
+  .shift-role {
+    font-size: 10px;
+    padding: 2px 5px;
+  }
+
+  .shift-button {
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  .empty-state {
+    padding: 40px 16px;
+    min-height: 300px;
+  }
+
+  .empty-title {
+    font-size: 18px;
+  }
+
+  .empty-subtitle {
+    font-size: 13px;
   }
 }
 

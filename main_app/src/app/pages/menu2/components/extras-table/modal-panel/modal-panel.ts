@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, HostListener, ElementRef, Renderer2, Inject } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ModalMode } from '@/types/menu2/modes.type';
@@ -12,7 +12,7 @@ import { Allergen, Ingredient } from '@/types/interfaces/menu2/modals';
   templateUrl: './modal-panel.html',
   styleUrl: './modal-panel.scss',
 })
-export class ExtrasModalPanel implements OnInit, OnChanges {
+export class ExtrasModalPanel implements OnInit, OnChanges, OnDestroy {
   @Input() isOpen: boolean = false;
   @Input() mode: ModalMode = 'add';
   @Input() data: any = null;
@@ -75,6 +75,28 @@ export class ExtrasModalPanel implements OnInit, OnChanges {
   ingredientQuantity: string = '';
   ingredientUom: string = 'kg';
   uomOptions: string[] = ['kg', 'g', 'L', 'mL', 'pcs'];
+  showFormatDropdown: boolean = false;
+
+  private modalElement: HTMLElement | null = null;
+  private bodyElement: HTMLElement | null = null;
+
+  constructor(
+    private el: ElementRef,
+    private renderer: Renderer2,
+    @Inject(DOCUMENT) private document: Document
+  ) {
+    this.bodyElement = this.document.body;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (this.showFormatDropdown) {
+      const formatGroup = this.el.nativeElement.querySelector('.format-group');
+      if (formatGroup && !formatGroup.contains(event.target as Node)) {
+        this.showFormatDropdown = false;
+      }
+    }
+  }
 
   ngOnInit(): void {
     if (this.mode === 'edit' && this.data) {
@@ -124,6 +146,42 @@ export class ExtrasModalPanel implements OnInit, OnChanges {
     } else {
       this.resetForm();
     }
+    
+    // Initialize selected extras for add mode if not already set
+    if (this.mode === 'add' && this.isOpen && (!this.selectedExtras || this.selectedExtras.length === 0)) {
+      // Use availableExtras as default selected items
+      if (this.availableExtras && this.availableExtras.length > 0) {
+        // This will be handled by parent component, but ensure we have data
+      }
+    }
+
+    // Move modal to body when open to ensure it overlays everything
+    if (this.isOpen && this.bodyElement) {
+      setTimeout(() => this.moveModalToBody(), 0);
+    } else if (!this.isOpen && this.modalElement) {
+      this.removeModalFromBody();
+    }
+  }
+
+  private moveModalToBody(): void {
+    if (!this.bodyElement || !this.el.nativeElement) return;
+    
+    const modalOverlay = this.el.nativeElement.querySelector('.modal-overlay');
+    if (modalOverlay && !this.modalElement) {
+      this.modalElement = modalOverlay;
+      this.renderer.appendChild(this.bodyElement, modalOverlay);
+    }
+  }
+
+  private removeModalFromBody(): void {
+    if (this.modalElement && this.bodyElement) {
+      this.renderer.removeChild(this.bodyElement, this.modalElement);
+      this.modalElement = null;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.removeModalFromBody();
   }
 
   resetForm(): void {
@@ -175,6 +233,7 @@ export class ExtrasModalPanel implements OnInit, OnChanges {
 
   onClose(): void {
     this.isOpen = false;
+    this.showFormatDropdown = false;
     this.close.emit();
   }
 
@@ -277,6 +336,26 @@ export class ExtrasModalPanel implements OnInit, OnChanges {
       category: '',
       mandatory: false,
     };
+    this.showFormatDropdown = false;
+  }
+
+  toggleFormatDropdown(): void {
+    this.showFormatDropdown = !this.showFormatDropdown;
+  }
+
+  selectFormat(format: string): void {
+    this.subcategoryData.format = format;
+    this.showFormatDropdown = false;
+  }
+
+  getFormatDisplayName(): string {
+    if (this.subcategoryData.format === 'Multiselector') {
+      return 'Multiselector';
+    }
+    if (this.subcategoryData.format === 'Single Selector') {
+      return 'Single Selector';
+    }
+    return this.subcategoryData.format;
   }
 }
 

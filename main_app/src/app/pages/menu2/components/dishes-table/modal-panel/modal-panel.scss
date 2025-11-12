@@ -1,28 +1,78 @@
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--overlay-medium);
-  z-index: 1000;
-  backdrop-filter: blur(2px);
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: var(--overlay-medium) !important;
+  z-index: 99999 !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
 }
 
 .modal-container {
-  position: fixed;
-  top: 78px;
-  bottom: 0;
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
   width: 100%;
   max-width: 500px;
   background: var(--white);
   box-shadow: -2px 0 12px var(--shadow-light-medium);
   display: flex;
   flex-direction: column;
-  z-index: 1001;
+  z-index: 100000 !important;
   transition: transform 0.3s ease-in-out, right 0.3s ease-in-out;
   overflow: hidden;
-  height: calc(100vh - 78px);
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-// Left Panel (Dish)
+// Dual Modal Container for Add Mode
+.dual-modal-container {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100%;
+  max-width: 1000px;
+  background: transparent;
+  display: flex;
+  gap: 0;
+  z-index: 100000 !important;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  overflow: hidden;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  &.open {
+    transform: translateX(0);
+  }
+}
+
+.modal-panel {
+  flex: 1;
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+  max-width: 500px;
+}
+
+.left-panel {
+  border-right: 1px solid var(--gray-200);
+}
+
+// Left Panel (Dish) - for edit mode
 .modal-left {
   right: 0;
   transform: translateX(100%);
@@ -36,7 +86,7 @@
   }
 }
 
-// Right Panel (Extra)
+// Right Panel (Extra) - for separate extra modal
 .modal-right {
   right: 0;
   transform: translateX(100%);
@@ -51,12 +101,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--gray-200);
+  padding: 20px 24px 10px 24px;
   flex-shrink: 0;
   position: relative;
   z-index: 10;
-  background: var(--white);
+
   gap: 12px;
 
   .modal-title {
@@ -153,7 +202,7 @@
 
 // Content
 .modal-content {
-  padding: 24px;
+  padding: 0px 24px 24px 24px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -192,7 +241,7 @@
 
 .input-icon {
   position: absolute;
-  left: 12px;
+  left: 16px;
   width: 16px;
   height: 16px;
   display: flex;
@@ -204,9 +253,9 @@
 
 .form-input {
   width: 100%;
-  padding: 12px 12px 12px 40px;
+  padding: 14px 16px 14px 44px;
   border: 1px solid var(--gray-300);
-  border-radius: 8px;
+  border-radius: 100px;
   background: var(--gray-100);
   font-size: 14px;
   color: var(--text-color-dark);
@@ -225,13 +274,13 @@
 
 select.form-input {
   appearance: none;
-  padding-right: 40px;
+  padding-right: 44px;
   cursor: pointer;
 }
 
 .dropdown-arrow {
   position: absolute;
-  right: 12px;
+  right: 16px;
   width: 16px;
   height: 16px;
   display: flex;
@@ -268,8 +317,8 @@ select.form-input {
 
 .allergens-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
   margin-bottom: 8px;
 }
 
@@ -277,34 +326,39 @@ select.form-input {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 12px 8px;
+  gap: 4px;
+  padding: 8px 4px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
+  background: transparent;
+  border: none;
 
   &:hover {
     background: var(--gray-50);
-    border-color: var(--gray-300);
   }
 
   &.selected {
-    background: var(--blue-light-bg);
-    border-color: var(--icon-blue);
+    background: var(--white);
+
+    .allergen-icon {
+      border: 2px solid var(--base-primary, rgba(45, 113, 247, 1));
+    }
   }
 }
 
 .allergen-icon {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 20px;
+  font-size: 18px;
+  border: 2px solid transparent;
+  position: relative;
+  transition: all 0.2s ease;
 }
 
 .allergen-icon-text {
@@ -313,18 +367,42 @@ select.form-input {
   justify-content: center;
 }
 
+.allergen-checkmark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background: var(--base-primary, rgba(45, 113, 247, 1));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+  z-index: 2;
+}
+
 .allergen-name {
-  font-size: 10px;
+  font-size: 9px;
   text-align: center;
   color: var(--text-color-dark);
   line-height: 1.2;
   font-weight: 500;
+  word-break: break-word;
 }
 
 .from-extras-text {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-color-medium);
-  font-style: italic;
+  font-style: normal;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
 }
 
 // Manage subcategories button/link
@@ -341,6 +419,34 @@ select.form-input {
   transition: all 0.2s ease;
   text-align: left;
   align-self: flex-start;
+  padding-left: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Extras section wrapper for positioning
+.extras-section-wrapper {
+  position: relative;
+}
+
+// Manage extras wrapper for dropdown positioning
+.manage-extras-wrapper {
+  position: relative;
+}
+
+// Manage Extra Groups button
+.manage-extra-groups-button {
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--google-blue);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
   padding-left: 0;
 
   &:hover {
@@ -443,9 +549,9 @@ select.form-input {
 // Description Textarea
 .form-textarea {
   width: 100%;
-  padding: 12px;
+  padding: 14px 16px;
   border: 1px solid var(--gray-300);
-  border-radius: 8px;
+  border-radius: 16px;
   background: var(--gray-100);
   font-size: 14px;
   color: var(--text-color-dark);
@@ -477,6 +583,21 @@ select.form-input {
 }
 
 // Extras Section
+.extras-flat-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  background: var(--gray-50);
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+  margin-bottom: 12px;
+}
+
+.extras-group-items {
+  display: contents;
+}
+
 .extra-group {
   margin-bottom: 16px;
 
@@ -506,29 +627,21 @@ select.form-input {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
-  background: var(--white);
-  border: 1px solid var(--gray-300);
-  border-radius: 16px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 20px;
   font-size: 13px;
-  color: var(--text-color-dark);
   transition: all 0.2s ease;
   cursor: pointer;
 
-  &.selected {
-    background: var(--blue-light-bg);
-    border-color: var(--google-blue);
-    color: var(--google-blue);
-  }
-
   &:hover {
-    border-color: var(--google-blue);
+    opacity: 0.85;
   }
 }
 
 .extra-tag-name {
   font-weight: 500;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .remove-extra-btn {
@@ -539,8 +652,7 @@ select.form-input {
   justify-content: center;
   background: transparent;
   border: none;
-  font-size: 14px;
-  color: var(--text-color-dark);
+  font-size: 16px;
   cursor: pointer;
   border-radius: 50%;
   transition: background-color 0.2s ease;
@@ -548,7 +660,7 @@ select.form-input {
   line-height: 1;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.1);
+    opacity: 0.7;
   }
 }
 
@@ -557,18 +669,22 @@ select.form-input {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  padding: 12px;
+  background: var(--gray-50);
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
 }
 
 .ingredient-tag {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
-  background: var(--gray-100);
-  border: 1px solid var(--gray-200);
+  padding: 8px 14px;
+  background: var(--base-primary-10, rgba(45, 113, 247, 0.1));
+  border: none;
   border-radius: 20px;
   font-size: 13px;
-  color: var(--text-color-dark);
+  color: var(--base-primary, rgba(45, 113, 247, 1));
   position: relative;
 
   &.new-ingredient {
@@ -592,6 +708,7 @@ select.form-input {
 
 .ingredient-text {
   font-weight: 500;
+  color: var(--base-primary, rgba(45, 113, 247, 1));
 }
 
 .remove-ingredient-button {
@@ -603,7 +720,7 @@ select.form-input {
   background: transparent;
   border: none;
   font-size: 16px;
-  color: var(--text-color-dark);
+  color: var(--base-primary, rgba(45, 113, 247, 1));
   cursor: pointer;
   border-radius: 50%;
   transition: background-color 0.2s ease;
@@ -611,7 +728,7 @@ select.form-input {
   line-height: 1;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(45, 113, 247, 0.2);
   }
 }
 
@@ -775,9 +892,404 @@ select.form-input {
   }
 }
 
-// Extra Allergens Grid (5 columns)
+// Extra Ingredients Group
+.extra-ingredients-group {
+  margin-bottom: 24px;
+}
+
+.extra-ingredients-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+// New Extra Button (Top Right)
+.new-extra-button-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: var(--base-primary, rgba(45, 113, 247, 1));
+  border: none;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--base-primary-hover, rgba(35, 103, 237, 1));
+  }
+
+  .plus-icon {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1;
+  }
+}
+
+// Extra Ingredients Container (with border and padding)
+.extra-ingredients-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px;
+  background: var(--gray-50);
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  min-height: 60px;
+}
+
+// Search Ingredients Section
+.search-ingredients-section {
+  // margin-top: 32px;
+  padding: 24px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.search-ingredients-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-color-dark);
+  margin: 0 0 20px 0;
+}
+
+// Search Input Styling
+.search-input {
+  border-radius: 100px !important;
+  padding: 14px 16px 14px 44px !important;
+}
+
+// Simple Input (no icon)
+.simple-input {
+  padding: 14px 16px !important;
+  border-radius: 100px !important;
+}
+
+// Simple Select (no icon)
+.simple-select {
+  padding: 14px 16px !important;
+  padding-right: 44px !important;
+  border-radius: 100px !important;
+  appearance: none;
+}
+
+// Quantity UoM Row
+.quantity-uom-row {
+  display: flex;
+  gap: 16px;
+
+  .flex-1 {
+    flex: 1;
+  }
+}
+
+// Ingredient Dropdown List (New Style)
+.ingredient-dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  padding: 8px;
+}
+
+.ingredient-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 4px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    background: var(--gray-100);
+  }
+
+  &.selected {
+    background: var(--base-primary-10, rgba(45, 113, 247, 0.1));
+    border: 1px solid transparent;
+  }
+}
+
+.ingredient-dropdown-text {
+  font-size: 14px;
+  color: var(--text-color-dark);
+  flex: 1;
+}
+
+.ingredient-dropdown-item .check-icon {
+  color: var(--base-primary, rgba(45, 113, 247, 1));
+  flex-shrink: 0;
+}
+
+// Inventory Radio Group (Horizontal with Rounded Pills)
+.inventory-radio-group {
+  display: flex;
+  gap: 12px;
+}
+
+.inventory-radio-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 11px;
+  border: 2px solid var(--gray-300);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--white);
+
+  input[type='radio'] {
+    display: none;
+  }
+
+  &:hover {
+    border-color: var(--base-primary, rgba(45, 113, 247, 0.5));
+  }
+
+  &.selected {
+    background: var(--base-primary-10, rgba(45, 113, 247, 0.1));
+    border-color: var(--base-primary, rgba(45, 113, 247, 1));
+
+    .radio-circle {
+      background: var(--base-primary, rgba(45, 113, 247, 1));
+      border-color: var(--base-primary, rgba(45, 113, 247, 1));
+    }
+
+    .radio-text {
+      color: var(--text-color-dark);
+    }
+  }
+}
+
+.radio-circle {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--gray-400);
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--white);
+    border-radius: 50%;
+    opacity: 0;
+    transition: all 0.2s ease;
+  }
+}
+
+.inventory-radio-option.selected .radio-circle::after {
+  opacity: 1;
+}
+
+.radio-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color-dark);
+}
+
+// Add Search Ingredient Button
+.add-search-ingredient-button {
+  padding: 12px 24px;
+  background: var(--base-primary, rgba(45, 113, 247, 1));
+  border: none;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-left: auto;
+  margin-top: 16px;
+
+  &:hover {
+    background: var(--base-primary-hover, rgba(35, 103, 237, 1));
+  }
+
+  .add-icon {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1;
+  }
+}
+
+// Align button to the right
+.search-ingredients-section .form-group:last-child {
+  display: flex;
+  justify-content: flex-end;
+}
+
+// Extras Group Dropdown
+.extras-group-dropdown-wrapper {
+  position: relative;
+}
+
+.extras-group-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.create-extra-group-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1px dashed var(--gray-300);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 12px;
+
+  &:hover {
+    border-color: var(--base-primary, rgba(45, 113, 247, 1));
+    color: var(--base-primary, rgba(45, 113, 247, 1));
+  }
+
+  .plus-icon {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1;
+  }
+}
+
+.extras-group-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.extras-group-option-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--white);
+  border: 1px solid transparent;
+
+  &:hover {
+    background: var(--gray-50);
+  }
+
+  &.selected {
+    background: var(--base-primary-10, rgba(45, 113, 247, 0.1));
+    border-color: transparent;
+
+    .radio-circle-small {
+      background: var(--base-primary, rgba(45, 113, 247, 1));
+      border-color: var(--base-primary, rgba(45, 113, 247, 1));
+
+      &::after {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.radio-circle-small {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--gray-400);
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--white);
+    border-radius: 50%;
+    opacity: 0;
+    transition: all 0.2s ease;
+  }
+}
+
+.extras-group-option-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color-dark);
+  flex: 1;
+}
+
+// Validation Error Styling
+.error-input {
+  border-color: var(--error-color, #ef4444) !important;
+  background-color: rgba(239, 68, 68, 0.05) !important;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--error-color, #ef4444);
+  font-weight: 500;
+
+  svg {
+    flex-shrink: 0;
+    color: var(--error-color, #ef4444);
+  }
+}
+
+// Extra Allergens Grid (same as main allergens)
 .extra-allergens-grid {
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(8, 1fr);
 }
 
 // Subcategory Dropdown
@@ -1316,9 +1828,9 @@ input:checked + .toggle-slider-small {
 
 // Delete Modal (Centered)
 .delete-modal-container {
-  position: fixed;
-  top: 50%;
-  left: 50%;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
   transform: translate(-50%, -50%) scale(0.95);
   width: 90%;
   max-width: 480px;
@@ -1327,13 +1839,164 @@ input:checked + .toggle-slider-small {
   box-shadow: 0 10px 40px var(--shadow-dark);
   display: flex;
   flex-direction: column;
-  z-index: 1002;
+  z-index: 100000 !important;
   opacity: 0;
   transition: all 0.3s ease-in-out;
+  margin: 0 !important;
 
   &.open {
     transform: translate(-50%, -50%) scale(1);
     opacity: 1;
+  }
+}
+
+// Extra Groups Modal (Dropdown style - positioned below button)
+.extra-groups-modal-container {
+  position: absolute !important;
+  top: calc(100% + 8px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100%;
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000 !important;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease-in-out;
+  margin: 0 !important;
+  max-height: 70vh; // Maximum height for the entire modal
+
+  &.open {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--gray-200);
+    flex-shrink: 0; // Prevent header from shrinking
+  }
+
+  .modal-content {
+    padding: 20px 24px;
+    overflow-y: auto; // Enable vertical scrolling
+    overflow-x: hidden; // Hide horizontal overflow
+    flex: 1; // Take remaining space
+    min-height: 0; // Important for flexbox scrolling
+
+    // Custom scrollbar styling
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--gray-100);
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--gray-400);
+      border-radius: 10px;
+
+      &:hover {
+        background: var(--gray-500);
+      }
+    }
+  }
+
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--gray-200);
+    flex-shrink: 0; // Prevent footer from shrinking
+  }
+}
+
+.extra-groups-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.extra-group-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--gray-50);
+  border: 2px solid transparent;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--gray-100);
+  }
+
+  &.selected {
+    background: var(--blue-light-bg);
+    border-color: var(--google-blue);
+  }
+}
+
+.drag-handle-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color-medium);
+  cursor: move;
+  flex-shrink: 0;
+}
+
+.group-name {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-color-dark);
+}
+
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  input[type='checkbox'] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.checkbox-custom {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--gray-400);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: var(--white);
+
+  svg {
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.2s ease;
+  }
+}
+
+.extra-group-item.selected .checkbox-custom {
+  background: var(--google-blue);
+  border-color: var(--google-blue);
+
+  svg {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -1405,7 +2068,6 @@ input:checked + .toggle-slider-small {
   .modal-container {
     width: 100%;
     max-width: 95%;
-    max-height: 95vh;
   }
 
   // On mobile, show only one panel at a time
@@ -1465,5 +2127,3 @@ input:checked + .toggle-slider-small {
     align-items: flex-start;
   }
 }
-
-

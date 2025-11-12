@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface AlertItem {
   message: string;
@@ -9,7 +10,7 @@ interface AlertItem {
 @Component({
   selector: 'app-feedback-alerts',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './feedback-alerts.html',
   styleUrl: './feedback-alerts.scss',
 })

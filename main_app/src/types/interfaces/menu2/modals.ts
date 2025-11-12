@@ -21,6 +21,8 @@ export interface ExtraToggle {
 export interface ExtraGroup {
   name: string;
   extras: ExtraToggle[];
+  color?: string;
+  textColor?: string;
 }
 
 export interface SubcategoryItem {

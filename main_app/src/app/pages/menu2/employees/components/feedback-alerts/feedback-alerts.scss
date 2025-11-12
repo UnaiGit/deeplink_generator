@@ -64,7 +64,7 @@
   svg {
     width: 16px;
     height: 16px;
-}
+  }
 }
 
 // Alerts List
@@ -114,7 +114,7 @@
 
   .checkmark-icon {
     color: #10b981;
-}
+  }
 }
 
 .alert-pink {
@@ -123,7 +123,7 @@
 
   .checkmark-icon {
     color: #ec4899;
-}
+  }
 }
 
 .alert-yellow {
@@ -158,4 +158,140 @@
   font-size: 14px;
   color: var(--text-color-medium, #667085);
   text-align: center;
+}
+
+// Responsive breakpoints
+@media (max-width: 768px) {
+  .feedback-panel {
+    padding: 16px;
+    height: auto;
+    min-height: 400px;
+  }
+
+  .feedback-header {
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .header-left {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .icon-wrapper {
+    width: 40px;
+    height: 40px;
+  }
+
+  .feedback-title {
+    font-size: 18px;
+  }
+
+  .btn-add {
+    padding: 8px 12px;
+    font-size: 13px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  .alerts-list {
+    gap: 10px;
+  }
+
+  .alert-item {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .checkmark-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .alert-message {
+    font-size: 13px;
+  }
+
+  .empty-state {
+    padding: 40px 16px;
+    min-height: 300px;
+  }
+
+  .empty-title {
+    font-size: 18px;
+  }
+
+  .empty-subtitle {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .feedback-panel {
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .feedback-header {
+    margin-bottom: 12px;
+  }
+
+  .icon-wrapper {
+    width: 36px;
+    height: 36px;
+  }
+
+  .feedback-title {
+    font-size: 16px;
+  }
+
+  .btn-add {
+    padding: 6px 10px;
+    font-size: 12px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  .alerts-list {
+    gap: 8px;
+  }
+
+  .alert-item {
+    padding: 10px;
+    border-radius: 8px;
+    flex-wrap: wrap;
+  }
+
+  .checkmark-icon {
+    width: 18px;
+    height: 18px;
+    margin-top: 0;
+  }
+
+  .alert-message {
+    font-size: 12px;
+    line-height: 1.4;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .empty-state {
+    padding: 30px 12px;
+    min-height: 250px;
+  }
+
+  .empty-title {
+    font-size: 16px;
+  }
+
+  .empty-subtitle {
+    font-size: 12px;
+  }
 }

@@ -13,7 +13,7 @@
             fill="white" />
         </svg>
       </div>
-      <h2 class="feedback-title">Feedback & alerts</h2>
+      <h2 class="feedback-title">{{ 'Feedback & alerts' | translate }}</h2>
     </div>
     <button class="btn-add" (click)="onAddAlert()">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
@@ -21,7 +21,7 @@
         <path d="M8 2V14M2 8H14" stroke="white" stroke-width="2"
           stroke-linecap="round" />
       </svg>
-      Add
+      {{ 'Add' | translate }}
     </button>
   </div>
 
@@ -43,7 +43,7 @@
 
   <!-- Empty State -->
   <div class="empty-state" *ngIf="alerts.length === 0">
-    <div class="empty-title">No feedback items</div>
-    <div class="empty-subtitle">Start building your dream team!</div>
+    <div class="empty-title">{{ 'No feedback items' | translate }}</div>
+    <div class="empty-subtitle">{{ 'Start building your dream team!' | translate }}</div>
   </div>
 </div>
