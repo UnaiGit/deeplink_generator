@@ -46,11 +46,13 @@
     [sections]="sections"
     [mode]="modalMode"
     [selectedSection]="selectedSection"
+    [availableCategories]="availableCategories"
     (close)="onModalClose()"
     (addSection)="onAddSection($event)"
     (deleteSection)="onDeleteSection($event)"
     (updateSections)="onUpdateSections($event)"
     (confirmDelete)="onConfirmDeleteSection($event)"
     (cancelDelete)="onCancelDeleteSection()"
+    (importCategories)="onImportCategories($event)"
   ></app-depart-modal-panel>
 </div>

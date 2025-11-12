@@ -128,7 +128,7 @@ export class CatTable implements OnInit {
   }
 
   openAddFromList(): void {
-    this.showCategoriesList = false;
+    // Keep categories list visible, the modal panel will handle showing the form
     this.selectedCategory = null;
     this.modalMode = 'add';
   }

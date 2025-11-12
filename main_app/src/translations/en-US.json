@@ -250,5 +250,9 @@
   "Engagement": "Engagement",
   "Active Working": "Active Working",
   "Inactive": "Inactive",
-  "Suspended": "Suspended"
+  "Suspended": "Suspended",
+  "Optimize with AI": "Optimize with AI",
+  "Employee": "Employee",
+  "Feedback & alerts": "Feedback & alerts",
+  "No feedback items": "No feedback items"
 }

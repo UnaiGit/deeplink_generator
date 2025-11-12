@@ -103,6 +103,10 @@ export class ExtrasTable implements OnInit {
     this.modalMode = 'add';
     this.modalOpen = true;
     this.showExtrasList = false;
+    // Initialize with default selected extras for display
+    if (this.selectedExtrasForEditing.length === 0) {
+      this.selectedExtrasForEditing = [...this.availableExtras];
+    }
     this.addClick.emit();
   }
 

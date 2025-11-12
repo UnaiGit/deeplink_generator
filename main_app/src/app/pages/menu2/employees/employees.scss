@@ -43,3 +43,39 @@
     grid-template-columns: 1fr;
   }
 }
+
+// Tablet breakpoint
+@media (max-width: 768px) {
+  .employees-page {
+    padding: 20px 16px;
+  }
+
+  .page-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .main-row,
+  .bottom-row {
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+}
+
+// Mobile breakpoint
+@media (max-width: 480px) {
+  .employees-page {
+    padding: 16px 12px;
+  }
+
+  .page-title {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .main-row,
+  .bottom-row {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+}

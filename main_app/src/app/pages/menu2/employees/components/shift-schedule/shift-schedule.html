@@ -13,7 +13,7 @@
             fill="white" />
         </svg>
       </div>
-      <h2 class="schedule-title">Shift</h2>
+      <h2 class="schedule-title">{{ 'Shift' | translate }}</h2>
     </div>
     <div class="header-right">
       <button class="btn-optimize" (click)="onOptimizeWithAI()">
@@ -30,7 +30,7 @@
           <path d="M7 7L9 9M9 7L7 9" stroke="currentColor" stroke-width="1.5"
             stroke-linecap="round" />
         </svg>
-        Optimize with AI
+        {{ 'Optimize with AI' | translate }}
       </button>
       <button class="btn-add" (click)="onAddShift()">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
@@ -38,7 +38,7 @@
           <path d="M8 2V14M2 8H14" stroke="white" stroke-width="2"
             stroke-linecap="round" />
         </svg>
-        Add
+        {{ 'Add' | translate }}
       </button>
     </div>
   </div>
@@ -48,7 +48,7 @@
     <div class="schedule-grid">
       <!-- Header Row - Days -->
       <div class="grid-header">
-        <div class="grid-cell employee-header">Employee</div>
+        <div class="grid-cell employee-header">{{ 'Employee' | translate }}</div>
         <div class="grid-cell day-header" *ngFor="let day of weekDays">
           {{ getDayName(day) }}
         </div>
@@ -75,7 +75,7 @@
   <div class="empty-state" *ngIf="shiftData.length === 0">
     <div class="empty-grid">
       <div class="empty-grid-header">
-        <div class="empty-grid-cell employee-header">Employee</div>
+        <div class="empty-grid-cell employee-header">{{ 'Employee' | translate }}</div>
         <div class="empty-grid-cell day-header" *ngFor="let day of weekDays">
           {{ getDayName(day) }}
         </div>

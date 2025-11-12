@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, HostListener, ElementRef, Renderer2, Inject } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ModalContext, ModalMode } from '@/types/menu2/modes.type';
@@ -10,7 +10,7 @@ import { ModalContext, ModalMode } from '@/types/menu2/modes.type';
   templateUrl: './modal-panel.html',
   styleUrl: './modal-panel.scss',
 })
-export class ModalPanel implements OnInit, OnChanges {
+export class ModalPanel implements OnInit, OnChanges, OnDestroy {
   @Input() isOpen: boolean = false;
   @Input() context: ModalContext = 'category';
   @Input() mode: ModalMode = 'add';
@@ -24,6 +24,19 @@ export class ModalPanel implements OnInit, OnChanges {
   @Output() editCategory = new EventEmitter<any>();
   @Output() deleteCategory = new EventEmitter<any>();
   @Output() updateCategories = new EventEmitter<void>();
+
+  showAddFormInList: boolean = false;
+
+  private modalElement: HTMLElement | null = null;
+  private bodyElement: HTMLElement | null = null;
+
+  constructor(
+    private el: ElementRef,
+    private renderer: Renderer2,
+    @Inject(DOCUMENT) private document: Document
+  ) {
+    this.bodyElement = this.document.body;
+  }
 
   formData: any = {
     name: '',
@@ -58,9 +71,37 @@ export class ModalPanel implements OnInit, OnChanges {
   ngOnChanges(): void {
     if (this.mode === 'edit' && this.data) {
       this.formData = { ...this.data };
-    } else {
+    } else if (!this.showAddFormInList) {
       this.resetForm();
     }
+
+    // Move modal to body when open to ensure it overlays everything
+    if (this.isOpen && this.bodyElement) {
+      setTimeout(() => this.moveModalToBody(), 0);
+    } else if (!this.isOpen && this.modalElement) {
+      this.removeModalFromBody();
+    }
+  }
+
+  private moveModalToBody(): void {
+    if (!this.bodyElement || !this.el.nativeElement) return;
+    
+    const modalOverlay = this.el.nativeElement.querySelector('.modal-overlay');
+    if (modalOverlay && !this.modalElement) {
+      this.modalElement = modalOverlay;
+      this.renderer.appendChild(this.bodyElement, modalOverlay);
+    }
+  }
+
+  private removeModalFromBody(): void {
+    if (this.modalElement && this.bodyElement) {
+      this.renderer.removeChild(this.bodyElement, this.modalElement);
+      this.modalElement = null;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.removeModalFromBody();
   }
 
   resetForm(): void {
@@ -125,6 +166,8 @@ export class ModalPanel implements OnInit, OnChanges {
 
   onClose(): void {
     this.isOpen = false;
+    this.showAddFormInList = false;
+    this.resetForm();
     this.close.emit();
   }
 
@@ -143,7 +186,20 @@ export class ModalPanel implements OnInit, OnChanges {
   }
 
   onOpenAdd(): void {
+    this.showAddFormInList = true;
+    this.resetForm();
     this.openAdd.emit();
+  }
+
+  onCancelAddForm(): void {
+    this.showAddFormInList = false;
+    this.resetForm();
+  }
+
+  onSaveAddForm(): void {
+    this.save.emit(this.formData);
+    this.showAddFormInList = false;
+    this.resetForm();
   }
 
   onEditCategory(category: any): void {

@@ -375,3 +375,187 @@
   color: var(--text-color-medium, #667085);
   text-align: center;
 }
+
+// Responsive breakpoints
+@media (max-width: 768px) {
+  .staff-panel {
+    padding: 16px;
+    height: auto;
+    min-height: 400px;
+  }
+
+  .staff-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .header-left {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .icon-wrapper {
+    width: 40px;
+    height: 40px;
+  }
+
+  .staff-title {
+    font-size: 18px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 0;
+
+    input {
+      width: 100%;
+      font-size: 14px;
+    }
+  }
+
+  .add-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .staff-list {
+    min-height: 300px;
+  }
+
+  .staff-item {
+    padding: 10px 12px;
+  }
+
+  .staff-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .staff-name {
+    font-size: 14px;
+  }
+
+  .tag {
+    font-size: 10px;
+    padding: 2px 8px;
+  }
+
+  .item-right {
+    gap: 8px;
+  }
+
+  .staff-rank {
+    font-size: 14px;
+    min-width: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .staff-panel {
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .staff-header {
+    margin-bottom: 12px;
+  }
+
+  .icon-wrapper {
+    width: 36px;
+    height: 36px;
+  }
+
+  .staff-title {
+    font-size: 16px;
+  }
+
+  .search-box {
+    padding: 8px 12px;
+
+    input {
+      font-size: 13px;
+      width: 80px;
+    }
+  }
+
+  .add-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .staff-list {
+    gap: 8px;
+    min-height: 250px;
+  }
+
+  .staff-item {
+    padding: 8px 10px;
+    border-radius: 12px;
+  }
+
+  .item-left {
+    gap: 10px;
+  }
+
+  .staff-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .staff-info {
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .staff-name {
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .staff-tags {
+    gap: 4px;
+  }
+
+  .tag {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .item-right {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .staff-rank {
+    font-size: 13px;
+    min-width: 20px;
+  }
+
+  .empty-state {
+    padding: 40px 16px;
+    min-height: 300px;
+  }
+
+  .empty-title {
+    font-size: 18px;
+  }
+
+  .empty-subtitle {
+    font-size: 13px;
+  }
+}

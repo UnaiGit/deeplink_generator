@@ -1,5 +1,5 @@
-import { Component, OnInit, OnChanges, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnChanges, OnDestroy, Input, Output, EventEmitter, HostListener, ElementRef, Renderer2, Inject } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -14,7 +14,7 @@ import { DishItem } from '@/types/interfaces/menu2/modals';
   styleUrl: './menu-modal.scss',
   standalone: true,
 })
-export class MenuModal implements OnInit, OnChanges {
+export class MenuModal implements OnInit, OnChanges, OnDestroy {
   @Input() isOpen: boolean = false;
   @Input() mode: MenuModalMode = 'add';
   @Input() data: any = null;
@@ -52,6 +52,17 @@ export class MenuModal implements OnInit, OnChanges {
 
   hours: number[] = Array.from({ length: 24 }, (_, i) => i);
 
+  private modalElement: HTMLElement | null = null;
+  private bodyElement: HTMLElement | null = null;
+
+  constructor(
+    private el: ElementRef,
+    private renderer: Renderer2,
+    @Inject(DOCUMENT) private document: Document
+  ) {
+    this.bodyElement = this.document.body;
+  }
+
   ngOnInit(): void {
     this.initializeForm();
   }
@@ -60,6 +71,34 @@ export class MenuModal implements OnInit, OnChanges {
     if (this.isOpen && this.data) {
       this.loadData();
     }
+
+    // Move modal to body when open to ensure it overlays everything
+    if (this.isOpen && this.bodyElement) {
+      setTimeout(() => this.moveModalToBody(), 0);
+    } else if (!this.isOpen && this.modalElement) {
+      this.removeModalFromBody();
+    }
+  }
+
+  private moveModalToBody(): void {
+    if (!this.bodyElement || !this.el.nativeElement) return;
+    
+    const modalOverlay = this.el.nativeElement.querySelector('.modal-backdrop');
+    if (modalOverlay && !this.modalElement) {
+      this.modalElement = modalOverlay;
+      this.renderer.appendChild(this.bodyElement, modalOverlay);
+    }
+  }
+
+  private removeModalFromBody(): void {
+    if (this.modalElement && this.bodyElement) {
+      this.renderer.removeChild(this.bodyElement, this.modalElement);
+      this.modalElement = null;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.removeModalFromBody();
   }
 
   initializeForm(): void {

@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addDays, startOfWeek, format } from 'date-fns';
 import { ShiftEntry } from '@/types/interfaces/employees/shift-entry.interface';
 import { store, selectEmployeeState } from '../../../../../store/store';
@@ -15,7 +16,7 @@ interface ShiftDisplay {
 @Component({
   selector: 'app-shift-schedule',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './shift-schedule.html',
   styleUrl: './shift-schedule.scss',
 })
@@ -26,6 +27,8 @@ export class ShiftSchedule implements OnInit, OnDestroy {
   employees: string[] = [];
   shiftData: ShiftEntry[] = [];
   private unsubscribe?: () => void;
+
+  constructor(private translate: TranslateService) {}
   
   // Role color mapping
   roleColors: { [key: string]: string } = {
@@ -99,7 +102,19 @@ export class ShiftSchedule implements OnInit, OnDestroy {
   }
 
   getDayName(date: Date): string {
-    return format(date, 'EEE');
+    const dayKey = format(date, 'EEE');
+    // Map day abbreviations to translation keys
+    const dayMap: { [key: string]: string } = {
+      'Mon': 'Mon',
+      'Tue': 'Tue',
+      'Wed': 'Wed',
+      'Thu': 'Thu',
+      'Fri': 'Fri',
+      'Sat': 'Sat',
+      'Sun': 'Sun'
+    };
+    const translationKey = dayMap[dayKey] || dayKey;
+    return this.translate.instant(translationKey);
   }
 
   formatTimeRange(range: { start: string; end: string }): string {
