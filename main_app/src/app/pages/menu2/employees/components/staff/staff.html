@@ -1,0 +1,141 @@
+<div class="staff-panel">
+    <div class="staff-header">
+        <div class="header-left">
+            <div class="icon-wrapper">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
+                        class="staff-icon-fill" />
+                    <path
+                        d="M12 14.5C6.99 14.5 2.91 17.86 2.91 22C2.91 22.28 3.13 22.5 3.41 22.5H20.59C20.87 22.5 21.09 22.28 21.09 22C21.09 17.86 17.01 14.5 12 14.5Z"
+                        class="staff-icon-fill" />
+                </svg>
+            </div>
+            <h2 class="staff-title">{{ 'Staff' | translate }}</h2>
+        </div>
+        <div class="header-right">
+            <div class="search-box">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="6" height="6" rx="1.5"
+                        class="search-icon-stroke" stroke-width="1.5" />
+                    <rect x="10" y="2" width="6" height="6" rx="1.5"
+                        class="search-icon-stroke" stroke-width="1.5" />
+                    <rect x="2" y="10" width="6" height="6" rx="1.5"
+                        class="search-icon-stroke" stroke-width="1.5" />
+                    <rect x="10" y="10" width="6" height="6" rx="1.5"
+                        class="search-icon-stroke" stroke-width="1.5" />
+                </svg>
+                <input type="text" [placeholder]="'Search' | translate" />
+            </div>
+            <button class="add-btn" type="button"
+                (click)="openAddEmployee()">+</button>
+        </div>
+    </div>
+
+    <!-- Staff List or Empty State -->
+    <div class="staff-list" *ngIf="staff.length > 0">
+        <div class="staff-item" *ngFor="let s of staff"
+            [class.selected]="s.selected" (click)="selectStaff(s)">
+            <div class="item-left">
+                <img class="staff-avatar"
+                    [src]="s.avatarUrl || '/images/avatar.png'"
+                    alt="{{ s.name }}" />
+                <div class="staff-info">
+                    <div class="staff-name">{{ s.name }}</div>
+                    <div class="staff-tags">
+                        <span class="tag" *ngFor="let t of s.tags">{{ t
+                            }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="item-right">
+                <span class="status-dot" [class.active]="s.active"></span>
+                <div class="rank-wrapper">
+                    <span class="staff-rank">#{{ s.rank }}</span>
+                    <div class="rank-tooltip">{{ 'Top' | translate }} {{ s.rank
+                        }} {{ 'today' | translate }}</div>
+                </div>
+                <div class="chevron-wrapper"
+                    (click)="openEditEmployee(s); $event.stopPropagation()">
+                    <svg class="chevron-icon" width="20" height="20"
+                        viewBox="0 0 20 20" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.5 15L12.5 10L7.5 5"
+                            class="chevron-icon-stroke"
+                            stroke-width="1.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    <div class="tooltip">{{ 'Manage' | translate }} {{ s.name
+                        }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="staff.length === 0">
+        <div class="empty-illustration">
+            <svg width="200" height="160" viewBox="0 0 200 160" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <!-- Document 1 -->
+                <rect x="40" y="20" width="60" height="80" rx="4" fill="#E0E7FF"
+                    stroke="#C7D2FE" stroke-width="2" />
+                <rect x="50" y="35" width="40" height="4" rx="2"
+                    fill="#818CF8" />
+                <rect x="50" y="45" width="30" height="4" rx="2"
+                    fill="#C7D2FE" />
+                <rect x="50" y="55" width="35" height="4" rx="2"
+                    fill="#C7D2FE" />
+                <rect x="50" y="70" width="40" height="4" rx="2"
+                    fill="#818CF8" />
+                <rect x="50" y="80" width="25" height="4" rx="2"
+                    fill="#C7D2FE" />
+
+                <!-- Document 2 -->
+                <rect x="100" y="30" width="60" height="80" rx="4"
+                    fill="#E0E7FF" stroke="#C7D2FE" stroke-width="2" />
+                <rect x="110" y="45" width="40" height="4" rx="2"
+                    fill="#818CF8" />
+                <rect x="110" y="55" width="30" height="4" rx="2"
+                    fill="#C7D2FE" />
+                <rect x="110" y="65" width="35" height="4" rx="2"
+                    fill="#C7D2FE" />
+                <rect x="110" y="80" width="40" height="4" rx="2"
+                    fill="#818CF8" />
+                <rect x="110" y="90" width="25" height="4" rx="2"
+                    fill="#C7D2FE" />
+
+                <!-- Magnifying Glass -->
+                <circle cx="130" cy="50" r="25" class="empty-illustration-fill"
+                    opacity="0.2" />
+                <circle cx="130" cy="50" r="18" fill="none"
+                    class="empty-illustration-stroke"
+                    stroke-width="3" />
+                <line x1="145" y1="65" x2="155" y2="75"
+                    class="empty-illustration-stroke"
+                    stroke-width="3" stroke-linecap="round" />
+            </svg>
+        </div>
+        <div class="empty-title">{{ 'No employees yet' | translate }}</div>
+        <div class="empty-subtitle">{{ 'Start building your dream team!' |
+            translate }}</div>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <app-add-employee
+        [isOpen]="showAddEmployeeModal"
+        [employee]="editingEmployee"
+        [isEditMode]="isEditMode"
+        (close)="closeAddEmployee()"
+        (save)="onSaveEmployee($event)">
+    </app-add-employee>
+
+    <!-- Success Toast -->
+    <app-toast
+        [message]="toastMessage"
+        [type]="toastType"
+        [show]="showToast">
+    </app-toast>
+</div>

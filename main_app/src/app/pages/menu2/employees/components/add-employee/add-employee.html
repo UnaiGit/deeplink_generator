@@ -1,0 +1,186 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onClose()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2 class="modal-title">{{ isEditMode ? 'Edit Employee' : 'Add Employee'
+        }}</h2>
+      <button class="close-btn" (click)="onClose()" type="button">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Form -->
+    <div class="modal-body">
+      <form (ngSubmit)="onSave()">
+        <!-- Name -->
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path
+                d="M12.0002 14.5C6.99016 14.5 2.91016 17.86 2.91016 22C2.91016 22.28 3.13016 22.5 3.41016 22.5H20.5902C20.8702 22.5 21.0902 22.28 21.0902 22C21.0902 17.86 17.0102 14.5 12.0002 14.5Z"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+            <input
+              type="text"
+              class="form-input"
+              placeholder="ex : John"
+              [(ngModel)]="formData.name"
+              name="name"
+              [required]="!isEditMode" />
+          </div>
+        </div>
+
+        <!-- Phone and Email Row -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Phone number</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24"
+                fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M22 16.92V19.92C22.0011 20.1985 21.9441 20.4742 21.8325 20.7292C21.7209 20.9842 21.5573 21.2131 21.3528 21.4006C21.1482 21.5881 20.9071 21.7299 20.6446 21.8167C20.3821 21.9035 20.104 21.9334 19.83 21.904C16.7438 21.5346 13.787 20.4991 11.19 18.88C8.77382 17.4102 6.72533 15.3617 5.25599 12.9455C3.65399 10.3455 2.61799 7.3845 2.25599 4.2945C2.22659 4.02048 2.25649 3.74241 2.34329 3.47993C2.43008 3.21745 2.57187 2.97634 2.75937 2.77178C2.94687 2.56722 3.17578 2.40364 3.43078 2.29203C3.68578 2.18042 3.96148 2.12347 4.23999 2.1245H7.23999C7.56999 2.12322 7.89511 2.22088 8.17114 2.40448C8.44717 2.58808 8.66197 2.84966 8.78999 3.1545L10.14 6.4045C10.2658 6.70726 10.3003 7.04099 10.2396 7.36321C10.1789 7.68543 10.0264 7.98226 9.79999 8.2145L8.08999 9.9245C9.51415 12.5812 11.4188 14.4859 14.0755 15.91L15.7855 14.2C16.0177 13.9736 16.3146 13.8211 16.6368 13.7604C16.959 13.6997 17.2927 13.7342 17.5955 13.86L20.8455 15.21C21.1525 15.3381 21.4162 15.5531 21.601 15.8293C21.7858 16.1055 21.8835 16.4308 21.8815 16.763L22 16.92Z"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+              <input
+                type="tel"
+                class="form-input"
+                placeholder="ex : 678901230"
+                [(ngModel)]="formData.phone"
+                name="phone"
+                [required]="!isEditMode" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24"
+                fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <input
+                type="email"
+                class="form-input"
+                placeholder="ex : user@gmail.com"
+                [(ngModel)]="formData.email"
+                name="email"
+                [required]="!isEditMode" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Roles/Tags -->
+        <div class="form-group">
+          <label class="form-label">Roles</label>
+          <div class="tags-container">
+            <button
+              type="button"
+              *ngFor="let tag of availableTags"
+              class="tag-button"
+              [class.selected]="isTagSelected(tag)"
+              (click)="toggleTag(tag)">
+              {{ tag }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Hours (full width) -->
+        <div class="form-group">
+          <label class="form-label">Hours (day)</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <input
+              type="number"
+              class="form-input"
+              placeholder="ex : 6"
+              [(ngModel)]="formData.hoursPerDay"
+              name="hoursPerDay"
+              [required]="!isEditMode" />
+          </div>
+        </div>
+
+        <!-- Currency and Salary Row -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Currency</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24"
+                fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 2V22M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+              <select
+                class="form-input form-select"
+                [(ngModel)]="formData.currency"
+                name="currency">
+                <option *ngFor="let curr of currencies" [value]="curr">{{ curr
+                  }}</option>
+              </select>
+              <svg class="select-chevron" width="16" height="16"
+                viewBox="0 0 16 16" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Salary (hours)</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24"
+                fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 2V22M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+              <input
+                type="text"
+                class="form-input"
+                placeholder="ex : 1.200"
+                [(ngModel)]="formData.salaryPerHour"
+                name="salaryPerHour"
+                [required]="!isEditMode" />
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel"
+        (click)="onClose()">Cancel</button>
+      <button type="button" class="btn-save" [disabled]="!isFormValid()"
+        (click)="onSave()">Save</button>
+    </div>
+  </div>
+</div>

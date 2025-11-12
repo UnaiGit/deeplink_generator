@@ -19,7 +19,7 @@ export class Department {
     {
       id: '1',
       name: 'Hot Kitchen',
-      icon: '🔪',
+      icon: '/icons/chefhat.svg',
       badge: 'Mains',
       staff: 'Chris, Lily',
       capacity: 3
@@ -27,7 +27,7 @@ export class Department {
     {
       id: '2',
       name: 'Bar',
-      icon: '🍷',
+      icon: '/icons/bar.svg',
       badge: 'Mains',
       staff: 'Chris, Lily',
       capacity: 3
@@ -35,7 +35,7 @@ export class Department {
     {
       id: '3',
       name: 'Pastry',
-      icon: '🍰',
+      icon: '/icons/donut.svg',
       badge: 'Mains',
       staff: 'Chris, Lily',
       capacity: 3
@@ -45,14 +45,14 @@ export class Department {
   // New department form
   newDepartment = {
     name: '',
-    icon: '🔪',
+    icon: '/icons/chefhat.svg',
     capacity: '',
     categories: ''
   };
 
   showIconDropdown = false;
 
-  icons = ['🔪', '🍷', '🍰', '🍕', '🍔', '☕', '🥗', '🍜'];
+  icons = ['/icons/chefhat.svg', '/icons/bar.svg', '/icons/donut.svg', '/icons/cooking.svg', '/icons/dish.svg', '/icons/tea.svg', '/icons/categorey.svg', '/icons/menu.svg'];
 
   openAddPanel(): void {
     this.showAddPanel.set(true);
@@ -66,7 +66,7 @@ export class Department {
   resetForm(): void {
     this.newDepartment = {
       name: '',
-      icon: '🔪',
+      icon: '/icons/chefhat.svg',
       capacity: '',
       categories: ''
     };

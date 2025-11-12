@@ -158,46 +158,38 @@
   margin-bottom: 1.5rem;
 }
 
-.discharge-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: var(--primary-blue-light);
-  border: none;
-  border-radius: 8px;
-  color: var(--white) !important;
-  font-family: "Manrope", sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px var(--primary-blue-shadow);
-
-  &:hover {
-    background: var(--primary-blue-hover-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px var(--primary-blue-shadow-strong);
-    color: var(--white) !important;
-  }
-
-  &:active {
-    transform: translateY(0);
-    color: var(--white) !important;
-  }
-
-  span {
-    color: var(--white) !important;
-  }
-
-  svg {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-
-    &:last-child {
+// Custom styling for discharge button to match Figma design
+:host ::ng-deep .discharge-button-custom {
+  // Ensure proper spacing between elements (matching Figma: 0.5rem = 8px)
+  gap: 8px;
+  font-weight: 500; // Override default 600 to match Figma
+  
+  .btn-content {
+    gap: 8px;
+    align-items: center;
+    display: flex;
+    
+    // Left icon (download) - 16px
+    > svg:first-child {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      stroke: white;
+    }
+    
+    // Text span
+    > span {
+      color: var(--text-color-light) !important;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+    
+    // Right icon (chevron) - 12px
+    > svg:last-child {
       width: 12px;
       height: 12px;
+      flex-shrink: 0;
+      stroke: white;
     }
   }
 }

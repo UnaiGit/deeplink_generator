@@ -66,7 +66,7 @@
                 </button>
                 @if (column.id === 'ready') {
                   <button class="btn-picked" (click)="onPicked(column.id, item.id)">
-                    <span>{{ 'Picked' | translate }}</span>
+                    {{ 'Picked' | translate }} 
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M5 12l5 5L20 7"/>
                     </svg>

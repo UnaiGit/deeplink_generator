@@ -23,6 +23,10 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/menu2/menu2').then((m) => m.Menu2),
       },
       {
+        path: 'employees',
+        loadComponent: () => import('./pages/menu2/employees/employees').then((m) => m.Employees),
+      },
+      {
         path: 'menu',
         loadComponent: () => loadRemoteModule('panel_constructor','./Component').then((m) => m.App),
       },
