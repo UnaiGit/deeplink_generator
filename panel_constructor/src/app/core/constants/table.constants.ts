@@ -14,34 +14,53 @@ export const TABLE_CONSTANTS = {
   // Table Status Configuration
   // Change colors/icons here to update all tables across the app
   STATUS_CONFIG: {
-    available: {
-      color: '#065f46',
-      backgroundColor: '#10b981',
-      borderColor: '#10b981',
-      icon: ICON_PATHS.bell
+    free: {
+      color: '#166534',
+      backgroundColor: '#40C4AA', // Teal - Available (matching Figma)
+      borderColor: '#16a34a',
+      label: 'Available',
+      icon: ICON_PATHS.floors
+    },
+    booked: {
+      color: '#1d4ed8',
+      backgroundColor: '#3b82f6', // Blue - Reserved
+      borderColor: '#2563eb',
+      label: 'Reserved',
+      icon: ICON_PATHS.calendar
+    },
+    noShow: {
+      color: '#92400e',
+      backgroundColor: '#fbbf24', // Yellow - No order
+      borderColor: '#f59e0b',
+      label: 'No order',
+      icon: ICON_PATHS.refresh
     },
     occupied: {
-      color: '#991b1b',
-      backgroundColor: '#ef4444',
-      borderColor: '#ef4444',
-      icon: ICON_PATHS.time
+      color: '#b91c1c',
+      backgroundColor: '#ef4444', // Red - Occupied
+      borderColor: '#dc2626',
+      label: 'Occupied',
+      icon: ICON_PATHS.chef
     },
-    reserved: {
-      color: '#1e3a8a',
-      backgroundColor: '#3b82f6',
-      borderColor: '#3b82f6',
-      icon: ICON_PATHS.lock
-    },
-    payment: {
-      color: '#9a3412',
-      backgroundColor: '#f97316',
-      borderColor: '#f97316',
+    pendingPayment: {
+      color: '#a21caf',
+      backgroundColor: '#d946ef', // Magenta/Purple - Payment
+      borderColor: '#c026d3',
+      label: 'Payment',
       icon: ICON_PATHS.card
+    },
+    overstay: {
+      color: '#b91c1c',
+      backgroundColor: '#ef4444',
+      borderColor: '#dc2626',
+      label: 'Overstay',
+      icon: ICON_PATHS.refresh // Warning icon for overstay
     },
     unsynced: {
       color: '#374151',
-      backgroundColor: '#6b7280',
-      borderColor: '#6b7280',
+      backgroundColor: '#94a3b8',
+      borderColor: '#64748b',
+      label: 'Sync Needed',
       icon: ICON_PATHS.antenna
     }
   } as Record<TableStatus, TableStatusConfig>,
@@ -65,10 +84,10 @@ export const TABLE_CONSTANTS = {
 
   // Table Counts per Floor (for display purposes)
   FLOOR_TABLE_COUNTS: {
-    main: 10,
+    main: 6,
     terrace: 6,
-    kitchen: 3,
-    major: 8,
+    kitchen: 6,
+    major: 6,
   } as const,
 } as const;
 

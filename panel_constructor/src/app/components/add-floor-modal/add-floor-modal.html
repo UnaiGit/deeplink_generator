@@ -1,0 +1,232 @@
+@if (isOpen()) {
+  <div class="add-floor-overlay">
+    <div class="add-floor-backdrop" (click)="onOverlayClick()"></div>
+    <div class="add-floor-modal" (click)="onModalClick($event)">
+      <div class="modal-header">
+        <h2 class="modal-title">{{ 'floors.addNewFloor' | translate }}</h2>
+        <button class="close-button" (click)="onCancel()" aria-label="Close">
+          ×
+        </button>
+      </div>
+
+      <div class="modal-content">
+        <!-- Name Field -->
+        <div class="form-group">
+          <label class="form-label">{{ 'floors.name' | translate }}</label>
+          <div class="input-wrapper">
+            <div class="input-icon">
+              <img [src]="floorsIcon" alt="Floors" class="icon-image" />
+            </div>
+            <input
+              type="text"
+              class="form-input"
+              [(ngModel)]="formData.name"
+              [placeholder]="'floors.namePlaceholder' | translate"
+            />
+          </div>
+        </div>
+
+        <!-- Time Limit Field -->
+        <div class="form-group">
+          <label class="form-label">{{ 'floors.timeLimit' | translate }}</label>
+          <div class="input-wrapper">
+            <div class="input-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <input
+              type="number"
+              class="form-input"
+              [(ngModel)]="formData.timeLimit"
+              [placeholder]="'floors.timeLimitPlaceholder' | translate"
+            />
+          </div>
+        </div>
+
+        <!-- Pricing Policy Section -->
+        <div class="form-group">
+          <label class="form-label">{{ 'floors.pricingPolicy' | translate }}</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="pricingPolicy"
+                value="baseFee"
+                [(ngModel)]="formData.pricingPolicy"
+              />
+              <div class="radio-content">
+                <div class="radio-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                  </svg>
+                </div>
+                <span>{{ 'floors.baseFee' | translate }}</span>
+              </div>
+            </label>
+
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="pricingPolicy"
+                value="percentageSurcharge"
+                [(ngModel)]="formData.pricingPolicy"
+              />
+              <div class="radio-content">
+                <div class="radio-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="2" x2="12" y2="22"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                  </svg>
+                </div>
+                <span>{{ 'floors.percentageSurcharge' | translate }}</span>
+              </div>
+            </label>
+
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="pricingPolicy"
+                value="minimumSpend"
+                [(ngModel)]="formData.pricingPolicy"
+              />
+              <div class="radio-content">
+                <div class="radio-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                  </svg>
+                </div>
+                <span>{{ 'floors.minimumSpend' | translate }}</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Base Fee Amount (shown when baseFee is selected) -->
+        @if (isBaseFee) {
+          <div class="form-group">
+            <label class="form-label">{{ 'floors.amount' | translate }}</label>
+            <div class="input-row">
+              <div class="input-wrapper currency-wrapper">
+                <div class="input-icon">
+                  <span>{{ selectedCurrency?.symbol || '$' }}</span>
+                </div>
+                <select class="form-input" [(ngModel)]="formData.currency">
+                  @for (currency of currencies; track currency.code) {
+                    <option [value]="currency.code">{{ currency.code }}</option>
+                  }
+                </select>
+              </div>
+              <div class="input-wrapper amount-wrapper">
+                <div class="input-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </div>
+                <input
+                  type="number"
+                  class="form-input"
+                  [(ngModel)]="formData.baseFeeAmount"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Percentage Surcharge (shown when percentageSurcharge is selected) -->
+        @if (isPercentageSurcharge) {
+          <div class="form-group">
+            <label class="form-label">{{ 'floors.percentage' | translate }}</label>
+            <div class="input-wrapper">
+              <div class="input-icon">
+                <span>%</span>
+              </div>
+              <input
+                type="number"
+                class="form-input"
+                [(ngModel)]="formData.percentageSurcharge"
+                placeholder="0"
+                min="0"
+                max="100"
+              />
+            </div>
+          </div>
+        }
+
+        <!-- Currency and Minimum Amount (shown when minimumSpend is selected) -->
+        @if (isMinimumSpend) {
+          <div class="form-group">
+            <label class="form-label">{{ 'floors.minimumAmount' | translate }}</label>
+            <div class="input-row">
+              <div class="input-wrapper currency-wrapper">
+                <div class="input-icon">
+                  <span>{{ selectedCurrency?.symbol || '$' }}</span>
+                </div>
+                <select class="form-input" [(ngModel)]="formData.currency">
+                  @for (currency of currencies; track currency.code) {
+                    <option [value]="currency.code">{{ currency.code }}</option>
+                  }
+                </select>
+              </div>
+              <div class="input-wrapper amount-wrapper">
+                <div class="input-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </div>
+                <input
+                  type="number"
+                  class="form-input"
+                  [(ngModel)]="formData.minimumSpendAmount"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Pricing Policy Scope Information -->
+        <div class="info-box">
+          <div class="info-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+          <div class="info-content">
+            <div class="info-title">{{ 'floors.pricingPolicyScope' | translate }}</div>
+            <div class="info-text">{{ 'floors.pricingPolicyScopeDescription' | translate }}</div>
+          </div>
+        </div>
+
+        <div class="scope-note">
+          {{ 'floors.autoAppliesToAllTables' | translate }}
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="cancel-button" type="button" (click)="onCancel()">
+          {{ 'floors.cancel' | translate }}
+        </button>
+        <button class="add-button" type="button" (click)="onAdd()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>{{ 'floors.add' | translate }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+}
+

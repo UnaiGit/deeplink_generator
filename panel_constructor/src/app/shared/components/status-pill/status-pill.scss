@@ -23,25 +23,42 @@
     font-size: 14px;
   }
   
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
+  }
+  
   // Status color variants
+  &.status-free {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    color: #1f2937;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+  }
+  
+  &.status-booked {
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  }
+  
+  &.status-no-show {
+    background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
+  }
+  
   &.status-occupied {
-    background-color: #f87171; // Light red/pink
+    background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
   }
   
-  &.status-reserved {
-    background-color: #fbbf24; // Yellow/orange
+  &.status-pending-payment {
+    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
   }
   
-  &.status-payment {
-    background-color: #3b82f6; // Blue
-  }
-  
-  &.status-available {
-    background-color: #10b981; // Green
+  &.status-overstay {
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
   }
   
   &.status-unsynced {
-    background-color: #6b7280; // Grey
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
   }
 }
 

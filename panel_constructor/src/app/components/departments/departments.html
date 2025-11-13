@@ -14,7 +14,7 @@
 
       <!-- Content -->
       <div class="departments-content">
-        @for (dept of departments; track dept.id) {
+        @for (dept of departments(); track dept.id) {
           <div class="department-item"
                [class.selected]="selectedDepartment()?.id === dept.id"
                [draggable]="true"

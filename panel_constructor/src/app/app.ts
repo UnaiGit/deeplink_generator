@@ -7,14 +7,18 @@ import { Notifications } from "./components/notifications/notifications";
 import { Notification } from "./components/notifications/notification.model";
 import { I18nService } from './core/services/i18n.service';
 import { ThemeService } from './core/services/theme.service';
-import { ActionCards } from "./components/action-cards/action-cards";
+import { ActionCards, ActionCardClickContext } from "./components/action-cards/action-cards";
 import { StatsCards } from "./components/stats-cards/stats-cards";
 import { Departments } from "./components/departments/departments";
+import { Employees } from "./components/employees/employees";
+import { Floors } from "./components/floors/floors";
+import { Toast } from "./components/toast/toast";
+import { ToastService } from "./core/services/toast.service";
 import { ICON_PATHS } from './core/constants/icon.constants';
 
 @Component({
   selector: 'app-root',
-  imports: [FloorTabs, StatusLegend, FloorCanvas, Notifications, ActionCards, StatsCards, Departments],
+  imports: [FloorTabs, StatusLegend, FloorCanvas, Notifications, ActionCards, StatsCards, Departments, Employees, Floors, Toast],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -23,11 +27,16 @@ export class App implements OnInit, OnDestroy {
   private themeService = inject(ThemeService);
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
+  protected readonly toastService = inject(ToastService);
   
-    selectedFloor = signal<FloorType>('main');
+    selectedFloor = signal<FloorType | string>('main');
   protected readonly title = signal('panel_constructor');
   showDepartments = signal<boolean>(false);
   showNotifications = signal<boolean>(true); // Initially visible, then auto-hide
+  showEmployees = signal<boolean>(false);
+  employeesAnchor = signal<ActionCardClickContext | null>(null);
+  showFloors = signal<boolean>(false);
+  floorsAnchor = signal<ActionCardClickContext | null>(null);
   
   // Icon paths
   bellIcon = ICON_PATHS.bell;
@@ -134,7 +143,7 @@ export class App implements OnInit, OnDestroy {
     });
   }
 
-   onFloorChange(floor: FloorType): void {
+   onFloorChange(floor: FloorType | string): void {
     this.selectedFloor.set(floor);
     console.log('Selected floor changed to:', floor);
   }
@@ -144,12 +153,61 @@ export class App implements OnInit, OnDestroy {
   }
 
   onBuildClick(): void {
-    console.log('Build button clicked - opening departments');
-    this.showDepartments.set(true);
+    const currentlyOpen = this.showDepartments();
+    console.log('Build button clicked - toggling departments', currentlyOpen);
+    if (currentlyOpen) {
+      this.showDepartments.set(false);
+    } else {
+      this.showEmployees.set(false);
+      this.employeesAnchor.set(null);
+      this.showFloors.set(false);
+      this.floorsAnchor.set(null);
+      this.showDepartments.set(true);
+    }
+  }
+
+  onEmployeesClick(anchor: ActionCardClickContext): void {
+    const currentlyOpen = this.showEmployees();
+    console.log('Employees button clicked - toggling employees panel', currentlyOpen);
+    if (currentlyOpen) {
+      this.showEmployees.set(false);
+      this.employeesAnchor.set(null);
+    } else {
+      this.showDepartments.set(false);
+      this.showFloors.set(false);
+      this.floorsAnchor.set(null);
+      this.employeesAnchor.set(anchor);
+      this.showEmployees.set(true);
+    }
+  }
+
+  onFloorsClick(anchor: ActionCardClickContext): void {
+    const currentlyOpen = this.showFloors();
+    console.log('Floors button clicked - toggling floors panel', currentlyOpen);
+    if (currentlyOpen) {
+      this.showFloors.set(false);
+      this.floorsAnchor.set(null);
+    } else {
+      this.showDepartments.set(false);
+      this.showEmployees.set(false);
+      this.employeesAnchor.set(null);
+      this.floorsAnchor.set(anchor);
+      this.showFloors.set(true);
+    }
   }
 
   onCloseDepartments(): void {
     this.showDepartments.set(false);
+  }
+
+  onCloseEmployees(): void {
+    this.showEmployees.set(false);
+    this.employeesAnchor.set(null);
+  }
+
+  onCloseFloors(): void {
+    this.showFloors.set(false);
+    this.floorsAnchor.set(null);
   }
 
   onNotificationIconClick(): void {

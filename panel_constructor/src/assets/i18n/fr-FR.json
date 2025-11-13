@@ -22,11 +22,17 @@
     "kitchen": "Cuisine"
   },
   "status": {
-    "available": "Disponible",
+    "free": "Libre",
+    "booked": "Réservé",
     "reserved": "Réservé",
+    "available": "Disponible",
+    "noOrder": "Aucune commande",
+    "noShow": "Absent",
     "occupied": "Occupé",
     "payment": "Paiement",
-    "unsynced": "NFC non synchronisé"
+    "pendingPayment": "Paiement en attente",
+    "overstay": "Dépassement",
+    "unsynced": "Synchronisation requise"
   },
   "floorInfo": {
     "currentlyViewing": "Affichage actuel",
@@ -102,24 +108,28 @@
   "tableInfo": {
     "chairs": "Chaises",
     "occupied": "occupées",
+    "occupiedSuffix": "occupées",
     "timeSeated": "Temps assis",
     "limit": "limite",
+    "limitShort": "limite",
     "order": "Commande",
-    "starters": "Entrées",
-    "mains": "Plats principaux",
-    "drinks": "Boissons",
     "delivered": "Livré",
+    "deliveredShort": "Livré",
     "preparing": "EN PRÉPARATION",
     "sent": "ENVOYÉ",
     "pending": "EN ATTENTE",
     "nextEta": "Prochaine ETA",
     "readyAtPass": "Prêt au passe",
-    "since": "depuis",
     "paymentRequested": "Paiement demandé",
-    "ago": "il y a",
     "notes": "Notes",
     "server": "Serveur",
-    "runner": "Coureur"
+    "runner": "Coureur",
+    "waiter": "Serveur",
+    "indicators": {
+      "dishReady": "Plat prêt",
+      "paymentRequested": "Paiement demandé",
+      "overCapacity": "Capacité dépassée"
+    }
   }
 }
 

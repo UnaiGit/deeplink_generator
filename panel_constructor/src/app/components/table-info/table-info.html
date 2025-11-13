@@ -1,52 +1,38 @@
 @if (visible()) {
-  <app-base-card class="table-info-card" 
-                 variant="elevated" 
-                 padding="large"
-                 [style.left.px]="x()" 
-                 [style.top.px]="y()">
-    <!-- Header -->
+  <app-base-card
+    class="table-info-card"
+    variant="elevated"
+    padding="large"
+    [style.left.px]="x()"
+    [style.top.px]="y()"
+  >
     <div class="table-info-header">
       <h3 class="table-name">{{ tableLabel() }}</h3>
       <app-status-pill [status]="status()" size="medium" />
     </div>
 
-    <!-- Table Status Details -->
     <div class="table-info-section">
-      <div class="info-row highlight-row">
-        <span class="info-label">
-          <span class="icon-chair">🪑</span>
-          {{ 'tableInfo.chairs' | translate }}
-        </span>
-        <span class="info-value highlight-value">
-          <span class="occupied-count">{{ chairsOccupied() }}</span>/<span class="total-count">{{ chairsTotal() }}</span>
-          <span class="occupied-badge">{{ 'tableInfo.occupied' | translate }}</span>
-        </span>
+      <div class="info-row">
+        <span class="info-label">{{ 'tableInfo.chairs' | translate }}</span>
+        <span class="info-value">{{ chairsOccupied() }}/{{ chairsTotal() }} {{ 'tableInfo.occupied' | translate }}</span>
       </div>
       <div class="info-row">
         <span class="info-label">{{ 'tableInfo.timeSeated' | translate }}</span>
-        <span class="info-value">{{ timeSeated() }} ({{ 'tableInfo.limit' | translate }} {{ timeLimit() }})</span>
+        <span class="info-value">
+          {{ timeSeated() }}
+          <span *ngIf="timeLimit()">({{ 'tableInfo.limit' | translate }} {{ timeLimit() }})</span>
+        </span>
       </div>
-      @if (tableShape()) {
-        <div class="info-row">
-          <span class="info-label">Shape</span>
-          <span class="info-value shape-badge">{{ tableShape() | titlecase }}</span>
-        </div>
-      }
-      @if (department()) {
-        <div class="info-row">
-          <span class="info-label">Department</span>
-          <span class="info-value department-badge">{{ department() }}</span>
-        </div>
-      }
     </div>
 
-    <!-- Order Progress -->
     <div class="table-info-section">
       <h4 class="section-title">{{ 'tableInfo.order' | translate }}</h4>
-      
+
       <div class="order-subsection">
         <h5 class="subsection-title">{{ 'tableInfo.starters' | translate }}</h5>
-        <div class="order-status">{{ startersDelivered() }}/{{ startersTotal() }} {{ 'tableInfo.delivered' | translate }}</div>
+        <div class="order-status">
+          {{ startersDelivered() }}/{{ startersTotal() }} {{ 'tableInfo.delivered' | translate }}
+        </div>
       </div>
 
       <div class="order-subsection">
@@ -56,7 +42,7 @@
           <span class="order-status-item">{{ mainsSent() }} {{ 'tableInfo.sent' | translate }}</span>
           <span class="order-status-item">{{ mainsPending() }} {{ 'tableInfo.pending' | translate }}</span>
         </div>
-        <div class="order-eta">
+        <div class="order-eta" *ngIf="nextEta() && nextEta() !== '—'">
           <img [src]="bellIcon" alt="bell" class="icon-bell" />
           <span>{{ 'tableInfo.nextEta' | translate }}: {{ nextEta() }}</span>
         </div>
@@ -66,24 +52,37 @@
         <h5 class="subsection-title">{{ 'tableInfo.drinks' | translate }}</h5>
         <div class="order-status-list">
           <span class="order-status-item">{{ drinksDelivered() }} {{ 'tableInfo.delivered' | translate }}</span>
-          <span class="order-status-item">{{ drinksPending() }} {{ 'tableInfo.pending' | translate }} ({{ drinksPendingLocation() }})</span>
+          <span class="order-status-item">
+            {{ drinksPending() }} {{ 'tableInfo.pending' | translate }}
+            <span *ngIf="drinksPendingLocation() && drinksPendingLocation() !== '—'">
+              ({{ drinksPendingLocation() }})
+            </span>
+          </span>
         </div>
       </div>
     </div>
 
-    <!-- Alerts -->
-    <div class="table-info-section">
-      <div class="alert-item">
+    <div class="table-info-section" *ngIf="readyAtPassCount() || paymentRequestedTime()">
+      <div class="alert-item" *ngIf="readyAtPassCount()">
         <img [src]="bellIcon" alt="bell" class="icon-bell" />
-        <span>{{ 'tableInfo.readyAtPass' | translate }}: {{ readyAtPassCount() }} ({{ 'tableInfo.since' | translate }} {{ readyAtPassTime() }})</span>
+        <span>
+          {{ 'tableInfo.readyAtPass' | translate }}:
+          {{ readyAtPassCount() }}
+          <span *ngIf="readyAtPassTime() && readyAtPassTime() !== '—'">
+            ({{ 'tableInfo.since' | translate }} {{ readyAtPassTime() }})
+          </span>
+        </span>
       </div>
-      <div class="alert-item">
+
+      <div class="alert-item" *ngIf="paymentRequestedTime() && paymentRequestedTime() !== '—'">
         <img [src]="cardIcon" alt="card" class="icon-card" />
-        <span>{{ 'tableInfo.paymentRequested' | translate }}: {{ paymentRequestedTime() }} {{ 'tableInfo.ago' | translate }}</span>
+        <span>
+          {{ 'tableInfo.paymentRequested' | translate }}:
+          {{ paymentRequestedTime() }} {{ 'tableInfo.ago' | translate }}
+        </span>
       </div>
     </div>
 
-    <!-- Notes -->
     @if (notes()) {
       <div class="table-info-section">
         <h4 class="section-title">{{ 'tableInfo.notes' | translate }}</h4>
@@ -91,7 +90,6 @@
       </div>
     }
 
-    <!-- Staff Assignment -->
     <div class="table-info-section">
       <div class="staff-row">
         <span class="info-label">{{ 'tableInfo.server' | translate }}</span>
@@ -100,6 +98,7 @@
           <span class="staff-name">{{ serverName() }}</span>
         </div>
       </div>
+
       <div class="staff-row">
         <span class="info-label">{{ 'tableInfo.runner' | translate }}</span>
         <div class="staff-member">

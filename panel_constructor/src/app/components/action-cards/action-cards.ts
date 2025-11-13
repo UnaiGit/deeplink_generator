@@ -1,8 +1,16 @@
-import { Component, output } from '@angular/core';
+import { Component, Signal, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { BaseCard } from '../../shared/components/base-card/base-card';
-import { ICON_PATHS } from '../../core/constants/icon.constants';
+import { ActionCard } from '../../core/models/action-card.model';
+import { ActionCardService } from '../../core/services/action-card.service';
+
+export interface ActionCardClickContext {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 @Component({
   selector: 'app-action-cards',
@@ -12,39 +20,46 @@ import { ICON_PATHS } from '../../core/constants/icon.constants';
 })
 export class ActionCards {
   buildClick = output<void>();
+  employeesClick = output<ActionCardClickContext>();
+  floorsClick = output<ActionCardClickContext>();
 
-  cards = [
-    {
-      id: 'build',
-      icon: ICON_PATHS.build,
-      translationKey: 'actionCards.build',
-      iconColor: '#3dc19a' // Teal/mint green
-    },
-    {
-      id: 'employees',
-      icon: ICON_PATHS.employees,
-      translationKey: 'actionCards.employees',
-      iconColor: '#3b82f6' // Blue
-    },
-    {
-      id: 'floors',
-      icon: ICON_PATHS.floors,
-      translationKey: 'actionCards.floors',
-      iconColor: '#fbbf24' // Yellow/orange
-    },
-    {
-      id: 'reservations',
-      icon: ICON_PATHS.reservations,
-      translationKey: 'actionCards.reservations',
-      iconColor: '#a855f7' // Purple/magenta
-    }
-  ];
+  private readonly actionCardService = inject(ActionCardService);
+  cards: Signal<ActionCard[]> = this.actionCardService.getActionCards();
 
-  onCardClick(cardId: string): void {
-    if (cardId === 'build') {
-      console.log('Build button is clicked');
-      this.buildClick.emit();
+  onCardClick(cardId: string, event: MouseEvent): void {
+    switch (cardId) {
+      case 'build':
+        console.log('Build button is clicked');
+        this.buildClick.emit();
+        break;
+      case 'employees':
+        console.log('Employees button is clicked');
+        this.employeesClick.emit(this.getClickContext(event));
+        break;
+      case 'floors':
+        console.log('Floors button is clicked');
+        this.floorsClick.emit(this.getClickContext(event));
+        break;
+      default:
+        console.log(`Card ${cardId} clicked`);
+        break;
     }
+  }
+
+  private getClickContext(event: MouseEvent): ActionCardClickContext {
+    const target = (event.currentTarget as HTMLElement | null) ?? (event.target as HTMLElement | null);
+    if (!target) {
+      const fallbackWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+      const fallbackHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
+      return { x: fallbackWidth / 2, y: fallbackHeight / 2, width: 0, height: 0 };
+    }
+    const rect = target.getBoundingClientRect();
+    return {
+      x: rect.left + rect.width / 2,
+      y: rect.top,
+      width: rect.width,
+      height: rect.height,
+    };
   }
 }
 

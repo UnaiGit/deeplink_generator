@@ -1,6 +1,31 @@
 import { TABLE_CONSTANTS } from '../core/constants/table.constants';
 
-export type TableStatus = 'available' | 'occupied' | 'reserved' | 'payment' | 'unsynced';
+export type TableStatus =
+  | 'free'
+  | 'booked'
+  | 'noShow'
+  | 'occupied'
+  | 'pendingPayment'
+  | 'overstay'
+  | 'unsynced';
+
+export interface TableIndicators {
+  dishReady?: boolean;
+  paymentRequested?: boolean;
+  overCapacity?: boolean;
+}
+
+export interface TableOrderSummary {
+  title: string;
+  delivered?: number;
+  total?: number;
+  preparing?: number;
+  sent?: number;
+  pending?: number;
+  location?: string;
+  eta?: string;
+  note?: string;
+}
 
 export interface Table {
   id: string;
@@ -19,12 +44,24 @@ export interface Table {
   capacity?: number;
   maxStayMinutes?: number;
   syncedAt?: string;
+  guestCount?: number;
+  waiterName?: string;
+  runnerName?: string;
+  timeSeatedMinutes?: number;
+  orderSummary?: TableOrderSummary[];
+  indicators?: TableIndicators;
+  notes?: string;
+  rotation?: number; // Rotation angle in degrees (0, 90, 180, 270)
+  readyAtPassCount?: number;
+  readyAtPassSinceLabel?: string;
+  paymentRequestedAgoLabel?: string;
 }
 
 export interface TableStatusConfig {
   color: string;
   backgroundColor: string;
   borderColor: string;
+  label: string;
   icon?: string;
 }
 

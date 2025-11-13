@@ -1,16 +1,9 @@
-import { Component, input, output, inject } from '@angular/core';
+import { Component, Signal, input, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { ICON_PATHS } from '../../core/constants/icon.constants';
 import { DragDropService } from '../../core/services/drag-drop.service';
-
-export interface Department {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  orders?: string;
-}
+import { Department } from '../../core/models/department.model';
+import { DepartmentService } from '../../core/services/department.service';
 
 @Component({
   selector: 'app-departments',
@@ -20,54 +13,17 @@ export interface Department {
 })
 export class Departments {
   private dragDropService = inject(DragDropService);
+  private readonly departmentService = inject(DepartmentService);
   
   isOpen = input<boolean>(false);
   close = output<void>();
   selectedDepartment = this.dragDropService.draggedDepartment;
 
-  departments: Department[] = [
-    {
-      id: 'reception',
-      name: 'Reception',
-      description: 'Grill +3 orders',
-      icon: ICON_PATHS.calendar,
-      orders: 'Grill +3 orders'
-    },
-    {
-      id: 'table',
-      name: 'Table',
-      description: 'Food service to clients',
-      icon: ICON_PATHS.time
-    },
-    {
-      id: 'manager',
-      name: 'Manager',
-      description: 'Restaurant management',
-      icon: ICON_PATHS.chef
-    },
-    {
-      id: 'stockroom',
-      name: 'Stockroom',
-      description: 'Inventory management',
-      icon: ICON_PATHS.money
-    },
-    {
-      id: 'marketing',
-      name: 'Marketing',
-      description: 'Customer feedback',
-      icon: ICON_PATHS.bell
-    },
-    {
-      id: 'hr',
-      name: 'HR',
-      description: 'Employee management',
-      icon: ICON_PATHS.employees
-    }
-  ];
+  departments: Signal<Department[]> = this.departmentService.getDepartments();
 
   onDragStart(event: DragEvent, department: Department): void {
     if (event.dataTransfer) {
-      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.effectAllowed = 'copyMove';
       event.dataTransfer.setData('text/plain', department.id);
       // Set a custom drag image
       const dragImage = this.createDragImage(department);

@@ -22,11 +22,17 @@
     "kitchen": "Küche"
   },
   "status": {
-    "available": "Verfügbar",
+    "free": "Frei",
+    "booked": "Gebucht",
     "reserved": "Reserviert",
-    "occupied": "Besetzt",
+    "available": "Verfügbar",
+    "noOrder": "Keine Bestellung",
+    "noShow": "Nicht erschienen",
+    "occupied": "Belegt",
     "payment": "Zahlung",
-    "unsynced": "Nicht synchronisiert NFC"
+    "pendingPayment": "Zahlung ausstehend",
+    "overstay": "Überzogen",
+    "unsynced": "Synchronisierung nötig"
   },
   "floorInfo": {
     "currentlyViewing": "Aktuell anzeigen",
@@ -102,24 +108,28 @@
   "tableInfo": {
     "chairs": "Stühle",
     "occupied": "besetzt",
+    "occupiedSuffix": "belegt",
     "timeSeated": "Sitzzeit",
     "limit": "Limit",
+    "limitShort": "Limit",
     "order": "Bestellung",
-    "starters": "Vorspeisen",
-    "mains": "Hauptgerichte",
-    "drinks": "Getränke",
     "delivered": "Geliefert",
+    "deliveredShort": "Geliefert",
     "preparing": "WIRD ZUBEREITET",
     "sent": "GESENDET",
     "pending": "AUSSTEHEND",
     "nextEta": "Nächste ETA",
     "readyAtPass": "Bereit am Pass",
-    "since": "seit",
     "paymentRequested": "Zahlung angefordert",
-    "ago": "vor",
     "notes": "Notizen",
     "server": "Kellner",
-    "runner": "Läufer"
+    "runner": "Läufer",
+    "waiter": "Servicekraft",
+    "indicators": {
+      "dishReady": "Gericht bereit",
+      "paymentRequested": "Zahlung angefordert",
+      "overCapacity": "Überbelegt"
+    }
   }
 }
 

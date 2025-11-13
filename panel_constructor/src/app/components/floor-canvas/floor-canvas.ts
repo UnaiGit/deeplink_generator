@@ -5,14 +5,42 @@ import { TitleCasePipe } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FloorType } from '../Models/interface-legends';
 import { TableRenderer } from '../../utils/table-renderer.util';
-import { getFloorTables } from '../../utils/floor-data.util';
 import { Table, TableStatus } from '../../utils/table.model';
 import { ThemeService } from '../../core/services/theme.service';
 import { TABLE_CONSTANTS } from '../../core/constants/table.constants';
 import { TableInfo } from '../table-info/table-info';
 import { DragDropService } from '../../core/services/drag-drop.service';
 import { TableConfigPanel, TableConfigFormData, NfcState } from '../table-config-panel/table-config-panel';
+import { TableLayoutService } from '../../core/services/table-layout.service';
+import { EmployeeDragService } from '../../core/services/employee-drag.service';
+import { EmployeeService } from '../../core/services/employee.service';
+import { ToastService } from '../../core/services/toast.service';
+import { getKitchenFloorItems, KitchenItem } from '../../utils/floor-data.util';
 
+interface KitchenLayoutItem extends KitchenItem {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+const TABLE_CAPACITY_PRESETS: Record<number, { width: number; height: number; shape: Table['shape'] }> = {
+  2: { width: 120, height: 140, shape: 'rectangular' },
+  4: { width: 140, height: 200, shape: 'rectangular' },
+  6: { width: 160, height: 264, shape: 'rectangular' },
+  8: { width: 180, height: 332, shape: 'rectangular' },
+  10: { width: 180, height: 396, shape: 'rectangular' },
+  12: { width: 200, height: 460, shape: 'rectangular' },
+  14: { width: 220, height: 524, shape: 'rectangular' },
+  16: { width: 220, height: 592, shape: 'rectangular' },
+};
+
+const TABLE_CANVAS_MARGIN = 40;
+const CHAIR_BASE_DEPTH = 27;
+const CHAIR_SIDE_OFFSET = 2;
+const CHAIR_BUFFER = 29; // accounts for chair depth + offset so chairs stay within canvas bounds
+const LAYOUT_H_PADDING = 56; // min space between tables horizontally
+const LAYOUT_V_GAP = 88;     // min space between table rows vertically
 
 @Component({
   selector: 'app-floor-canvas',
@@ -24,15 +52,22 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   private translateService = inject(TranslateService);
   private themeService = inject(ThemeService);
   private dragDropService = inject(DragDropService);
+  private employeeDragService = inject(EmployeeDragService);
+  private employeeService = inject(EmployeeService);
+  private readonly tableLayoutService = inject(TableLayoutService);
+  private toastService = inject(ToastService);
 
   // Expose Math for template
   Math = Math;
 
   @ViewChild('floorCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('canvasContainer', { static: true }) containerRef!: ElementRef<HTMLDivElement>;
   private ctx!: CanvasRenderingContext2D;
   private resizeHandler!: () => void;
   private tableRenderer!: TableRenderer;
-  floorName = input<FloorType>('main');
+  private viewportWidth = 0;
+  private viewportHeight = 0;
+  floorName = input<FloorType | string>('main');
   private globalDragOverHandler?: (e: DragEvent) => void;
   private globalDropHandler?: (e: DragEvent) => void;
 
@@ -42,20 +77,36 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   private dragOffset = { x: 0, y: 0 };
   private isDragging = false;
   private dragOverTable: Table | null = null;
+  private lastHoveredTableId: string | null = null; // Track last hovered table to avoid unnecessary redraws
+  private pendingRedraw: number | null = null; // RAF id for throttled redraws
   private dragEnabled = false; // Only true after double click
   private hasDragMovement = false;
   private isPanning = false; // Track if we're panning the canvas
   private panStart = { x: 0, y: 0 }; // Starting position for pan
   private pendingDepartmentId: string | null = null; // latched during drag enter/over
 
+  // Kitchen items state
+  private kitchenCatalog: KitchenItem[] = [];
+  private kitchenItems: KitchenLayoutItem[] = [];
+  private kitchenImages: Map<string, HTMLImageElement> = new Map();
+  private selectedKitchenItemId = signal<string | null>(null);
+  private readonly KITCHEN_DISPLAY_COUNT = 3;
+  private kitchenStartIndex = 0;
+
   // Zoom state
-  zoomLevel = signal<number>(1);
+  zoomLevel = signal<number>(0.75);
   private readonly MIN_ZOOM = 0.5;
   private readonly MAX_ZOOM = 3;
   private readonly ZOOM_STEP = 0.1;
   private panOffset = { x: 0, y: 0 };
   private readonly PAN_STEP = 20; // Pixels to pan per arrow key press
-  private tablePositions: Partial<Record<FloorType, Record<string, { x: number; y: number }>>> = {};
+  canvasOffsetX = signal<number>(0);
+  canvasOffsetY = signal<number>(0);
+  private floorOffsets: Partial<Record<string, { x: number; y: number }>> = {};
+  private tablePositions: Partial<Record<string, Record<string, { x: number; y: number }>>> = {};
+  private isPanModeActive = false;
+  private pendingPanActivation = false;
+  private spacePressed = false;
 
   // Table configuration state (for modal flow)
   tableConfigTable: Table | null = null;
@@ -66,11 +117,25 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     capacity: 6,
     maxStay: ''
   };
+  private tableConfigOriginal: {
+    seats?: number;
+    capacity?: number;
+    widthGrid?: number;
+    heightGrid?: number;
+    maxStayMinutes?: number;
+    width?: number;
+    height?: number;
+    shape?: Table['shape'];
+    x?: number;
+    y?: number;
+    occupiedChairs?: number[];
+  } | null = null;
   nfcState: NfcState = {
     read: false,
     write: false,
     test: false
   };
+  private lastPreviewCapacity: number | null = null;
   readonly gridSizeOptions = [2, 3, 4, 5, 6];
   readonly capacityRange = { min: 2, max: 16 };
 
@@ -87,6 +152,12 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   private floorEffect = effect(() => {
     const floor = this.floorName();
     if (this.ctx) {
+      // Set fixed zoom for kitchen floor
+      if (floor === 'kitchen') {
+        this.zoomLevel.set(0.6);
+        this.panOffset = { x: 0, y: 0 }; // Reset pan for kitchen
+        this.updateCanvasOffset(0, 0);
+      }
       this.loadTables();
       this.drawFloorCanvas(floor);
     }
@@ -96,6 +167,14 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   private selectedTableEffect = effect(() => {
     const selectedId = this.selectedTableId();
     if (this.ctx) {
+      this.drawFloorCanvas(this.floorName());
+    }
+  });
+
+  // Effect to redraw canvas when selected kitchen item changes
+  private selectedKitchenItemEffect = effect(() => {
+    const selectedId = this.selectedKitchenItemId();
+    if (this.ctx && this.floorName() === 'kitchen') {
       this.drawFloorCanvas(this.floorName());
     }
   });
@@ -167,6 +246,11 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     this.ctx = context;
     this.tableRenderer = new TableRenderer(this.ctx, this.themeService);
 
+    // Redraw when icons are loaded
+    this.tableRenderer.onIconsLoaded(() => {
+      this.drawFloorCanvas(this.floorName());
+    });
+
     // Adjust canvas size to fill container - use device pixel ratio for crisp rendering
     this.updateCanvasSize();
 
@@ -186,6 +270,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     
     // Add keyboard event listeners for panning with arrow keys
     window.addEventListener('keydown', this.onKeyDown.bind(this));
+    window.addEventListener('keyup', this.onKeyUp.bind(this));
     
     // Add drag and drop event listeners for department assignment
     canvas.addEventListener('dragover', this.onDragOver.bind(this));
@@ -196,8 +281,6 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     // Add wheel event listener for zoom
     canvas.addEventListener('wheel', this.onWheel.bind(this), { passive: false });
     
-    // Listen for table images loaded event to redraw
-    window.addEventListener('tableImagesLoaded', this.onImagesLoaded.bind(this));
     // Allow drops anywhere (in case overlays intercept events)
     this.globalDragOverHandler = (e: DragEvent) => {
       // Always allow dropping so we can route it if over canvas
@@ -235,13 +318,6 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     this.drawFloorCanvas(this.floorName());
   }
 
-  private onImagesLoaded(): void {
-    // Redraw canvas when images are loaded
-    if (this.ctx) {
-      this.drawFloorCanvas(this.floorName());
-    }
-  }
-
   private updateCanvasSize(): void {
     const canvas = this.canvasRef.nativeElement;
     const container = canvas.parentElement;
@@ -260,19 +336,143 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       // Reset transform and scale
       this.ctx.setTransform(1, 0, 0, 1, 0, 0);
       this.ctx.scale(dpr, dpr);
+
+      this.viewportWidth = canvasWidth;
+      this.viewportHeight = canvasHeight;
     }
   }
 
   private loadTables(): void {
     const floor = this.floorName();
-    const savedPositions = this.tablePositions[floor];
-    this.tables = getFloorTables(floor).map(table => {
-      const saved = savedPositions?.[table.id];
-      return saved
-        ? { ...table, x: saved.x, y: saved.y }
-        : { ...table };
+    this.restoreCanvasOffsetForFloor(floor);
+    
+    // Load kitchen items if kitchen floor
+    if (floor === 'kitchen') {
+      this.kitchenCatalog = getKitchenFloorItems();
+      this.kitchenStartIndex = 0;
+      this.kitchenCatalog.forEach((item, idx) => {
+        if (item.id === this.selectedKitchenItemId()) {
+          this.kitchenStartIndex = idx;
+        }
+      });
+      this.kitchenStartIndex = this.kitchenCatalog.length
+        ? this.kitchenStartIndex % this.kitchenCatalog.length
+        : 0;
+      this.loadKitchenImages();
+      return;
+    }
+    
+    // Clear kitchen-specific state when leaving kitchen floor
+    this.kitchenCatalog = [];
+    this.kitchenItems = [];
+    this.selectedKitchenItemId.set(null);
+    
+    // Get tables from service (these should have updated positions if we've saved them)
+    const defaultTables = this.tableLayoutService.getTablesForFloor(floor);
+    
+    // Check if we have saved positions for this floor
+    const savedPositions = this.tablePositions[floor] || {};
+    
+    this.tables = defaultTables.map(table => {
+      // Prioritize saved positions from this.tablePositions (most recent)
+      // Otherwise use position from service (which should have saved positions)
+      // Finally fall back to default position from layout
+      const savedPos = savedPositions[table.id];
+      if (savedPos) {
+        return { ...table, x: savedPos.x, y: savedPos.y };
+      }
+      // Use position from service (which may have been updated by saveTableLayout)
+      // This ensures positions persist even if this.tablePositions is cleared
+      return { ...table };
     });
+    
+    // Update saved positions from loaded tables to keep them in sync
     this.persistTablePositions();
+    
+    // Only apply layout adjustments if no saved positions exist (first time loading)
+    if (Object.keys(savedPositions).length === 0 && this.tables.length > 0) {
+      this.adjustTablesToCanvas();
+      this.persistTablePositions();
+    }
+  }
+
+  private loadKitchenImages(): void {
+    // Load all kitchen images
+    this.kitchenCatalog.forEach(item => {
+      if (!this.kitchenImages.has(item.id)) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          // Redraw when image loads
+          this.drawFloorCanvas(this.floorName());
+        };
+        img.onerror = () => {
+          console.error(`Failed to load kitchen image: ${item.image}`);
+        };
+        img.src = item.image;
+        this.kitchenImages.set(item.id, img);
+      }
+    });
+  }
+
+  showNextKitchenItem(): void {
+    if (!this.kitchenCatalog.length || this.floorName() !== 'kitchen') {
+      return;
+    }
+    // Shift: first removed, second becomes first, third becomes second, new becomes third
+    this.kitchenStartIndex = (this.kitchenStartIndex + 1) % this.kitchenCatalog.length;
+    this.selectedKitchenItemId.set(null);
+    this.drawFloorCanvas('kitchen');
+  }
+
+  showPreviousKitchenItem(): void {
+    if (!this.kitchenCatalog.length || this.floorName() !== 'kitchen') {
+      return;
+    }
+    // Shift backwards: last removed, first becomes second, second becomes third, previous becomes first
+    this.kitchenStartIndex = (this.kitchenStartIndex - 1 + this.kitchenCatalog.length) % this.kitchenCatalog.length;
+    this.selectedKitchenItemId.set(null);
+    this.drawFloorCanvas('kitchen');
+  }
+
+  private restoreCanvasOffsetForFloor(floor: FloorType | string): void {
+    const saved = this.floorOffsets[floor];
+    const x = saved?.x ?? 0;
+    const y = saved?.y ?? 0;
+    this.canvasOffsetX.set(x);
+    this.canvasOffsetY.set(y);
+    if (!saved) {
+      this.floorOffsets[floor] = { x, y };
+    }
+  }
+
+  private updateCanvasOffset(x: number, y: number): void {
+    const clampedX = Number.isFinite(x) ? x : 0;
+    const clampedY = Number.isFinite(y) ? y : 0;
+    if (clampedX === this.canvasOffsetX() && clampedY === this.canvasOffsetY()) {
+      return;
+    }
+    this.canvasOffsetX.set(clampedX);
+    this.canvasOffsetY.set(clampedY);
+    const floor = this.floorName();
+    this.floorOffsets[floor] = { x: clampedX, y: clampedY };
+  }
+
+  private getCombinedOffset(): { x: number; y: number } {
+    return {
+      x: this.panOffset.x + this.canvasOffsetX(),
+      y: this.panOffset.y + this.canvasOffsetY(),
+    };
+  }
+
+  private toCanvasCoordinates(screenX: number, screenY: number): { canvasX: number; canvasY: number } {
+    const zoom = this.zoomLevel();
+    const offsetX = this.canvasOffsetX();
+    const offsetY = this.canvasOffsetY();
+    return {
+      canvasX: (screenX - this.panOffset.x - offsetX) / zoom,
+      canvasY: (screenY - this.panOffset.y - offsetY) / zoom,
+    };
   }
 
   private persistTablePositions(): void {
@@ -284,10 +484,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   }
 
   private getTableAt(x: number, y: number): Table | null {
-    // Convert screen coordinates to canvas coordinates accounting for zoom
-    const zoom = this.zoomLevel();
-    const canvasX = (x - this.panOffset.x) / zoom;
-    const canvasY = (y - this.panOffset.y) / zoom;
+    const { canvasX, canvasY } = this.toCanvasCoordinates(x, y);
     
     // Check tables in reverse order (top to bottom)
     for (let i = this.tables.length - 1; i >= 0; i--) {
@@ -300,14 +497,25 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     return null;
   }
 
+  private getKitchenItemAt(x: number, y: number): KitchenLayoutItem | null {
+    const { canvasX, canvasY } = this.toCanvasCoordinates(x, y);
+    
+    // Check kitchen items in reverse order (top to bottom)
+    for (let i = this.kitchenItems.length - 1; i >= 0; i--) {
+      const item = this.kitchenItems[i];
+      if (canvasX >= item.x && canvasX <= item.x + item.width &&
+          canvasY >= item.y && canvasY <= item.y + item.height) {
+        return item;
+      }
+    }
+    return null;
+  }
+
   /**
    * Get chair at coordinates (if any)
    */
   private getChairAt(x: number, y: number): { table: Table; chairNumber: number } | null {
-    // Convert screen coordinates to canvas coordinates accounting for zoom
-    const zoom = this.zoomLevel();
-    const canvasX = (x - this.panOffset.x) / zoom;
-    const canvasY = (y - this.panOffset.y) / zoom;
+    const { canvasX, canvasY } = this.toCanvasCoordinates(x, y);
 
     const chairWidth = 20; // Chair width (horizontal)
     const chairHeight = 14; // Chair height (vertical) - length > width
@@ -526,11 +734,22 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
 
   // Zoom methods
   zoomIn(): void {
+    // Disable zoom for kitchen floor
+    if (this.floorName() === 'kitchen') {
+      return;
+    }
     const canvas = this.canvasRef.nativeElement;
     if (!canvas) return;
     
     const canvasWidth = canvas.width / (window.devicePixelRatio || 1);
     const canvasHeight = canvas.height / (window.devicePixelRatio || 1);
+
+    // Ensure the viewport can scroll to reveal dragged tables
+    const wrapper = this.containerRef?.nativeElement;
+    if (wrapper) {
+      wrapper.style.overflowX = 'auto';
+      wrapper.style.overflowY = 'auto';
+    }
     
     // Determine zoom center: selected table center or viewport center
     let zoomCenterX: number;
@@ -558,16 +777,21 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     const newZoom = Math.min(oldZoom + this.ZOOM_STEP, this.MAX_ZOOM);
     
     if (newZoom !== oldZoom) {
-      // Adjust pan offset to zoom towards the center point
       const zoomFactor = newZoom / oldZoom;
-      this.panOffset.x = zoomCenterX - (zoomCenterX - this.panOffset.x) * zoomFactor;
-      this.panOffset.y = zoomCenterY - (zoomCenterY - this.panOffset.y) * zoomFactor;
-      
+      const combined = this.getCombinedOffset();
+      const newCombinedX = zoomCenterX - (zoomCenterX - combined.x) * zoomFactor;
+      const newCombinedY = zoomCenterY - (zoomCenterY - combined.y) * zoomFactor;
+      this.panOffset.x = newCombinedX - this.canvasOffsetX();
+      this.panOffset.y = newCombinedY - this.canvasOffsetY();
       this.zoomLevel.set(newZoom);
     }
   }
 
   zoomOut(): void {
+    // Disable zoom for kitchen floor
+    if (this.floorName() === 'kitchen') {
+      return;
+    }
     const canvas = this.canvasRef.nativeElement;
     if (!canvas) return;
     
@@ -600,18 +824,25 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     const newZoom = Math.max(oldZoom - this.ZOOM_STEP, this.MIN_ZOOM);
     
     if (newZoom !== oldZoom) {
-      // Adjust pan offset to zoom towards the center point
       const zoomFactor = newZoom / oldZoom;
-      this.panOffset.x = zoomCenterX - (zoomCenterX - this.panOffset.x) * zoomFactor;
-      this.panOffset.y = zoomCenterY - (zoomCenterY - this.panOffset.y) * zoomFactor;
-      
+      const combined = this.getCombinedOffset();
+      const newCombinedX = zoomCenterX - (zoomCenterX - combined.x) * zoomFactor;
+      const newCombinedY = zoomCenterY - (zoomCenterY - combined.y) * zoomFactor;
+      this.panOffset.x = newCombinedX - this.canvasOffsetX();
+      this.panOffset.y = newCombinedY - this.canvasOffsetY();
       this.zoomLevel.set(newZoom);
     }
   }
 
   resetZoom(): void {
+    // Disable reset zoom for kitchen floor
+    if (this.floorName() === 'kitchen') {
+      return;
+    }
     this.zoomLevel.set(1);
     this.panOffset = { x: 0, y: 0 };
+    this.updateCanvasOffset(0, 0);
+    this.drawFloorCanvas(this.floorName());
   }
 
   /**
@@ -656,12 +887,18 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     const centerX = (minX + maxX) / 2;
     const centerY = (minY + maxY) / 2;
 
+    this.updateCanvasOffset(0, 0);
     this.zoomLevel.set(newZoom);
     this.panOffset.x = canvasWidth / 2 - centerX * newZoom;
     this.panOffset.y = canvasHeight / 2 - centerY * newZoom;
+    this.drawFloorCanvas(this.floorName());
   }
 
   private onWheel(event: WheelEvent): void {
+    // Disable wheel zoom for kitchen floor
+    if (this.floorName() === 'kitchen') {
+      return;
+    }
     event.preventDefault();
     const delta = event.deltaY > 0 ? -this.ZOOM_STEP : this.ZOOM_STEP;
     const newZoom = Math.max(this.MIN_ZOOM, Math.min(this.MAX_ZOOM, this.zoomLevel() + delta));
@@ -674,8 +911,11 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       const mouseY = event.clientY - rect.top;
       
       const zoomFactor = newZoom / this.zoomLevel();
-      this.panOffset.x = mouseX - (mouseX - this.panOffset.x) * zoomFactor;
-      this.panOffset.y = mouseY - (mouseY - this.panOffset.y) * zoomFactor;
+      const combined = this.getCombinedOffset();
+      const newCombinedX = mouseX - (mouseX - combined.x) * zoomFactor;
+      const newCombinedY = mouseY - (mouseY - combined.y) * zoomFactor;
+      this.panOffset.x = newCombinedX - this.canvasOffsetX();
+      this.panOffset.y = newCombinedY - this.canvasOffsetY();
       
       this.zoomLevel.set(newZoom);
     }
@@ -687,20 +927,38 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    // Check for middle mouse button (button 1) or spacebar + left click for panning
-    if (event.button === 1 || (event.button === 0 && event.ctrlKey)) {
+    const shouldPan =
+      event.button === 1 ||
+      (event.button === 0 && (event.ctrlKey || this.spacePressed || this.isPanModeActive || this.pendingPanActivation));
+    const baseCursor = this.isPanModeActive || this.spacePressed ? 'grab' : 'default';
+
+    if (shouldPan) {
       event.preventDefault();
       this.isPanning = true;
-      this.panStart.x = x - this.panOffset.x;
-      this.panStart.y = y - this.panOffset.y;
+      const combined = this.getCombinedOffset();
+      this.panStart.x = x - combined.x;
+      this.panStart.y = y - combined.y;
+      this.pendingPanActivation = false;
       canvas.style.cursor = 'grabbing';
       return;
     }
 
-    // Convert screen coordinates to canvas coordinates accounting for zoom
-    const zoom = this.zoomLevel();
-    const canvasX = (x - this.panOffset.x) / zoom;
-    const canvasY = (y - this.panOffset.y) / zoom;
+    this.pendingPanActivation = false;
+
+    const { canvasX, canvasY } = this.toCanvasCoordinates(x, y);
+
+    // Handle kitchen floor differently
+    if (this.floorName() === 'kitchen') {
+      const item = this.getKitchenItemAt(x, y);
+      if (item) {
+        this.selectedKitchenItemId.set(item.id);
+        this.selectedTableId.set(null); // Clear table selection
+      } else {
+        this.selectedKitchenItemId.set(null);
+      }
+      this.drawFloorCanvas(this.floorName());
+      return;
+    }
 
     // Check if click is on action icons of selected table
     const selectedId = this.selectedTableId();
@@ -714,6 +972,14 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
               canvasY >= iconBounds.edit.y && canvasY <= iconBounds.edit.y + iconBounds.edit.height) {
             console.log('Edit clicked for table:', selectedTable.label);
             this.handleEditTable(selectedTable);
+            return;
+          }
+          
+          // Check if click is on rotate icon
+          if (canvasX >= iconBounds.rotate.x && canvasX <= iconBounds.rotate.x + iconBounds.rotate.width &&
+              canvasY >= iconBounds.rotate.y && canvasY <= iconBounds.rotate.y + iconBounds.rotate.height) {
+            console.log('Rotate clicked for table:', selectedTable.label);
+            this.handleRotateTable(selectedTable);
             return;
           }
           
@@ -731,7 +997,15 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     // Check if click is on a chair first
     const chairClick = this.getChairAt(x, y);
     if (chairClick) {
-      console.log(`You have clicked on chair no ${chairClick.chairNumber} of table ${chairClick.table.label}`);
+      const chairTable = chairClick.table;
+      const totalSeats = chairTable.seats ?? chairTable.capacity ?? 0;
+      const occupiedSeats = chairTable.occupiedChairs?.length ?? chairTable.guestCount ?? 0;
+      const freeSeats = Math.max(0, totalSeats - occupiedSeats);
+      const occupiedList = chairTable.occupiedChairs?.join(', ') ?? '—';
+
+      console.log(
+        `[Chair Click] Table ${chairTable.label} | Total seats: ${totalSeats} | Occupied: ${occupiedSeats} | Free: ${freeSeats} | Occupied chairs: ${occupiedList} | Clicked chair: ${chairClick.chairNumber}`
+      );
       // Deselect table if clicking on chair
       this.selectedTableId.set(null);
       return; // Don't drag if clicking on chair
@@ -740,7 +1014,14 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     // Check if click is on a table
     const table = this.getTableAt(x, y);
     if (table) {
-      console.log(`You have clicked on table no ${table.label}`);
+      const totalSeats = table.seats ?? table.capacity ?? 0;
+      const occupiedSeats = table.occupiedChairs?.length ?? table.guestCount ?? 0;
+      const freeSeats = Math.max(0, totalSeats - occupiedSeats);
+      const occupiedList = table.occupiedChairs?.join(', ') ?? '—';
+
+      console.log(
+        `[Table Click] Table ${table.label} | Total seats: ${totalSeats} | Occupied: ${occupiedSeats} | Free: ${freeSeats} | Occupied chairs: ${occupiedList}`
+      );
       // Select the table (single click - just show icons)
       this.selectedTableId.set(table.id);
       // Hide hover tooltip when table is selected
@@ -749,7 +1030,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       this.isDragging = false;
       this.dragEnabled = false;
       this.draggedTable = null;
-      canvas.style.cursor = 'default';
+      canvas.style.cursor = baseCursor;
     } else {
       // Click outside any table - deselect
       this.selectedTableId.set(null);
@@ -757,6 +1038,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       this.draggedTable = null;
       // Hide hover tooltip when clicking outside
       this.isTableHovered.set(false);
+      canvas.style.cursor = baseCursor;
     }
   }
 
@@ -769,15 +1051,14 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    // Convert screen coordinates to canvas coordinates accounting for zoom
-    const zoom = this.zoomLevel();
-    const canvasX = (x - this.panOffset.x) / zoom;
-    const canvasY = (y - this.panOffset.y) / zoom;
+    const { canvasX, canvasY } = this.toCanvasCoordinates(x, y);
 
     // Check if double click is on a table
     const table = this.getTableAt(x, y);
     if (table) {
       console.log(`Double clicked on table no ${table.label} - dragging enabled`);
+      this.isPanModeActive = false;
+      this.pendingPanActivation = false;
       // Enable dragging mode
       this.dragEnabled = true;
       this.draggedTable = table;
@@ -788,7 +1069,13 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       canvas.style.cursor = 'grabbing';
       // Start dragging immediately on double click
       this.isDragging = true;
+      return;
     }
+
+    this.isPanModeActive = !this.isPanModeActive;
+    this.pendingPanActivation = this.isPanModeActive;
+    const baseCursor = this.isPanModeActive || this.spacePressed ? 'grab' : 'default';
+    canvas.style.cursor = baseCursor;
   }
 
   /**
@@ -797,6 +1084,34 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   private handleEditTable(table: Table): void {
     console.log('Edit table:', table);
     // Add your edit logic here
+  }
+
+  /**
+   * Handle rotate table action
+   */
+  private handleRotateTable(table: Table): void {
+    // Rotate table by 90 degrees (0, 90, 180, 270)
+    const currentRotation = table.rotation ?? 0;
+    const newRotation = (currentRotation + 90) % 360;
+    table.rotation = newRotation;
+    
+    // Redraw canvas
+    this.drawFloorCanvas(this.floorName());
+    
+    // Save table layout
+    this.saveTableLayout();
+  }
+
+  /**
+   * Save current table layout to service
+   */
+  private saveTableLayout(): void {
+    const floor = this.floorName();
+    // Save current tables with their positions to the service
+    this.tableLayoutService.addFloor(floor, this.tables);
+    // Update saved positions from current tables (don't reload from service)
+    this.persistTablePositions();
+    this.drawFloorCanvas(floor);
   }
 
   /**
@@ -814,30 +1129,31 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
+    const baseCursor = this.isPanModeActive || this.spacePressed ? 'grab' : 'default';
 
-    // Handle panning (middle mouse button or ctrl + left mouse)
     if (this.isPanning) {
-      this.panOffset.x = x - this.panStart.x;
-      this.panOffset.y = y - this.panStart.y;
+      const combinedX = x - this.panStart.x;
+      const combinedY = y - this.panStart.y;
+      const newOffsetX = combinedX - this.panOffset.x;
+      const newOffsetY = combinedY - this.panOffset.y;
+      this.updateCanvasOffset(newOffsetX, newOffsetY);
+      canvas.style.cursor = 'grabbing';
       this.drawFloorCanvas(this.floorName());
+      return;
+    }
+
+    if (this.floorName() === 'kitchen') {
+      canvas.style.cursor = baseCursor;
+      this.isTableHovered.set(false);
       return;
     }
 
     // Only allow dragging if drag is enabled (after double click)
     if (this.isDragging && this.draggedTable && this.dragEnabled) {
-      // Update table position during drag, accounting for zoom
-      const zoom = this.zoomLevel();
-      const canvasX = (x - this.panOffset.x) / zoom;
-      const canvasY = (y - this.panOffset.y) / zoom;
+      const { canvasX, canvasY } = this.toCanvasCoordinates(x, y);
       this.draggedTable.x = canvasX - this.dragOffset.x;
       this.draggedTable.y = canvasY - this.dragOffset.y;
       this.hasDragMovement = true;
-
-      // Keep table within canvas bounds
-      const canvasWidth = canvas.width / (window.devicePixelRatio || 1);
-      const canvasHeight = canvas.height / (window.devicePixelRatio || 1);
-      this.draggedTable.x = Math.max(0, Math.min(this.draggedTable.x, canvasWidth - this.draggedTable.width));
-      this.draggedTable.y = Math.max(0, Math.min(this.draggedTable.y, canvasHeight - this.draggedTable.height));
 
       // Hide tooltip during drag
       this.isTableHovered.set(false);
@@ -849,7 +1165,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       const table = this.getTableAt(x, y);
       const selectedId = this.selectedTableId();
       // Only show grab cursor if drag is enabled, otherwise default
-      canvas.style.cursor = (table && this.dragEnabled) ? 'grab' : 'default';
+      canvas.style.cursor = (table && this.dragEnabled) ? 'grab' : baseCursor;
       
       if (table) {
         // Only show tooltip if table is not selected (when selected, edit/delete icons are shown instead)
@@ -904,11 +1220,12 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   private onMouseUp(event: MouseEvent): void {
     const canvas = this.canvasRef.nativeElement;
     const wasDragging = this.isDragging;
+    const baseCursor = this.isPanModeActive || this.spacePressed ? 'grab' : 'default';
     
     // Stop panning
     if (this.isPanning) {
       this.isPanning = false;
-      canvas.style.cursor = 'default';
+      canvas.style.cursor = baseCursor;
       return;
     }
     
@@ -916,11 +1233,12 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       this.isDragging = false;
       // Keep dragEnabled true so table can be moved again without double clicking
       // Only reset if clicking outside
-      canvas.style.cursor = this.dragEnabled ? 'grab' : 'default';
+      canvas.style.cursor = this.dragEnabled ? 'grab' : baseCursor;
     }
 
     if (wasDragging && this.draggedTable && this.hasDragMovement) {
       this.persistTablePositions();
+      this.saveTableLayout(); // Save to service so drag/drop works on all floors
       this.hasDragMovement = false;
     }
   }
@@ -932,7 +1250,8 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     if (this.isPanning) {
       this.isPanning = false;
       const canvas = this.canvasRef.nativeElement;
-      canvas.style.cursor = 'default';
+      const baseCursor = this.isPanModeActive || this.spacePressed ? 'grab' : 'default';
+      canvas.style.cursor = baseCursor;
     }
   }
 
@@ -946,6 +1265,33 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       return;
     }
 
+    if (event.code === 'Space') {
+      event.preventDefault();
+      if (!this.spacePressed) {
+        this.spacePressed = true;
+        if (!this.isPanning) {
+          const canvas = this.canvasRef.nativeElement;
+          canvas.style.cursor = 'grab';
+        }
+      }
+      return;
+    }
+
+    // Handle kitchen floor carousel with arrow keys
+    if (this.floorName() === 'kitchen') {
+      switch (event.key) {
+        case 'ArrowDown':
+          event.preventDefault();
+          this.showNextKitchenItem();
+          return;
+        case 'ArrowUp':
+          event.preventDefault();
+          this.showPreviousKitchenItem();
+          return;
+      }
+    }
+
+    // Handle panning for other floors
     switch (event.key) {
       case 'ArrowUp':
         event.preventDefault();
@@ -966,34 +1312,64 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     }
   }
 
+  private onKeyUp(event: KeyboardEvent): void {
+    const target = event.target as HTMLElement;
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+      return;
+    }
+
+    if (event.code === 'Space') {
+      this.spacePressed = false;
+      if (!this.isPanning) {
+        const canvas = this.canvasRef.nativeElement;
+        const baseCursor = this.isPanModeActive ? 'grab' : 'default';
+        canvas.style.cursor = baseCursor;
+      }
+    }
+  }
+
   /**
    * Pan methods for programmatic control
    */
   panUp(): void {
-    this.panOffset.y += this.PAN_STEP;
+    const currentX = this.canvasOffsetX();
+    const currentY = this.canvasOffsetY();
+    this.updateCanvasOffset(currentX, currentY + this.PAN_STEP);
     this.drawFloorCanvas(this.floorName());
   }
 
   panDown(): void {
-    this.panOffset.y -= this.PAN_STEP;
+    const currentX = this.canvasOffsetX();
+    const currentY = this.canvasOffsetY();
+    this.updateCanvasOffset(currentX, currentY - this.PAN_STEP);
     this.drawFloorCanvas(this.floorName());
   }
 
   panLeft(): void {
-    this.panOffset.x += this.PAN_STEP;
+    const currentX = this.canvasOffsetX();
+    const currentY = this.canvasOffsetY();
+    this.updateCanvasOffset(currentX + this.PAN_STEP, currentY);
     this.drawFloorCanvas(this.floorName());
   }
 
   panRight(): void {
-    this.panOffset.x -= this.PAN_STEP;
+    const currentX = this.canvasOffsetX();
+    const currentY = this.canvasOffsetY();
+    this.updateCanvasOffset(currentX - this.PAN_STEP, currentY);
     this.drawFloorCanvas(this.floorName());
   }
 
   private onDragEnter(event: DragEvent): void {
     event.preventDefault();
-    if (this.dragDropService.isDragging()) {
+    const departmentDragging = this.dragDropService.isDragging();
+    const employeeDragging = this.employeeDragService.isDragging();
+
+    if (departmentDragging || employeeDragging) {
       const canvas = this.canvasRef.nativeElement;
       canvas.style.cursor = 'copy';
+    }
+
+    if (departmentDragging) {
       // Latch the current department id in case source fires dragend early
       const dept = this.dragDropService.getDraggedDepartment();
       this.pendingDepartmentId = dept?.id ?? this.pendingDepartmentId;
@@ -1004,11 +1380,11 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
     
-    if (!this.dragDropService.isDragging()) {
-      // Still allow drop if we have a latched department
-      if (!this.pendingDepartmentId) {
-        return;
-      }
+    const departmentDragging = this.dragDropService.isDragging();
+    const employeeDragging = this.employeeDragService.isDragging();
+
+    if (!departmentDragging && !employeeDragging && !this.pendingDepartmentId) {
+      return;
     }
 
     const canvas = this.canvasRef.nativeElement;
@@ -1016,34 +1392,74 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    const table = this.getTableAt(x, y);
+    const table = this.getTableAt(x, y) ?? this.getNearestTable(x, y, 200);
+    const currentTableId = table?.id ?? null;
+    
+    // Only update cursor immediately (cheap operation)
     if (table) {
-      event.dataTransfer!.dropEffect = 'copy';
-      this.dragOverTable = table;
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'copy';
+      }
       canvas.style.cursor = 'copy';
-      // Redraw to show visual feedback
-      this.drawFloorCanvas(this.floorName());
     } else {
-      this.dragOverTable = null;
       canvas.style.cursor = 'not-allowed';
     }
-    // Continuously latch department while dragging
-    const dept = this.dragDropService.getDraggedDepartment();
-    this.pendingDepartmentId = dept?.id ?? this.pendingDepartmentId;
+    
+    // Only redraw if the hovered table changed (optimization)
+    if (currentTableId !== this.lastHoveredTableId) {
+      this.dragOverTable = table;
+      this.lastHoveredTableId = currentTableId;
+      
+      // Throttle redraws using requestAnimationFrame
+      if (this.pendingRedraw !== null) {
+        cancelAnimationFrame(this.pendingRedraw);
+      }
+      this.pendingRedraw = requestAnimationFrame(() => {
+        this.drawFloorCanvas(this.floorName());
+        this.pendingRedraw = null;
+      });
+    }
+    
+    if (departmentDragging) {
+      // Continuously latch department while dragging
+      const dept = this.dragDropService.getDraggedDepartment();
+      this.pendingDepartmentId = dept?.id ?? this.pendingDepartmentId;
+    }
   }
 
   private onDragLeave(event: DragEvent): void {
     this.dragOverTable = null;
+    this.lastHoveredTableId = null;
     const canvas = this.canvasRef.nativeElement;
     canvas.style.cursor = 'default';
+    
+    // Cancel any pending redraw
+    if (this.pendingRedraw !== null) {
+      cancelAnimationFrame(this.pendingRedraw);
+      this.pendingRedraw = null;
+    }
+    
     // Redraw to remove visual feedback
     this.drawFloorCanvas(this.floorName());
   }
 
   private onDrop(event: DragEvent): void {
+    // Log IMMEDIATELY at the very first line - before any processing
+    const dropTime = performance.now();
+    const dragStartTimeDept = this.dragDropService.getDragStartTime();
+    const dragStartTimeEmp = this.employeeDragService.getDragStartTime();
+    const dragStartTime = dragStartTimeDept ?? dragStartTimeEmp;
+    const totalDuration = dragStartTime ? dropTime - dragStartTime : 0;
+    
+    console.log('🎯 DROP EVENT FIRED', {
+      dropTime: dropTime,
+      dragStartTime: dragStartTime,
+      totalDuration: `${totalDuration.toFixed(2)}ms`,
+      timestamp: new Date().toISOString()
+    });
+    
     event.preventDefault();
     event.stopPropagation();
-    console.log('Canvas drop received');
 
     const canvas = this.canvasRef.nativeElement;
     const rect = canvas.getBoundingClientRect();
@@ -1052,48 +1468,84 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
 
     const table = this.getTableAt(x, y);
     let department = this.dragDropService.getDraggedDepartment();
+    let employee = this.employeeDragService.getDraggedEmployee();
+    
+    // Log immediately what we detected
+    if (department) {
+      console.log(`📦 Department: ${department.name}`, {
+        detectedAt: performance.now() - dropTime,
+        fromDragStart: dragStartTimeDept ? performance.now() - dragStartTimeDept : null
+      });
+    }
+    if (employee) {
+      console.log(`👤 Employee: ${employee.name}`, {
+        detectedAt: performance.now() - dropTime,
+        fromDragStart: dragStartTimeEmp ? performance.now() - dragStartTimeEmp : null
+      });
+    }
+    
     // Fallback: if service is null (e.g., some browsers fire dragend before drop),
     // read the id from dataTransfer
     if (!department && event.dataTransfer) {
       const id = event.dataTransfer.getData('text/plain');
       if (id) {
         department = { id, name: id.charAt(0).toUpperCase() + id.slice(1), description: '', icon: '' } as any;
-        console.log('Fallback department from dataTransfer:', id);
+        console.log('📦 Fallback department from dataTransfer:', id, performance.now() - dropTime, 'ms');
       }
     }
     // Final fallback: use latched id
     if (!department && this.pendingDepartmentId) {
       const id = this.pendingDepartmentId;
       department = { id, name: id.charAt(0).toUpperCase() + id.slice(1), description: '', icon: '' } as any;
-      console.log('Fallback department from latched id:', id);
+      console.log('📦 Fallback department from latched id:', id, performance.now() - dropTime, 'ms');
+    }
+
+    if (!employee && event.dataTransfer) {
+      const employeeId = event.dataTransfer.getData('application/x-employee-id');
+      if (employeeId) {
+        const matched = this.employeeService.getEmployeeById(employeeId);
+        if (matched) {
+          employee = matched;
+          console.log('👤 Fallback employee from dataTransfer:', matched.name, performance.now() - dropTime, 'ms');
+        }
+      }
     }
 
     // If not exactly over a table, pick the nearest one within a small radius
     let targetTable = this.dragOverTable ?? table;
     if (!targetTable) {
-      targetTable = this.getNearestTable(x, y, 120); // widen tolerance while dragging
+      targetTable = this.getNearestTable(x, y, 200); // widen tolerance while dragging
       if (targetTable) {
-        console.log(`No exact table under drop; using nearest "${targetTable.label}" within tolerance`);
+        console.log(`📍 Using nearest table: "${targetTable.label}"`, performance.now() - dropTime, 'ms');
       }
     }
     if (!targetTable) {
-      console.warn('Drop detected but no table found nearby', {
-        screenX: event.clientX,
-        screenY: event.clientY,
-        relativeX: x,
-        relativeY: y,
-        panOffset: { ...this.panOffset },
-        zoom: this.zoomLevel()
-      });
+      console.warn('⚠️ No table found nearby', performance.now() - dropTime, 'ms');
+    }
+
+    // If no table was targeted and the user dropped a new table department, create one on the fly
+    if (!targetTable && department?.id?.toLowerCase() === 'table') {
+      const newTable = this.createTableFromDrop(x, y);
+      if (newTable) {
+        this.tables.push(newTable);
+        // Track this table for subsequent operations
+        targetTable = newTable;
+      }
     }
 
     if (targetTable && department) {
-      console.log(`Dropped department "${department.name}" on table "${targetTable.label}"`);
+      // Log immediately before any processing with full timeline
+      console.log(`✅ DROPPED: "${department.name}" → "${targetTable.label}"`, {
+        dragStartTime: dragStartTimeDept,
+        dropTime: dropTime,
+        totalDuration: `${totalDuration.toFixed(2)}ms`,
+        timestamp: new Date().toISOString()
+      });
+      
       // Assign department to table
       targetTable.department = department.id;
-      console.log(`Assigned department "${department.name}" to ${targetTable.label}`);
       
-      // Redraw canvas to show the change
+      // Redraw canvas to show the change (this might take time, but log already happened)
       this.drawFloorCanvas(this.floorName());
       
       // Show success feedback
@@ -1108,12 +1560,39 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
         targetTable.heightGrid = suggestedHeightGrid;
         targetTable.capacity = this.clampCapacity(targetTable.seats ?? 6);
         this.openTableConfig(targetTable);
+        // Show success toast when table is created
+        this.toastService.success('Table created.');
       }
+
+      // Persist table updates (department assignment or newly created table)
+      this.persistTablePositions();
+      this.tableLayoutService.addFloor(this.floorName(), this.tables);
+    }
+
+    if (targetTable && employee) {
+      const floor = this.floorName();
+      const floorLabel = floor.charAt(0).toUpperCase() + floor.slice(1);
+      // Log immediately with full timeline
+      console.log(`✅ DROPPED: "${employee.name}" → "${targetTable.label}" (${floorLabel})`, {
+        dragStartTime: dragStartTimeEmp,
+        dropTime: dropTime,
+        totalDuration: `${totalDuration.toFixed(2)}ms`,
+        timestamp: new Date().toISOString()
+      });
     }
 
     this.dragOverTable = null;
+    this.lastHoveredTableId = null;
     canvas.style.cursor = 'default';
+    
+    // Cancel any pending redraw
+    if (this.pendingRedraw !== null) {
+      cancelAnimationFrame(this.pendingRedraw);
+      this.pendingRedraw = null;
+    }
+    
     this.dragDropService.endDrag();
+    this.employeeDragService.endDrag();
     this.pendingDepartmentId = null;
   }
 
@@ -1121,9 +1600,8 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
    * Find the nearest table to a point within a given pixel radius (screen coords)
    */
   private getNearestTable(screenX: number, screenY: number, radius: number): Table | null {
+    const { canvasX, canvasY } = this.toCanvasCoordinates(screenX, screenY);
     const zoom = this.zoomLevel();
-    const canvasX = (screenX - this.panOffset.x) / zoom;
-    const canvasY = (screenY - this.panOffset.y) / zoom;
     let best: { table: Table; dist2: number } | null = null;
     const r2 = (radius / zoom) * (radius / zoom);
     for (const t of this.tables) {
@@ -1159,12 +1637,27 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   private openTableConfig(table: Table): void {
     this.tableConfigTable = table;
     this.tableConfigStep = 'details';
+    this.tableConfigOriginal = {
+      seats: table.seats,
+      capacity: table.capacity,
+      widthGrid: table.widthGrid,
+      heightGrid: table.heightGrid,
+      maxStayMinutes: table.maxStayMinutes,
+      width: table.width,
+      height: table.height,
+      shape: table.shape,
+      x: table.x,
+      y: table.y,
+      occupiedChairs: table.occupiedChairs ? [...table.occupiedChairs] : undefined,
+    };
     this.tableConfigData = {
       width: table.widthGrid ?? 4,
       height: table.heightGrid ?? 4,
       capacity: this.clampCapacity(table.capacity ?? table.seats ?? 6),
       maxStay: table.maxStayMinutes ? String(table.maxStayMinutes) : ''
     };
+    this.lastPreviewCapacity = null;
+    this.previewTableConfiguration();
     this.nfcState = {
       read: false,
       write: false,
@@ -1174,7 +1667,32 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   }
 
   cancelTableConfig(): void {
+    if (this.tableConfigTable && this.tableConfigOriginal) {
+      this.tableConfigTable.capacity = this.tableConfigOriginal.capacity;
+      this.tableConfigTable.seats = this.tableConfigOriginal.seats;
+      this.tableConfigTable.widthGrid = this.tableConfigOriginal.widthGrid;
+      this.tableConfigTable.heightGrid = this.tableConfigOriginal.heightGrid;
+      this.tableConfigTable.maxStayMinutes = this.tableConfigOriginal.maxStayMinutes;
+      if (typeof this.tableConfigOriginal.width === 'number') {
+        this.tableConfigTable.width = this.tableConfigOriginal.width;
+      }
+      if (typeof this.tableConfigOriginal.height === 'number') {
+        this.tableConfigTable.height = this.tableConfigOriginal.height;
+      }
+      if (this.tableConfigOriginal.shape) {
+        this.tableConfigTable.shape = this.tableConfigOriginal.shape;
+      }
+      if (typeof this.tableConfigOriginal.x === 'number') {
+        this.tableConfigTable.x = this.tableConfigOriginal.x;
+      }
+      if (typeof this.tableConfigOriginal.y === 'number') {
+        this.tableConfigTable.y = this.tableConfigOriginal.y;
+      }
+      this.tableConfigTable.occupiedChairs = this.tableConfigOriginal.occupiedChairs ? [...this.tableConfigOriginal.occupiedChairs] : undefined;
+      this.drawFloorCanvas(this.floorName());
+    }
     this.tableConfigTable = null;
+    this.tableConfigOriginal = null;
     this.tableConfigStep = 'details';
   }
 
@@ -1182,9 +1700,13 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     if (!this.tableConfigTable) {
       return;
     }
+    const nextCapacity = this.clampCapacity(this.tableConfigData.capacity);
     this.tableConfigTable.widthGrid = this.tableConfigData.width;
     this.tableConfigTable.heightGrid = this.tableConfigData.height;
-    this.tableConfigTable.capacity = this.clampCapacity(this.tableConfigData.capacity);
+    this.tableConfigTable.capacity = nextCapacity;
+    this.tableConfigTable.seats = nextCapacity;
+    this.trimOccupiedChairs(this.tableConfigTable, nextCapacity);
+    this.applyCapacityPreset(this.tableConfigTable, nextCapacity, false);
     this.tableConfigTable.maxStayMinutes = this.tableConfigData.maxStay
       ? Number(this.tableConfigData.maxStay)
       : undefined;
@@ -1201,10 +1723,105 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   }
 
   onTableConfigChange(): void {
-    // Triggered on input changes to redraw if necessary
+    this.previewTableConfiguration();
     this.drawFloorCanvas(this.floorName());
   }
 
+  private previewTableConfiguration(): void {
+    if (!this.tableConfigTable) {
+      return;
+    }
+    const previewCapacity = this.clampCapacity(this.tableConfigData.capacity);
+    const capacityChanged = this.lastPreviewCapacity !== previewCapacity;
+
+    this.tableConfigTable.capacity = previewCapacity;
+    this.tableConfigTable.seats = previewCapacity;
+    this.trimOccupiedChairs(this.tableConfigTable, previewCapacity);
+
+    // Always apply a preset when capacity changes to automatically resize table
+    if (capacityChanged) {
+      this.applyCapacityPreset(this.tableConfigTable, previewCapacity, true);
+    }
+
+    this.lastPreviewCapacity = previewCapacity;
+  }
+
+  /**
+   * Find the appropriate preset capacity for a given capacity.
+   * Returns the smallest preset that can accommodate the capacity.
+   */
+  private findPresetCapacity(capacity: number): number {
+    const presetCapacities = Object.keys(TABLE_CAPACITY_PRESETS)
+      .map(Number)
+      .sort((a, b) => a - b);
+    
+    // Find the smallest preset that can accommodate the capacity
+    for (const presetCapacity of presetCapacities) {
+      if (capacity <= presetCapacity) {
+        return presetCapacity;
+      }
+    }
+    
+    // If capacity exceeds all presets, use the largest one
+    return presetCapacities[presetCapacities.length - 1];
+  }
+
+  private applyCapacityPreset(table: Table, capacity: number, updateForm: boolean): void {
+    // Find the appropriate preset capacity (e.g., capacity 7 -> preset 8, capacity 3 -> preset 4)
+    const presetCapacity = this.findPresetCapacity(capacity);
+    const preset = TABLE_CAPACITY_PRESETS[presetCapacity];
+    
+    if (!preset) {
+      this.recenterTable(table);
+      this.ensureTableWithinBounds(table);
+      return;
+    }
+
+    const centerX = table.x + table.width / 2;
+    const centerY = table.y + table.height / 2;
+
+    table.width = preset.width;
+    table.height = preset.height;
+    table.shape = preset.shape;
+
+    const suggestedWidthGrid = Math.max(2, Math.round(preset.width / 40));
+    const suggestedHeightGrid = Math.max(2, Math.round(preset.height / 40));
+
+    table.widthGrid = suggestedWidthGrid;
+    table.heightGrid = suggestedHeightGrid;
+
+    table.x = centerX - table.width / 2;
+    table.y = centerY - table.height / 2;
+
+    this.ensureTableWithinBounds(table);
+
+    if (updateForm) {
+      this.tableConfigData.width = suggestedWidthGrid;
+      this.tableConfigData.height = suggestedHeightGrid;
+    }
+  }
+
+  private recenterTable(table: Table): void {
+    const centerX = table.x + table.width / 2;
+    const centerY = table.y + table.height / 2;
+    table.x = centerX - table.width / 2;
+    table.y = centerY - table.height / 2;
+  }
+
+  private ensureTableWithinBounds(table: Table): void {
+    // No boundary restrictions - tables can be positioned anywhere
+    // This allows the layout to use all available space including empty white spaces
+    // Users can pan/zoom to navigate to tables outside the initial viewport
+    return;
+  }
+
+  private trimOccupiedChairs(table: Table, capacity: number): void {
+    if (!table.occupiedChairs || table.occupiedChairs.length === 0) {
+      return;
+    }
+    table.occupiedChairs = table.occupiedChairs.filter(chair => chair >= 1 && chair <= capacity);
+  }
+ 
   startReadUid(): void {
     this.nfcState = { ...this.nfcState, read: true };
   }
@@ -1232,10 +1849,11 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       return;
     }
 
-    // Mark table as ready (available) after completing NFC setup
-    this.tableConfigTable.status = 'available';
+    // Mark table as ready (free) after completing NFC setup
+    this.tableConfigTable.status = 'free';
     this.tableConfigTable.syncedAt = new Date().toISOString();
     this.drawFloorCanvas(this.floorName());
+    this.tableConfigOriginal = null;
     this.cancelTableConfig();
   }
 
@@ -1259,8 +1877,8 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       canvas.removeEventListener('dragenter', this.onDragEnter.bind(this));
       canvas.removeEventListener('dragleave', this.onDragLeave.bind(this));
       canvas.removeEventListener('wheel', this.onWheel.bind(this));
-      window.removeEventListener('tableImagesLoaded', this.onImagesLoaded.bind(this));
       window.removeEventListener('keydown', this.onKeyDown.bind(this));
+      window.removeEventListener('keyup', this.onKeyUp.bind(this));
     }
     if (this.globalDragOverHandler) {
       window.removeEventListener('dragover', this.globalDragOverHandler);
@@ -1277,14 +1895,20 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     this.floorEffect.destroy();
     this.zoomEffect.destroy();
     this.selectedTableEffect.destroy();
+    this.selectedKitchenItemEffect.destroy();
   }
 
-  private drawFloorCanvas(floor: FloorType): void {
+  private drawFloorCanvas(floor: FloorType | string): void {
     const canvas = this.canvasRef.nativeElement;
     if (!canvas || !this.ctx) return;
 
     const canvasWidth = canvas.width / (window.devicePixelRatio || 1);
     const canvasHeight = canvas.height / (window.devicePixelRatio || 1);
+    const baseCursor =
+      floor === 'kitchen'
+        ? 'default'
+        : (this.isPanModeActive || this.spacePressed ? 'grab' : 'default');
+    canvas.style.cursor = baseCursor;
 
     // Clear canvas
     this.ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -1298,49 +1922,205 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
 
     // Apply zoom and pan transformations
     const zoom = this.zoomLevel();
+    const offsetX = this.canvasOffsetX();
+    const offsetY = this.canvasOffsetY();
+    this.ctx.translate(offsetX, offsetY);
     this.ctx.translate(this.panOffset.x, this.panOffset.y);
     this.ctx.scale(zoom, zoom);
 
     // Draw different content based on selected floor
-    switch (floor) {
-      case 'main':
-        this.drawMainFloor();
-        break;
-      case 'terrace':
-        this.drawTerraceFloor();
-        break;
-      case 'kitchen':
-        this.drawKitchenFloor();
-        break;
-      case 'major':
-        this.drawMajorFloor();
-        break;
-      default:
-        this.drawMainFloor();
+    if (floor === 'main' || floor === 'terrace' || floor === 'kitchen' || floor === 'major') {
+      switch (floor) {
+        case 'main':
+          this.drawMainFloor();
+          break;
+        case 'terrace':
+          this.drawTerraceFloor();
+          break;
+        case 'kitchen':
+          this.drawKitchenFloor();
+          break;
+        case 'major':
+          this.drawMajorFloor();
+          break;
+      }
+    } else {
+      // Custom floor - draw tables from table layout service
+      this.drawCustomFloor(floor);
     }
 
     // Restore context state
     this.ctx.restore();
   }
 
+  private drawCustomFloor(floor: string): void {
+    // Draw tables for custom floor (tables are already loaded in this.tables)
+    this.tableRenderer.drawTables(this.tables, {
+      selectedId: this.selectedTableId(),
+      hoveredId: this.hoveredTable()?.id ?? null,
+      dragTargetId: this.dragOverTable?.id ?? null,
+    });
+  }
+
   private drawMainFloor(): void {
-    // Draw tables from state (background already drawn, zoom/pan already applied)
-    this.tableRenderer.drawTables(this.tables, this.selectedTableId());
+    this.tableRenderer.drawTables(this.tables, {
+      selectedId: this.selectedTableId(),
+      hoveredId: this.hoveredTable()?.id ?? null,
+      dragTargetId: this.dragOverTable?.id ?? null,
+    });
   }
 
   private drawTerraceFloor(): void {
-    // Draw tables from state (background already drawn, zoom/pan already applied)
-    this.tableRenderer.drawTables(this.tables, this.selectedTableId());
+    this.tableRenderer.drawTables(this.tables, {
+      selectedId: this.selectedTableId(),
+      hoveredId: this.hoveredTable()?.id ?? null,
+      dragTargetId: this.dragOverTable?.id ?? null,
+    });
   }
 
   private drawKitchenFloor(): void {
-    // Draw tables from state (background already drawn, zoom/pan already applied)
-    this.tableRenderer.drawTables(this.tables, this.selectedTableId());
+    const canvas = this.canvasRef.nativeElement;
+    const dpr = window.devicePixelRatio || 1;
+    const canvasWidth = canvas.width / dpr;
+    const canvasHeight = canvas.height / dpr;
+
+    const totalItems = this.kitchenCatalog.length;
+    if (!totalItems) {
+      this.kitchenItems = [];
+      return;
+    }
+
+    const displayCount = Math.min(this.KITCHEN_DISPLAY_COUNT, totalItems);
+    const spacing = 30;
+    const cardWidth = 200; // Smaller size
+    const cardHeight = 200; // Smaller size
+    const horizontalPadding = 60; // Right alignment with padding
+    const totalHeight = displayCount * cardHeight + (displayCount - 1) * spacing;
+    const startY = Math.max(60, (canvasHeight - totalHeight) / 2);
+    const startX = canvasWidth - horizontalPadding - cardWidth; // Right-aligned
+
+    const layoutItems: KitchenLayoutItem[] = [];
+    for (let i = 0; i < displayCount; i++) {
+      const index = (this.kitchenStartIndex + i) % totalItems;
+      const catalogItem = this.kitchenCatalog[index];
+      const y = startY + i * (cardHeight + spacing);
+      layoutItems.push({
+        ...catalogItem,
+        x: startX,
+        y,
+        width: cardWidth,
+        height: cardHeight,
+      });
+    }
+
+    this.kitchenItems = layoutItems;
+    canvas.style.cursor = 'default';
+
+    // Draw kitchen items (images) instead of tables
+    this.kitchenItems.forEach(item => {
+      const img = this.kitchenImages.get(item.id);
+      const isSelected = this.selectedKitchenItemId() === item.id;
+      
+      if (img && img.complete) {
+        // Draw image with rounded corners
+        const radius = 16;
+        const x = item.x;
+        const y = item.y;
+        const width = item.width;
+        const height = item.height;
+        
+        // Draw shadow
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+        this.ctx.shadowBlur = 10;
+        this.ctx.shadowOffsetX = 0;
+        this.ctx.shadowOffsetY = 4;
+        
+        // Draw rounded rectangle background
+        this.ctx.beginPath();
+        this.ctx.moveTo(x + radius, y);
+        this.ctx.lineTo(x + width - radius, y);
+        this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        this.ctx.lineTo(x + width, y + height - radius);
+        this.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        this.ctx.lineTo(x + radius, y + height);
+        this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        this.ctx.lineTo(x, y + radius);
+        this.ctx.quadraticCurveTo(x, y, x + radius, y);
+        this.ctx.closePath();
+        
+        // Fill with white background
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fill();
+        
+        // Reset shadow
+        this.ctx.shadowColor = 'transparent';
+        this.ctx.shadowBlur = 0;
+        this.ctx.shadowOffsetX = 0;
+        this.ctx.shadowOffsetY = 0;
+        
+        // Draw image with clipping for rounded corners
+        this.ctx.save();
+        this.ctx.beginPath();
+        this.ctx.moveTo(x + radius, y);
+        this.ctx.lineTo(x + width - radius, y);
+        this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        this.ctx.lineTo(x + width, y + height - radius);
+        this.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        this.ctx.lineTo(x + radius, y + height);
+        this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        this.ctx.lineTo(x, y + radius);
+        this.ctx.quadraticCurveTo(x, y, x + radius, y);
+        this.ctx.closePath();
+        this.ctx.clip();
+        
+        // Draw the image
+        this.ctx.drawImage(img, x, y, width, height);
+        this.ctx.restore();
+        
+        // Draw selection border if selected
+        if (isSelected) {
+          this.ctx.strokeStyle = '#407bff';
+          this.ctx.lineWidth = 3;
+          this.ctx.beginPath();
+          this.ctx.moveTo(x + radius, y);
+          this.ctx.lineTo(x + width - radius, y);
+          this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+          this.ctx.lineTo(x + width, y + height - radius);
+          this.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+          this.ctx.lineTo(x + radius, y + height);
+          this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+          this.ctx.lineTo(x, y + radius);
+          this.ctx.quadraticCurveTo(x, y, x + radius, y);
+          this.ctx.closePath();
+          this.ctx.stroke();
+        }
+
+        // Draw label below image
+        this.ctx.fillStyle = '#0f172a';
+        this.ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'top';
+        const labelY = y + height + 12;
+        this.ctx.fillText(item.label, x + width / 2, labelY);
+      } else {
+        // Draw placeholder while image loads
+        this.ctx.fillStyle = '#e5e7eb';
+        this.ctx.fillRect(item.x, item.y, item.width, item.height);
+        this.ctx.fillStyle = '#9ca3af';
+        this.ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText('Loading…', item.x + item.width / 2, item.y + item.height / 2);
+      }
+    });
   }
 
   private drawMajorFloor(): void {
-    // Draw tables from state (background already drawn, zoom/pan already applied)
-    this.tableRenderer.drawTables(this.tables, this.selectedTableId());
+    this.tableRenderer.drawTables(this.tables, {
+      selectedId: this.selectedTableId(),
+      hoveredId: this.hoveredTable()?.id ?? null,
+      dragTargetId: this.dragOverTable?.id ?? null,
+    });
   }
   get floorData() {
     const floor = this.floorName();
@@ -1357,7 +2137,278 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     return 'floorInfo.currentlyViewing';
   }
 
-  private getTableCount(floor: FloorType): number {
-    return TABLE_CONSTANTS.FLOOR_TABLE_COUNTS[floor] || 0;
+  private getTableCount(floor: FloorType | string): number {
+    // For default floors, use the constant
+    if (floor === 'main' || floor === 'terrace' || floor === 'kitchen' || floor === 'major') {
+      return TABLE_CONSTANTS.FLOOR_TABLE_COUNTS[floor as FloorType] || 0;
+    }
+    // For custom floors, get actual table count from service
+    const tables = this.tableLayoutService.getTablesForFloor(floor);
+    return tables.length;
+  }
+
+  private adjustTablesToCanvas(): void {
+    if (!this.viewportWidth || !this.viewportHeight || this.tables.length === 0) {
+      return;
+    }
+
+    // Apply column-based layout - no boundary restrictions
+    // Tables can extend beyond viewport, allowing use of all available space
+    this.resolveOverlaps();
+
+    // Optionally center the layout in viewport (but don't constrain it)
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    const chairDepth = CHAIR_BASE_DEPTH + CHAIR_SIDE_OFFSET;
+
+    for (const table of this.tables) {
+      const orientation = table.height >= table.width ? 'vertical' : 'horizontal';
+      const extraLeft = orientation === 'vertical' ? chairDepth : 0;
+      const extraRight = orientation === 'vertical' ? chairDepth : 0;
+      const extraTop = orientation === 'horizontal' ? chairDepth : 0;
+      const extraBottom = orientation === 'horizontal' ? chairDepth : 0;
+
+      minX = Math.min(minX, table.x - extraLeft);
+      minY = Math.min(minY, table.y - extraTop);
+      maxX = Math.max(maxX, table.x + table.width + extraRight);
+      maxY = Math.max(maxY, table.y + table.height + extraBottom);
+    }
+
+    // Only center if content is smaller than viewport
+    // Otherwise, start from margin and let tables extend beyond
+    const contentWidth = maxX - minX;
+    const contentHeight = maxY - minY;
+
+    if (contentWidth < this.viewportWidth && contentHeight < this.viewportHeight) {
+      // Center small layouts
+      const offsetX = (this.viewportWidth - contentWidth) / 2 - minX;
+      const offsetY = (this.viewportHeight - contentHeight) / 2 - minY;
+      
+      for (const table of this.tables) {
+        table.x += offsetX;
+        table.y += offsetY;
+      }
+    } else {
+      // For larger layouts, just ensure minimum margin from top-left
+      const offsetX = TABLE_CANVAS_MARGIN - minX;
+      const offsetY = TABLE_CANVAS_MARGIN - minY;
+      
+      for (const table of this.tables) {
+        table.x += offsetX;
+        table.y += offsetY;
+      }
+    }
+  }
+
+  private resolveOverlaps(): void {
+    // Account for chairs around tables when laying out
+    const chairDepth = CHAIR_BASE_DEPTH + CHAIR_SIDE_OFFSET;
+
+    type Item = {
+      table: Table;
+      w: number; // effective width including chairs on sides
+      h: number; // effective height including chairs on sides
+      leftExtra: number;
+      topExtra: number;
+      rightExtra: number;
+      bottomExtra: number;
+      capacity: number;
+    };
+
+    const items: Item[] = this.tables.map((t) => {
+      const vertical = t.height >= t.width;
+      const leftExtra = vertical ? chairDepth : 0;
+      const rightExtra = vertical ? chairDepth : 0;
+      const topExtra = vertical ? 0 : chairDepth;
+      const bottomExtra = vertical ? 0 : chairDepth;
+      return {
+        table: t,
+        w: t.width + leftExtra + rightExtra,
+        h: t.height + topExtra + bottomExtra,
+        leftExtra,
+        topExtra,
+        rightExtra,
+        bottomExtra,
+        capacity: t.capacity ?? t.seats ?? 4,
+      };
+    });
+
+    // Reset all table positions to start fresh
+    for (const item of items) {
+      item.table.x = 0;
+      item.table.y = 0;
+    }
+
+    // Group tables by capacity for column-based layout
+    const tables2Seater = items.filter(it => it.capacity === 2);
+    const tables4Seater = items.filter(it => it.capacity === 4);
+    const tables6Seater = items.filter(it => it.capacity === 6);
+    const tables8Seater = items.filter(it => it.capacity === 8);
+    const tables10Seater = items.filter(it => it.capacity === 10);
+    const otherTables = items.filter(it => ![2, 4, 6, 8, 10].includes(it.capacity));
+
+    // Column 1: 2-seater and 4-seater stacked vertically
+    // Column 2: 6-seater (horizontal) and 4-seater
+    // Column 3: 8-seater (vertical)
+    // Other tables go to additional columns
+
+    // Split 4-seaters between column 1 and column 2
+    const half4Seater = Math.ceil(tables4Seater.length / 2);
+    const column1_4Seater = tables4Seater.slice(0, half4Seater);
+    const column2_4Seater = tables4Seater.slice(half4Seater);
+
+    let startX = TABLE_CANVAS_MARGIN;
+    let columnX = startX;
+
+    // Column 1: 2-seater and 4-seater
+    let column1Y = TABLE_CANVAS_MARGIN;
+    let column1MaxWidth = 0;
+
+    // Place 2-seaters first
+    for (const it of tables2Seater) {
+      it.table.x = columnX + it.leftExtra;
+      it.table.y = column1Y + it.topExtra;
+      column1Y += it.h + LAYOUT_V_GAP;
+      column1MaxWidth = Math.max(column1MaxWidth, it.w);
+    }
+
+    // Place first half of 4-seaters after 2-seaters in column 1
+    for (const it of column1_4Seater) {
+      it.table.x = columnX + it.leftExtra;
+      it.table.y = column1Y + it.topExtra;
+      column1Y += it.h + LAYOUT_V_GAP;
+      column1MaxWidth = Math.max(column1MaxWidth, it.w);
+    }
+
+    // Move to next column
+    columnX += column1MaxWidth + LAYOUT_H_PADDING;
+
+    // Column 2: 6-seater (horizontal) and 4-seater
+    let column2Y = TABLE_CANVAS_MARGIN;
+    let column2MaxWidth = 0;
+
+    // Place 6-seaters first (horizontal)
+    for (const it of tables6Seater) {
+      it.table.x = columnX + it.leftExtra;
+      it.table.y = column2Y + it.topExtra;
+      column2Y += it.h + LAYOUT_V_GAP;
+      column2MaxWidth = Math.max(column2MaxWidth, it.w);
+    }
+
+    // Place second half of 4-seaters in column 2 after 6-seaters
+    for (const it of column2_4Seater) {
+      it.table.x = columnX + it.leftExtra;
+      it.table.y = column2Y + it.topExtra;
+      column2Y += it.h + LAYOUT_V_GAP;
+      column2MaxWidth = Math.max(column2MaxWidth, it.w);
+    }
+
+    // Move to next column
+    columnX += column2MaxWidth + LAYOUT_H_PADDING;
+
+    // Column 3: 8-seater (vertical)
+    let column3Y = TABLE_CANVAS_MARGIN;
+    let column3MaxWidth = 0;
+
+    for (const it of tables8Seater) {
+      it.table.x = columnX + it.leftExtra;
+      it.table.y = column3Y + it.topExtra;
+      column3Y += it.h + LAYOUT_V_GAP;
+      column3MaxWidth = Math.max(column3MaxWidth, it.w);
+    }
+
+    // Move to next column
+    columnX += column3MaxWidth + LAYOUT_H_PADDING;
+
+    // Column 4: 10-seater (vertical)
+    let column4Y = TABLE_CANVAS_MARGIN;
+    let column4MaxWidth = 0;
+
+    for (const it of tables10Seater) {
+      it.table.x = columnX + it.leftExtra;
+      it.table.y = column4Y + it.topExtra;
+      column4Y += it.h + LAYOUT_V_GAP;
+      column4MaxWidth = Math.max(column4MaxWidth, it.w);
+    }
+
+    // Move to next column for other tables
+    if (tables10Seater.length > 0) {
+      columnX += column4MaxWidth + LAYOUT_H_PADDING;
+    }
+
+    // Place other capacity tables in additional columns
+    let otherY = TABLE_CANVAS_MARGIN;
+    let otherMaxWidth = 0;
+    const maxColumnHeight = Math.max(column1Y, column2Y, column3Y, column4Y);
+
+    for (const it of otherTables) {
+      // No viewport width check - allow tables to extend beyond visible area
+      // Just wrap to new row if we want to keep columns organized
+      // For now, continue in same column (can extend beyond viewport)
+      
+      it.table.x = columnX + it.leftExtra;
+      it.table.y = otherY + it.topExtra;
+      otherY += it.h + LAYOUT_V_GAP;
+      otherMaxWidth = Math.max(otherMaxWidth, it.w);
+    }
+  }
+
+  private createTableFromDrop(screenX: number, screenY: number): Table | null {
+    const { canvasX, canvasY } = this.toCanvasCoordinates(screenX, screenY);
+    const floor = this.floorName();
+    const identity = this.generateTableIdentity(floor);
+
+    if (!identity) {
+      console.warn('Unable to generate id for new table');
+      return null;
+    }
+
+    const defaultCapacity = this.findPresetCapacity(4);
+    const preset = TABLE_CAPACITY_PRESETS[defaultCapacity] ?? TABLE_CAPACITY_PRESETS[4];
+    const width = preset?.width ?? 140;
+    const height = preset?.height ?? 200;
+    const shape = preset?.shape ?? 'rectangular';
+
+    const table: Table = {
+      id: identity.id,
+      label: identity.label,
+      status: 'free',
+      x: canvasX - width / 2,
+      y: canvasY - height / 2,
+      width,
+      height,
+      seats: defaultCapacity,
+      capacity: defaultCapacity,
+      shape,
+      department: 'table',
+      widthGrid: Math.max(2, Math.round(width / 40)),
+      heightGrid: Math.max(2, Math.round(height / 40)),
+      occupiedChairs: [],
+    };
+
+    this.ensureTableWithinBounds(table);
+    return table;
+  }
+
+  private generateTableIdentity(floor: FloorType | string): { id: string; label: string } | null {
+    const prefix = `${floor}-`;
+    const existingNumbers = this.tables
+      .filter(table => table.id.startsWith(prefix))
+      .map(table => parseInt(table.id.substring(prefix.length), 10))
+      .filter(num => !Number.isNaN(num));
+
+    const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+    if (!Number.isFinite(nextNumber)) {
+      return null;
+    }
+
+    const padded = nextNumber.toString().padStart(2, '0');
+    return {
+      id: `${prefix}${padded}`,
+      label: `T${padded}`,
+    };
   }
 }
