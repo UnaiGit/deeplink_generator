@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, Signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { BaseCard } from '../../shared/components/base-card/base-card';
-import { ICON_PATHS } from '../../core/constants/icon.constants';
+import { StatsCard } from '../../core/models/stats-card.model';
+import { StatsCardService } from '../../core/services/stats-card.service';
 
 @Component({
   selector: 'app-stats-cards',
@@ -11,25 +12,7 @@ import { ICON_PATHS } from '../../core/constants/icon.constants';
   styleUrl: './stats-cards.scss',
 })
 export class StatsCards {
-  stats = [
-    {
-      id: 'average-time',
-      icon: ICON_PATHS.clock,
-      translationKey: 'statsCards.averageTime',
-      value: '24 min'
-    },
-    {
-      id: 'occupation',
-      icon: ICON_PATHS.chart,
-      translationKey: 'statsCards.occupation',
-      value: '80%'
-    },
-    {
-      id: 'deliveries',
-      icon: ICON_PATHS.checkmark,
-      translationKey: 'statsCards.deliveries',
-      value: '17 Pdt.'
-    }
-  ];
+  private readonly statsCardService = inject(StatsCardService);
+  stats: Signal<StatsCard[]> = this.statsCardService.getStatsCards();
 }
 

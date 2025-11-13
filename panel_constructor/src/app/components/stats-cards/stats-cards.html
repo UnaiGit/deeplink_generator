@@ -1,5 +1,5 @@
 <div class="stats-cards">
-  @for (stat of stats; track stat.id) {
+  @for (stat of stats(); track stat.id) {
     <app-base-card class="stats-card" variant="default" padding="small">
       <img [src]="stat.icon" 
            [alt]="stat.translationKey | translate" 

@@ -1,31 +1,41 @@
 .floor-tabs {
   display: flex;
-  gap: 8px;
+  justify-content: flex-start;
   padding: 16px 24px;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--card-bg);
+  background: transparent;
+  border-bottom: none;
+
+  &__group {
+    display: inline-flex;
+    gap: 8px;
+    padding: 6px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(20px);
+    box-shadow: none;
+  }
 }
 
 .floor-tab {
-  padding: 8px 16px;
+  padding: 10px 28px;
   border: none;
   background: transparent;
-  color: var(--text-color-medium);
+  color: rgba(0, 0, 0, 0.6);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.2s;
+  border-radius: 999px;
+  transition: all 0.2s ease;
 
   &:hover {
-    background: var(--gray-100);
-    color: var(--text-color-dark);
+    color: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.05);
   }
 
   &.active {
-    background: var(--blue);
-    color: var(--text-color-light);
+    color: #ffffff;
+    background: linear-gradient(135deg, #60a5fa, #2563eb);
+    box-shadow: none;
   }
 }
-
 

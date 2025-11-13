@@ -16,17 +16,48 @@
     }
   },
   "floors": {
+    "title": "Floors",
     "major": "Major",
     "terrace": "Terrace",
     "main": "Main",
-    "kitchen": "Kitchen"
+    "kitchen": "Kitchen",
+    "vip": "VIP",
+    "reservation": "Reservation",
+    "reservations": "Reservations",
+    "table": "table",
+    "tables": "tables",
+    "addFloor": "Add floor",
+    "addNewFloor": "Add new floor",
+    "name": "Name",
+    "namePlaceholder": "ex: Terrace",
+    "timeLimit": "Time limit (minutes)",
+    "timeLimitPlaceholder": "ex: 30",
+    "pricingPolicy": "Pricing policy",
+    "baseFee": "Base fee",
+    "percentageSurcharge": "Percentage surcharge",
+    "minimumSpend": "Minimum spend",
+    "currency": "Currency",
+    "amount": "Amount",
+    "percentage": "Percentage",
+    "minimumAmount": "Minimum amount",
+    "pricingPolicyScope": "Pricing policy scope",
+    "pricingPolicyScopeDescription": "The selected pricing policy applies automatically to all tables in this floor.",
+    "autoAppliesToAllTables": "Auto-applies to all tables",
+    "cancel": "Cancel",
+    "add": "Add"
   },
   "status": {
-    "available": "Available",
     "reserved": "Reserved",
+    "available": "Available",
+    "noOrder": "No order",
     "occupied": "Occupied",
     "payment": "Payment",
-    "unsynced": "Unsynced NFC"
+    "free": "Free",
+    "booked": "Booked",
+    "noShow": "No Show",
+    "pendingPayment": "Pending Payment",
+    "overstay": "Overstay",
+    "unsynced": "Sync Needed"
   },
   "floorInfo": {
     "currentlyViewing": "Currently Viewing",
@@ -102,24 +133,28 @@
   "tableInfo": {
     "chairs": "Chairs",
     "occupied": "occupied",
+    "occupiedSuffix": "occupied",
     "timeSeated": "Time seated",
     "limit": "limit",
+    "limitShort": "limit",
     "order": "Order",
-    "starters": "Starters",
-    "mains": "Mains",
-    "drinks": "Drinks",
     "delivered": "Delivered",
+    "deliveredShort": "Delivered",
     "preparing": "PREPARING",
     "sent": "SENT",
     "pending": "PENDING",
     "nextEta": "Next ETA",
     "readyAtPass": "Ready at pass",
-    "since": "since",
     "paymentRequested": "Payment requested",
-    "ago": "ago",
     "notes": "Notes",
     "server": "Server",
-    "runner": "Runner"
+    "runner": "Runner",
+    "waiter": "Waiter",
+    "indicators": {
+      "dishReady": "Dish ready",
+      "paymentRequested": "Payment requested",
+      "overCapacity": "Over capacity"
+    }
   }
 }
 

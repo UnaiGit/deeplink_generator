@@ -91,6 +91,11 @@
   &.overlay {
     /* visual handled by real backdrop element */
   }
+
+  /* When on /menu route, remove overflow from content */
+  &.menu-route main .content {
+    overflow: hidden;
+  }
 }
 
 .main-container {

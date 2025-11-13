@@ -1,477 +1,611 @@
 import { FloorType } from '../components/Models/interface-legends';
 import { Table } from './table.model';
 
+const TABLE_STATUS_PRESETS: ReadonlyArray<Partial<Table>> = [
+  {
+    status: 'free',
+    guestCount: 0,
+    waiterName: '—',
+    runnerName: '—',
+    timeSeatedMinutes: 0,
+    maxStayMinutes: 90,
+    orderSummary: [],
+    indicators: {},
+    notes: 'Ready for walk-ins.'
+  },
+  {
+    status: 'occupied',
+    guestCount: 5,
+    waiterName: 'Laura M.',
+    runnerName: 'Pedro',
+    timeSeatedMinutes: 42,
+    maxStayMinutes: 90,
+    orderSummary: [
+      { title: 'Starters', delivered: 4, total: 4 },
+      { title: 'Mains', preparing: 2, sent: 1, pending: 1, eta: '06:10' },
+      { title: 'Drinks', delivered: 3, pending: 1, location: 'Bar' }
+    ],
+    indicators: { dishReady: true, paymentRequested: true },
+    readyAtPassCount: 2,
+    readyAtPassSinceLabel: 'since 01:05',
+    paymentRequestedAgoLabel: '03:12 ago',
+    notes: 'Gluten-free (Ana).'
+  },
+  {
+    status: 'booked',
+    guestCount: 0,
+    waiterName: 'Assigned soon',
+    runnerName: '—',
+    timeSeatedMinutes: 0,
+    maxStayMinutes: 90,
+    orderSummary: [
+      { title: 'Starters', delivered: 0, total: 2 },
+      { title: 'Mains', pending: 2 },
+      { title: 'Drinks', pending: 2 }
+    ],
+    indicators: {},
+    notes: 'Party of two arriving in 15 minutes.'
+  },
+  {
+    status: 'noShow',
+    guestCount: 0,
+    waiterName: 'Shift lead',
+    runnerName: '—',
+    timeSeatedMinutes: 90,
+    maxStayMinutes: 60,
+    orderSummary: [],
+    indicators: {},
+    notes: 'Reservation marked as no-show.'
+  },
+  {
+    status: 'pendingPayment',
+    guestCount: 3,
+    waiterName: 'Diego R.',
+    runnerName: 'Sofia',
+    timeSeatedMinutes: 104,
+    maxStayMinutes: 90,
+    orderSummary: [
+      { title: 'Mains', delivered: 3, total: 3 },
+      { title: 'Desserts', delivered: 2, pending: 1, eta: '04:45' }
+    ],
+    indicators: { paymentRequested: true },
+    paymentRequestedAgoLabel: '01:45 ago',
+    notes: 'Card terminal requested.'
+  },
+  {
+    status: 'overstay',
+    guestCount: 6,
+    waiterName: 'Aisha P.',
+    runnerName: 'Jon',
+    timeSeatedMinutes: 140,
+    maxStayMinutes: 120,
+    orderSummary: [
+      { title: 'Desserts', pending: 2, eta: '08:20' },
+      { title: 'Drinks', delivered: 5, pending: 1, location: 'Bar' }
+    ],
+    indicators: { dishReady: true, paymentRequested: true, overCapacity: true },
+    readyAtPassCount: 1,
+    readyAtPassSinceLabel: 'since 02:10',
+    paymentRequestedAgoLabel: '06:30 ago',
+    notes: 'Extra chairs pulled from storage.'
+  }
+];
+
+function applyTableMetadata(table: Table, index: number): void {
+  const preset = TABLE_STATUS_PRESETS[index % TABLE_STATUS_PRESETS.length];
+  if (!preset) {
+    return;
+  }
+
+  table.status = preset.status ?? 'free';
+  table.guestCount = preset.guestCount ?? table.guestCount;
+  table.waiterName = preset.waiterName ?? table.waiterName;
+  table.timeSeatedMinutes = preset.timeSeatedMinutes ?? table.timeSeatedMinutes;
+  table.maxStayMinutes = preset.maxStayMinutes ?? table.maxStayMinutes;
+  table.notes = preset.notes ?? table.notes;
+
+  if (preset.orderSummary) {
+    table.orderSummary = preset.orderSummary.map(section => ({ ...section }));
+  } else if (!table.orderSummary) {
+    table.orderSummary = [];
+  }
+
+  if (preset.indicators) {
+    table.indicators = { ...preset.indicators };
+  } else {
+    table.indicators = {};
+  }
+
+  if (!table.capacity && table.seats) {
+    table.capacity = table.seats;
+  }
+
+  if (table.seats === 4 || table.seats === 6) {
+    table.rotation = 90;
+  }
+
+  const seats = table.seats ?? 0;
+  const guests = Math.max(0, Math.min(seats, table.guestCount ?? 0));
+  table.occupiedChairs =
+    guests > 0 ? Array.from({ length: guests }, (_, idx) => idx + 1) : [];
+}
+
 /**
  * Get tables for Main Floor
- * Tables are spaced side by side with no overlaps
- * Spacing accounts for chairs: 18px width, 14px height, plus 40px gap between tables
+ * Tables are arranged vertically in columns
+ * Large tables (>6) are placed first, then small tables below them in the same column
+ * This prevents overflow and ensures proper spacing
  */
 export function getMainFloorTables(): Table[] {
-  const CHAIR_WIDTH = 18; // Chair extends left/right
-  const CHAIR_HEIGHT = 14; // Chair extends top/bottom
-  const TABLE_SPACING = 40; // Minimum gap between tables
-  
-  // Row 1: y = 100
-  let currentX = 50;
-  const row1Y = 100;
-  
-  const t01 = {
-    id: 'main-01',
-    label: 'T01',
-    status: 'available' as const,
-    x: currentX,
-    y: row1Y,
-    width: 80,
-    height: 80,
-    seats: 2,
-    shape: 'square' as const
-  };
-  currentX += 80 + CHAIR_WIDTH * 2 + TABLE_SPACING; // Table + chairs on both sides + spacing
-  
-  const t02 = {
-    id: 'main-02',
-    label: 'T02',
-    status: 'occupied' as const,
-    x: currentX,
-    y: row1Y,
-    width: 80,
-    height: 80,
-    seats: 2,
-    shape: 'square' as const,
-    occupiedChairs: [1]
-  };
-  currentX += 80 + CHAIR_WIDTH * 2 + TABLE_SPACING;
-  
-  const t03 = {
-    id: 'main-03',
-    label: 'T03',
-    status: 'reserved' as const,
-    x: currentX,
-    y: row1Y,
-    width: 100,
-    height: 100,
-    seats: 4,
-    shape: 'square' as const
-  };
-  currentX += 100 + CHAIR_WIDTH * 2 + TABLE_SPACING;
-  
-  const t04 = {
-    id: 'main-04',
-    label: 'T04',
-    status: 'available' as const,
-    x: currentX,
-    y: row1Y,
-    width: 180,
-    height: 100,
-    seats: 6,
-    shape: 'rectangular' as const
-  };
-  currentX += 180 + CHAIR_HEIGHT * 2 + TABLE_SPACING; // Rectangular: chairs on top/bottom
-  
-  const t05 = {
-    id: 'main-05',
-    label: 'T05',
-    status: 'payment' as const,
-    x: currentX,
-    y: row1Y,
-    width: 100,
-    height: 180,
-    seats: 8,
-    shape: 'rectangular' as const
-  };
-  
-  // Row 2: Calculate based on tallest table in row 1 + chairs + spacing
-  const row1MaxHeight = Math.max(80, 80, 100, 100, 180); // Max table height in row 1
-  const row2Y = row1Y + row1MaxHeight + CHAIR_HEIGHT * 2 + TABLE_SPACING;
-  
-  currentX = 50;
-  const t06 = {
-    id: 'main-06',
-    label: 'T06',
-    status: 'available' as const,
-    x: currentX,
-    y: row2Y,
-    width: 80,
-    height: 80,
-    seats: 2,
-    shape: 'square' as const
-  };
-  currentX += 80 + CHAIR_WIDTH * 2 + TABLE_SPACING;
-  
-  const t07 = {
-    id: 'main-07',
-    label: 'T07',
-    status: 'occupied' as const,
-    x: currentX,
-    y: row2Y,
-    width: 100,
-    height: 100,
-    seats: 4,
-    shape: 'square' as const,
-    occupiedChairs: [1, 3]
-  };
-  currentX += 100 + CHAIR_WIDTH * 2 + TABLE_SPACING;
-  
-  const t08 = {
-    id: 'main-08',
-    label: 'T08',
-    status: 'available' as const,
-    x: currentX,
-    y: row2Y,
-    width: 180,
-    height: 100,
-    seats: 6,
-    shape: 'rectangular' as const
-  };
-  currentX += 180 + CHAIR_HEIGHT * 2 + TABLE_SPACING;
-  
-  const t09 = {
-    id: 'main-09',
-    label: 'T09',
-    status: 'reserved' as const,
-    x: currentX,
-    y: row2Y,
-    width: 240,
-    height: 120,
-    seats: 12,
-    shape: 'rectangular' as const,
-    occupiedChairs: [1, 3, 6, 9, 12]
-  };
-  currentX += 240 + CHAIR_HEIGHT * 2 + TABLE_SPACING;
-  
-  const t10 = {
-    id: 'main-10',
-    label: 'T10',
-    status: 'available' as const,
-    x: currentX,
-    y: row2Y,
-    width: 100,
-    height: 100,
-    seats: 4,
-    shape: 'square' as const
-  };
-  
-  return [t01, t02, t03, t04, t05, t06, t07, t08, t09, t10];
+  const layout: Array<Table> = [];
+  const margin = 80;
+  const horizontalGap = 280; // Space between columns
+  const verticalGap = 60; // Space between tables vertically
+  const maxCanvasHeight = 4000; // Maximum canvas height to prevent overflow
+
+  const tableShapes: Array<{ width: number; height: number; seats: number; shape: Table['shape'] }> = [
+    { width: 120, height: 127, seats: 2, shape: 'rectangular' },
+    { width: 150, height: 190, seats: 4, shape: 'rectangular' },
+    { width: 126, height: 283, seats: 6, shape: 'rectangular' },
+    { width: 150, height: 480, seats: 12, shape: 'rectangular' },
+    { width: 150, height: 190, seats: 4, shape: 'rectangular' },
+    { width: 126, height: 283, seats: 6, shape: 'rectangular' },
+  ];
+
+  // Separate tables into groups: small (< 6), 6-seaters, and large (> 6)
+  const smallTables: typeof tableShapes = [];
+  const sixSeaterTables: typeof tableShapes = [];
+  const largeTables: typeof tableShapes = [];
+
+  tableShapes.forEach(shape => {
+    if (shape.seats === 6) {
+      sixSeaterTables.push(shape);
+    } else if (shape.seats > 6) {
+      largeTables.push(shape);
+    } else {
+      smallTables.push(shape);
+    }
+  });
+
+  let tableIndex = 0;
+  let currentColumn = 0;
+
+  // Column 1: Large tables first, then small tables below them
+  if (largeTables.length > 0 || smallTables.length > 0) {
+    let currentY = margin;
+    
+    // First, place large tables
+    for (const shape of largeTables) {
+      // Check if adding this table would cause overflow
+      if (currentY + shape.height > maxCanvasHeight - margin) {
+        // Move to next column
+        currentColumn++;
+        currentY = margin;
+      }
+      
+      const table: Table = {
+        id: `main-${(tableIndex + 1).toString().padStart(2, '0')}`,
+        label: `T${(tableIndex + 1).toString().padStart(2, '0')}`,
+        status: 'free',
+        width: shape.width,
+        height: shape.height,
+        seats: shape.seats,
+        shape: shape.shape,
+        x: margin + currentColumn * horizontalGap,
+        y: currentY,
+      };
+      applyTableMetadata(table, tableIndex);
+      layout.push(table);
+      currentY += shape.height + verticalGap;
+      tableIndex++;
+    }
+    
+    // Then, place small tables below large tables in the same column
+    for (const shape of smallTables) {
+      // Check if adding this table would cause overflow
+      if (currentY + shape.height > maxCanvasHeight - margin) {
+        // Move to next column
+        currentColumn++;
+        currentY = margin;
+      }
+      
+      const table: Table = {
+        id: `main-${(tableIndex + 1).toString().padStart(2, '0')}`,
+        label: `T${(tableIndex + 1).toString().padStart(2, '0')}`,
+        status: 'free',
+        width: shape.width,
+        height: shape.height,
+        seats: shape.seats,
+        shape: shape.shape,
+        x: margin + currentColumn * horizontalGap,
+        y: currentY,
+      };
+      applyTableMetadata(table, tableIndex);
+      layout.push(table);
+      currentY += shape.height + verticalGap;
+      tableIndex++;
+    }
+  }
+
+  // Column 2 (or next available): 6-seater tables
+  if (sixSeaterTables.length > 0) {
+    currentColumn++;
+    let currentY = margin;
+    
+    for (const shape of sixSeaterTables) {
+      // Check if adding this table would cause overflow
+      if (currentY + shape.height > maxCanvasHeight - margin) {
+        // Move to next column
+        currentColumn++;
+        currentY = margin;
+      }
+      
+      const table: Table = {
+        id: `main-${(tableIndex + 1).toString().padStart(2, '0')}`,
+        label: `T${(tableIndex + 1).toString().padStart(2, '0')}`,
+        status: 'free',
+        width: shape.width,
+        height: shape.height,
+        seats: shape.seats,
+        shape: shape.shape,
+        x: margin + currentColumn * horizontalGap,
+        y: currentY,
+      };
+      applyTableMetadata(table, tableIndex);
+      layout.push(table);
+      currentY += shape.height + verticalGap;
+      tableIndex++;
+    }
+  }
+
+  return layout;
 }
 
 /**
  * Get tables for Terrace Floor
- * Tables are spaced side by side with no overlaps
- * Spacing accounts for chairs: 18px width, 14px height, plus 40px gap between tables
+ * Large tables (>6) are placed first, then small tables below them in the same column
  */
 export function getTerraceFloorTables(): Table[] {
-  const CHAIR_WIDTH = 18;
-  const CHAIR_HEIGHT = 14;
-  const TABLE_SPACING = 40;
-  
-  // Row 1
-  let currentX = 50;
-  const row1Y = 100;
-  
-  const t01 = {
-    id: 'terrace-01',
-    label: 'T01',
-    status: 'available' as const,
-    x: currentX,
-    y: row1Y,
-    width: 80,
-    height: 80,
-    seats: 2,
-    shape: 'square' as const
-  };
-  currentX += 80 + CHAIR_WIDTH * 2 + TABLE_SPACING;
-  
-  const t02 = {
-    id: 'terrace-02',
-    label: 'T02',
-    status: 'occupied' as const,
-    x: currentX,
-    y: row1Y,
-    width: 100,
-    height: 100,
-    seats: 4,
-    shape: 'square' as const
-  };
-  currentX += 100 + CHAIR_WIDTH * 2 + TABLE_SPACING;
-  
-  const t03 = {
-    id: 'terrace-03',
-    label: 'T03',
-    status: 'reserved' as const,
-    x: currentX,
-    y: row1Y,
-    width: 180,
-    height: 100,
-    seats: 6,
-    shape: 'rectangular' as const
-  };
-  currentX += 180 + CHAIR_HEIGHT * 2 + TABLE_SPACING;
-  
-  const t04 = {
-    id: 'terrace-04',
-    label: 'T04',
-    status: 'available' as const,
-    x: currentX,
-    y: row1Y,
-    width: 100,
-    height: 180,
-    seats: 8,
-    shape: 'rectangular' as const
-  };
-  
-  // Row 2: Calculate based on tallest table in row 1
-  const row1MaxHeight = Math.max(80, 100, 100, 180);
-  const row2Y = row1Y + row1MaxHeight + CHAIR_HEIGHT * 2 + TABLE_SPACING;
-  
-  currentX = 50;
-  const t05 = {
-    id: 'terrace-05',
-    label: 'T05',
-    status: 'payment' as const,
-    x: currentX,
-    y: row2Y,
-    width: 100,
-    height: 100,
-    seats: 4,
-    shape: 'square' as const
-  };
-  currentX += 100 + CHAIR_WIDTH * 2 + TABLE_SPACING;
-  
-  const t06 = {
-    id: 'terrace-06',
-    label: 'T06',
-    status: 'available' as const,
-    x: currentX,
-    y: row2Y,
-    width: 80,
-    height: 80,
-    seats: 2,
-    shape: 'square' as const
-  };
-  currentX += 80 + CHAIR_WIDTH * 2 + TABLE_SPACING;
-  
-  const t07 = {
-    id: 'terrace-07',
-    label: 'T07',
-    status: 'occupied' as const,
-    x: currentX,
-    y: row2Y,
-    width: 180,
-    height: 100,
-    seats: 6,
-    shape: 'rectangular' as const,
-    occupiedChairs: [1, 4]
-  };
-  currentX += 180 + CHAIR_HEIGHT * 2 + TABLE_SPACING;
-  
-  const t08 = {
-    id: 'terrace-08',
-    label: 'T08',
-    status: 'available' as const,
-    x: currentX,
-    y: row2Y,
-    width: 100,
-    height: 100,
-    seats: 4,
-    shape: 'square' as const
-  };
-  
-  return [t01, t02, t03, t04, t05, t06, t07, t08];
+  const layout: Array<Table> = [];
+  const margin = 100;
+  const horizontalGap = 280;
+  const verticalGap = 60;
+  const maxCanvasHeight = 4000;
+
+  const tableShapes: Array<{ width: number; height: number; seats: number; shape: Table['shape'] }> = [
+    { width: 120, height: 127, seats: 2, shape: 'rectangular' },
+    { width: 150, height: 190, seats: 4, shape: 'rectangular' },
+    { width: 126, height: 283, seats: 6, shape: 'rectangular' },
+    { width: 150, height: 190, seats: 4, shape: 'rectangular' },
+    { width: 150, height: 480, seats: 12, shape: 'rectangular' },
+    { width: 126, height: 283, seats: 6, shape: 'rectangular' },
+  ];
+
+  const smallTables: typeof tableShapes = [];
+  const sixSeaterTables: typeof tableShapes = [];
+  const largeTables: typeof tableShapes = [];
+
+  tableShapes.forEach(shape => {
+    if (shape.seats === 6) {
+      sixSeaterTables.push(shape);
+    } else if (shape.seats > 6) {
+      largeTables.push(shape);
+    } else {
+      smallTables.push(shape);
+    }
+  });
+
+  let tableIndex = 0;
+  let currentColumn = 0;
+
+  // Column 1: Large tables first, then small tables below them
+  if (largeTables.length > 0 || smallTables.length > 0) {
+    let currentY = margin;
+    
+    for (const shape of largeTables) {
+      if (currentY + shape.height > maxCanvasHeight - margin) {
+        currentColumn++;
+        currentY = margin;
+      }
+      const table: Table = {
+        id: `terrace-${(tableIndex + 1).toString().padStart(2, '0')}`,
+        label: `T${(tableIndex + 1).toString().padStart(2, '0')}`,
+        status: 'free',
+        width: shape.width,
+        height: shape.height,
+        seats: shape.seats,
+        shape: shape.shape,
+        x: margin + currentColumn * horizontalGap,
+        y: currentY,
+      };
+      applyTableMetadata(table, tableIndex);
+      layout.push(table);
+      currentY += shape.height + verticalGap;
+      tableIndex++;
+    }
+    
+    for (const shape of smallTables) {
+      if (currentY + shape.height > maxCanvasHeight - margin) {
+        currentColumn++;
+        currentY = margin;
+      }
+      const table: Table = {
+        id: `terrace-${(tableIndex + 1).toString().padStart(2, '0')}`,
+        label: `T${(tableIndex + 1).toString().padStart(2, '0')}`,
+        status: 'free',
+        width: shape.width,
+        height: shape.height,
+        seats: shape.seats,
+        shape: shape.shape,
+        x: margin + currentColumn * horizontalGap,
+        y: currentY,
+      };
+      applyTableMetadata(table, tableIndex);
+      layout.push(table);
+      currentY += shape.height + verticalGap;
+      tableIndex++;
+    }
+  }
+
+  // Column 2: 6-seater tables
+  if (sixSeaterTables.length > 0) {
+    currentColumn++;
+    let currentY = margin;
+    for (const shape of sixSeaterTables) {
+      if (currentY + shape.height > maxCanvasHeight - margin) {
+        currentColumn++;
+        currentY = margin;
+      }
+      const table: Table = {
+        id: `terrace-${(tableIndex + 1).toString().padStart(2, '0')}`,
+        label: `T${(tableIndex + 1).toString().padStart(2, '0')}`,
+        status: 'free',
+        width: shape.width,
+        height: shape.height,
+        seats: shape.seats,
+        shape: shape.shape,
+        x: margin + currentColumn * horizontalGap,
+        y: currentY,
+      };
+      applyTableMetadata(table, tableIndex);
+      layout.push(table);
+      currentY += shape.height + verticalGap;
+      tableIndex++;
+    }
+  }
+
+  return layout;
 }
 
 /**
- * Get tables for Kitchen Floor
+ * Kitchen Item interface for kitchen floor
  */
-export function getKitchenFloorTables(): Table[] {
+export interface KitchenItem {
+  id: string;
+  label: string;
+  image: string;
+}
+
+/**
+ * Get kitchen items for Kitchen Floor
+ * Returns kitchen images positioned on the canvas
+ */
+export function getKitchenFloorItems(): KitchenItem[] {
   return [
-    {
-      id: 'kitchen-01',
-      label: 'S1',
-      status: 'available',
-      x: 100,
-      y: 150,
-      width: 120,
-      height: 120,
-      seats: 0,
-      shape: 'square'
-    },
-    {
-      id: 'kitchen-02',
-      label: 'S2',
-      status: 'occupied',
-      x: 300,
-      y: 150,
-      width: 120,
-      height: 120,
-      seats: 0,
-      shape: 'square'
-    },
-    {
-      id: 'kitchen-03',
-      label: 'S3',
-      status: 'available',
-      x: 500,
-      y: 150,
-      width: 120,
-      height: 120,
-      seats: 0,
-      shape: 'square'
-    }
+    { id: 'seafood', label: 'Seafood', image: 'http://localhost:4201/kitchen_data/IMG_3787.jpg' },
+    { id: 'bar', label: 'Bar', image: 'http://localhost:4201/kitchen_data/IMG_3789.jpg' },
+    { id: 'pastry', label: 'Pastry', image: 'http://localhost:4201/kitchen_data/IMG_3786.jpg' },
+    { id: 'sushi', label: 'Sushi', image: 'http://localhost:4201/kitchen_data/IMG_3784.jpg' },
+    { id: 'grill', label: 'Grill', image: 'http://localhost:4201/kitchen_data/IMG_3782.jpg' },
+    { id: 'oven', label: 'Oven', image: 'http://localhost:4201/kitchen_data/IMG_3780.jpg' },
+    { id: 'chef', label: 'Chef Station', image: 'http://localhost:4201/kitchen_data/IMG_3778.jpg' },
+    { id: 'prep', label: 'Prep Area', image: 'http://localhost:4201/kitchen_data/IMG_3777.jpg' },
+    { id: 'dessert', label: 'Desserts', image: 'http://localhost:4201/kitchen_data/IMG_3776.jpg' },
   ];
 }
 
 /**
+ * Get tables for Kitchen Floor
+ * Returns empty array - kitchen floor uses kitchen items instead
+ */
+export function getKitchenFloorTables(): Table[] {
+  return [];
+}
+
+/**
  * Get tables for Major Floor
- * Tables are spaced side by side with no overlaps
- * Spacing accounts for chairs: 18px width, 14px height, plus 40px gap between tables
+ * Large tables (>6) are distributed across columns to prevent overflow
+ * Small tables are placed below large tables in the same column when space allows
  */
 export function getMajorFloorTables(): Table[] {
-  const CHAIR_WIDTH = 18;
-  const CHAIR_HEIGHT = 14;
-  const TABLE_SPACING = 40;
-  
-  // Row 1
-  let currentX = 60;
-  const row1Y = 120;
-  
-  const t01 = {
-    id: 'major-01',
-    label: 'VIP1',
-    status: 'reserved' as const,
-    x: currentX,
-    y: row1Y,
-    width: 100,
-    height: 100,
-    seats: 4,
-    shape: 'square' as const
-  };
-  currentX += 100 + CHAIR_WIDTH * 2 + TABLE_SPACING;
-  
-  const t02 = {
-    id: 'major-02',
-    label: 'VIP2',
-    status: 'available' as const,
-    x: currentX,
-    y: row1Y,
-    width: 100,
-    height: 100,
-    seats: 4,
-    shape: 'square' as const
-  };
-  currentX += 100 + CHAIR_WIDTH * 2 + TABLE_SPACING;
-  
-  const t03 = {
-    id: 'major-03',
-    label: 'VIP3',
-    status: 'occupied' as const,
-    x: currentX,
-    y: row1Y,
-    width: 180,
-    height: 100,
-    seats: 6,
-    shape: 'rectangular' as const
-  };
-  currentX += 180 + CHAIR_HEIGHT * 2 + TABLE_SPACING;
-  
-  const t04 = {
-    id: 'major-04',
-    label: 'VIP4',
-    status: 'reserved' as const,
-    x: currentX,
-    y: row1Y,
-    width: 100,
-    height: 100,
-    seats: 4,
-    shape: 'square' as const
-  };
-  currentX += 100 + CHAIR_WIDTH * 2 + TABLE_SPACING;
-  
-  const t03b = {
-    id: 'major-03b',
-    label: 'VIP3B',
-    status: 'available' as const,
-    x: currentX,
-    y: row1Y,
-    width: 100,
-    height: 180,
-    seats: 8,
-    shape: 'rectangular' as const
-  };
-  
-  // Row 2: Calculate based on tallest table in row 1
-  const row1MaxHeight = Math.max(100, 100, 100, 100, 180);
-  const row2Y = row1Y + row1MaxHeight + CHAIR_HEIGHT * 2 + TABLE_SPACING;
-  
-  currentX = 60;
-  const t05 = {
-    id: 'major-05',
-    label: 'VIP5',
-    status: 'available' as const,
-    x: currentX,
-    y: row2Y,
-    width: 100,
-    height: 100,
-    seats: 4,
-    shape: 'square' as const
-  };
-  currentX += 100 + CHAIR_WIDTH * 2 + TABLE_SPACING;
-  
-  const t06 = {
-    id: 'major-06',
-    label: 'VIP6',
-    status: 'payment' as const,
-    x: currentX,
-    y: row2Y,
-    width: 180,
-    height: 100,
-    seats: 6,
-    shape: 'rectangular' as const
-  };
-  currentX += 180 + CHAIR_HEIGHT * 2 + TABLE_SPACING;
-  
-  const t07 = {
-    id: 'major-07',
-    label: 'VIP7',
-    status: 'available' as const,
-    x: currentX,
-    y: row2Y,
-    width: 100,
-    height: 100,
-    seats: 4,
-    shape: 'square' as const
-  };
-  currentX += 100 + CHAIR_WIDTH * 2 + TABLE_SPACING;
-  
-  const t08 = {
-    id: 'major-08',
-    label: 'VIP8',
-    status: 'reserved' as const,
-    x: currentX,
-    y: row2Y,
-    width: 100,
-    height: 100,
-    seats: 4,
-    shape: 'square' as const
-  };
-  
-  return [t01, t02, t03, t04, t03b, t05, t06, t07, t08];
+  const layout: Array<Table> = [];
+  const margin = 80;
+  const horizontalGap = 300;
+  const verticalGap = 50;
+  const maxCanvasHeight = 1500; // Conservative height to prevent overflow - forces tables to distribute across columns
+
+  const tableShapes: Array<{ width: number; height: number; seats: number; shape: Table['shape'] }> = [
+    { width: 126, height: 283, seats: 6, shape: 'rectangular' },
+    { width: 150, height: 480, seats: 12, shape: 'rectangular' },
+    { width: 150, height: 190, seats: 4, shape: 'rectangular' },
+    { width: 150, height: 480, seats: 12, shape: 'rectangular' },
+    { width: 120, height: 127, seats: 2, shape: 'rectangular' },
+    { width: 150, height: 190, seats: 4, shape: 'rectangular' },
+  ];
+
+  const smallTables: typeof tableShapes = [];
+  const sixSeaterTables: typeof tableShapes = [];
+  const largeTables: typeof tableShapes = [];
+
+  tableShapes.forEach(shape => {
+    if (shape.seats === 6) {
+      sixSeaterTables.push(shape);
+    } else if (shape.seats > 6) {
+      largeTables.push(shape);
+    } else {
+      smallTables.push(shape);
+    }
+  });
+
+  let tableIndex = 0;
+  let currentColumn = 0;
+
+  // Column 1: Distribute large tables across columns to prevent overflow
+  if (largeTables.length > 0) {
+    let currentY = margin;
+    
+    for (const shape of largeTables) {
+      // Check if adding this table would cause overflow
+      if (currentY + shape.height + verticalGap > maxCanvasHeight - margin) {
+        // Move to next column
+        currentColumn++;
+        currentY = margin;
+      }
+      
+      const table: Table = {
+        id: `major-${(tableIndex + 1).toString().padStart(2, '0')}`,
+        label: `T${(tableIndex + 1).toString().padStart(2, '0')}`,
+        status: 'free',
+        width: shape.width,
+        height: shape.height,
+        seats: shape.seats,
+        shape: shape.shape,
+        x: margin + currentColumn * horizontalGap,
+        y: currentY,
+      };
+      applyTableMetadata(table, tableIndex);
+      if (tableIndex === tableShapes.length - 1) {
+        table.status = 'unsynced';
+        table.indicators = { ...(table.indicators ?? {}), paymentRequested: true };
+        table.notes = `${table.notes ?? ''} NFC sync pending`.trim();
+      }
+      layout.push(table);
+      currentY += shape.height + verticalGap;
+      tableIndex++;
+    }
+    
+    // Place small tables below large tables in the same column if space allows
+    for (const shape of smallTables) {
+      // Check if adding this table would cause overflow
+      if (currentY + shape.height + verticalGap > maxCanvasHeight - margin) {
+        // Move to next column
+        currentColumn++;
+        currentY = margin;
+      }
+      
+      const table: Table = {
+        id: `major-${(tableIndex + 1).toString().padStart(2, '0')}`,
+        label: `T${(tableIndex + 1).toString().padStart(2, '0')}`,
+        status: 'free',
+        width: shape.width,
+        height: shape.height,
+        seats: shape.seats,
+        shape: shape.shape,
+        x: margin + currentColumn * horizontalGap,
+        y: currentY,
+      };
+      applyTableMetadata(table, tableIndex);
+      if (tableIndex === tableShapes.length - 1) {
+        table.status = 'unsynced';
+        table.indicators = { ...(table.indicators ?? {}), paymentRequested: true };
+        table.notes = `${table.notes ?? ''} NFC sync pending`.trim();
+      }
+      layout.push(table);
+      currentY += shape.height + verticalGap;
+      tableIndex++;
+    }
+  } else if (smallTables.length > 0) {
+    // If no large tables, just place small tables
+    let currentY = margin;
+    for (const shape of smallTables) {
+      if (currentY + shape.height + verticalGap > maxCanvasHeight - margin) {
+        currentColumn++;
+        currentY = margin;
+      }
+      const table: Table = {
+        id: `major-${(tableIndex + 1).toString().padStart(2, '0')}`,
+        label: `T${(tableIndex + 1).toString().padStart(2, '0')}`,
+        status: 'free',
+        width: shape.width,
+        height: shape.height,
+        seats: shape.seats,
+        shape: shape.shape,
+        x: margin + currentColumn * horizontalGap,
+        y: currentY,
+      };
+      applyTableMetadata(table, tableIndex);
+      if (tableIndex === tableShapes.length - 1) {
+        table.status = 'unsynced';
+        table.indicators = { ...(table.indicators ?? {}), paymentRequested: true };
+        table.notes = `${table.notes ?? ''} NFC sync pending`.trim();
+      }
+      layout.push(table);
+      currentY += shape.height + verticalGap;
+      tableIndex++;
+    }
+  }
+
+  // Next column: 6-seater tables
+  if (sixSeaterTables.length > 0) {
+    currentColumn++;
+    let currentY = margin;
+    for (const shape of sixSeaterTables) {
+      if (currentY + shape.height + verticalGap > maxCanvasHeight - margin) {
+        currentColumn++;
+        currentY = margin;
+      }
+      const table: Table = {
+        id: `major-${(tableIndex + 1).toString().padStart(2, '0')}`,
+        label: `T${(tableIndex + 1).toString().padStart(2, '0')}`,
+        status: 'free',
+        width: shape.width,
+        height: shape.height,
+        seats: shape.seats,
+        shape: shape.shape,
+        x: margin + currentColumn * horizontalGap,
+        y: currentY,
+      };
+      applyTableMetadata(table, tableIndex);
+      if (tableIndex === tableShapes.length - 1) {
+        table.status = 'unsynced';
+        table.indicators = { ...(table.indicators ?? {}), paymentRequested: true };
+        table.notes = `${table.notes ?? ''} NFC sync pending`.trim();
+      }
+      layout.push(table);
+      currentY += shape.height + verticalGap;
+      tableIndex++;
+    }
+  }
+
+  return layout;
 }
 
 /**
  * Get tables for a specific floor
  */
 export function getFloorTables(floor: FloorType): Table[] {
+  let tables: Table[] = [];
   switch (floor) {
     case 'main':
-      return getMainFloorTables();
+      tables = getMainFloorTables();
+      break;
     case 'terrace':
-      return getTerraceFloorTables();
+      tables = getTerraceFloorTables();
+      break;
     case 'kitchen':
-      return getKitchenFloorTables();
+      tables = getKitchenFloorTables();
+      break;
     case 'major':
-      return getMajorFloorTables();
+      tables = getMajorFloorTables();
+      break;
     default:
-      return [];
+      tables = [];
   }
+
+  // Limit to 5 tables for main, terrace and major
+  if (floor === 'main' || floor === 'terrace' || floor === 'major') {
+    return tables.slice(0, 6);
+  }
+  return tables;
 }
 

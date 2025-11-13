@@ -37,6 +37,19 @@ export const ICON_PATHS = {
   lock: 'http://localhost:4201/icons/lock.svg',
   antenna: 'http://localhost:4201/icons/antenna.svg',
   time: 'http://localhost:4201/icons/time.svg',
+
+  // Builder Bar Icons
+  builderBar: 'http://localhost:4201/builder_bar/builderIcon.svg',
+  builderEmployee: 'http://localhost:4201/builder_bar/builderbarEmployee.svg',
+  builderFloor: 'http://localhost:4201/builder_bar/floorLayer.svg',
+
+  // Department Icons
+  departmentsManager: 'http://localhost:4201/builder_bar/manager.svg',
+  departmentsStockroom: 'http://localhost:4201/builder_bar/stockroom.svg',
+  departmentsMarketing: 'http://localhost:4201/builder_bar/markeeting.svg',
+  departmentsTable: 'http://localhost:4201/builder_bar/table.svg',
+  departmentsHR: 'http://localhost:4201/builder_bar/manager.svg',
+  departmentsReception: 'http://localhost:4201/builder_bar/departments.svg',
 } as const;
 
 /**

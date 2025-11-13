@@ -1,12 +1,18 @@
 <div class="floor-tabs">
-  @for (floor of floors; track floor.id) {
-    <button
-      class="floor-tab"
-      [class.active]="selectedFloor() === floor.id"
-      (click)="selectFloor(floor.id)"
-    >
-      {{ floor.translationKey | translate }}
-    </button>
-  }
+  <div class="floor-tabs__group">
+    @for (floor of floors(); track floor.id) {
+      <button
+        class="floor-tab"
+        [class.active]="selectedFloor() === floor.floorType"
+        (click)="selectFloor(floor.floorType)"
+      >
+        @if (isTranslatable(floor.translationKey)) {
+          {{ floor.translationKey | translate }}
+        } @else {
+          {{ floor.name }}
+        }
+      </button>
+    }
+  </div>
 </div>
 

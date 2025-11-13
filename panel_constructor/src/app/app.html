@@ -11,7 +11,11 @@
   </div>
 
   <div class="footer-cards">
-    <app-action-cards (buildClick)="onBuildClick()"></app-action-cards>
+    <app-action-cards 
+      (buildClick)="onBuildClick()" 
+      (employeesClick)="onEmployeesClick($event)"
+      (floorsClick)="onFloorsClick($event)">
+    </app-action-cards>
     <app-stats-cards></app-stats-cards>
   </div>
 </div>
@@ -37,5 +41,23 @@
   [isOpen]="showDepartments()"
   (close)="onCloseDepartments()">
 </app-departments>
+
+<app-employees
+  [isOpen]="showEmployees()"
+  [anchor]="employeesAnchor()"
+  (close)="onCloseEmployees()">
+</app-employees>
+
+<app-floors
+  [isOpen]="showFloors()"
+  [anchor]="floorsAnchor()"
+  (close)="onCloseFloors()"
+  (floorSelect)="onFloorChange($event)">
+</app-floors>
+
+<app-toast
+  [toast]="toastService.toast()"
+  [visible]="toastService.visible()">
+</app-toast>
   
 </div>

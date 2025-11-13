@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { StatusItem } from '../Models/interface-legends';
+import { TABLE_CONSTANTS } from '../../core/constants/table.constants';
 
 
 @Component({
@@ -11,11 +12,11 @@ import { StatusItem } from '../Models/interface-legends';
 })
 export class StatusLegend {
    statuses: { color: string; translationKey: string }[] = [
-    { color: '#10b981', translationKey: 'status.available' }, // Green
-    { color: '#fbbf24', translationKey: 'status.reserved' }, // Yellow
-    { color: '#ef4444', translationKey: 'status.occupied' }, // Red
-    { color: '#f97316', translationKey: 'status.payment' }, // Orange
-    { color: '#6b7280', translationKey: 'status.unsynced' } // Grey
+    { color: TABLE_CONSTANTS.STATUS_CONFIG.booked.backgroundColor, translationKey: 'status.reserved' }, // Blue - Reserved
+    { color: TABLE_CONSTANTS.STATUS_CONFIG.free.backgroundColor, translationKey: 'status.available' }, // Teal - Available (#40C4AA)
+    { color: TABLE_CONSTANTS.STATUS_CONFIG.noShow.backgroundColor, translationKey: 'status.noOrder' }, // Yellow - No order
+    { color: TABLE_CONSTANTS.STATUS_CONFIG.occupied.backgroundColor, translationKey: 'status.occupied' }, // Red - Occupied
+    { color: TABLE_CONSTANTS.STATUS_CONFIG.pendingPayment.backgroundColor, translationKey: 'status.payment' } // Magenta/Purple - Payment
   ];
 
 }
