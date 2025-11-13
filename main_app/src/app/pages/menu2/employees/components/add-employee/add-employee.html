@@ -1,5 +1,5 @@
-<div class="modal-overlay" *ngIf="isOpen" (click)="onClose()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
+<app-base-modal [isOpen]="isOpen" [config]="getModalConfig()" (close)="onClose()">
+  <div class="modal-content">
     <!-- Header -->
     <div class="modal-header">
       <h2 class="modal-title">{{ isEditMode ? 'Edit Employee' : 'Add Employee'
@@ -183,4 +183,4 @@
         (click)="onSave()">Save</button>
     </div>
   </div>
-</div>
+</app-base-modal>

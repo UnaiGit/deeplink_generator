@@ -1,7 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { CategoryCounts } from '@/types/dashboard2/category-counts.type';
+
+export interface CategoryItem {
+  id: string;
+  label: string;
+  icon?: string;
+  count?: number;
+}
 
 @Component({
   selector: 'app-category-filter',
@@ -11,10 +17,21 @@ import { CategoryCounts } from '@/types/dashboard2/category-counts.type';
   styleUrls: ['./category-filter.scss'],
 })
 export class CategoryFilterComponent {
+  // Legacy support - can use simple string array
   @Input() categories: string[] = [];
+  
+  // New flexible approach - use CategoryItem array
+  @Input() items: CategoryItem[] = [];
+  
   @Input() totalItems = 0;
   @Input() active = 'All';
-  @Input() categoryCounts: CategoryCounts = {};
+  @Input() categoryCounts: { [key: string]: number } = {};
+  
+  // Customizable labels
+  @Input() allLabel = 'All Menu';
+  @Input() itemsLabel = 'Items';
+  @Input() allIcon = '/icons/categorey.svg';
+  
   @Output() changed = new EventEmitter<string>();
 
   select(c: string) {
@@ -37,6 +54,19 @@ export class CategoryFilterComponent {
     }
     return this.categoryCounts[category] || 0;
   }
-}
 
+  // Get items to display - supports both old and new API
+  get displayItems(): CategoryItem[] {
+    if (this.items && this.items.length > 0) {
+      return this.items;
+    }
+    // Fallback to legacy categories array
+    return this.categories.map(cat => ({
+      id: cat,
+      label: cat,
+      icon: this.getCategoryIcon(cat),
+      count: this.getCategoryCount(cat)
+    }));
+  }
+}
 

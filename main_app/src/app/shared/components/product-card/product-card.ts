@@ -16,6 +16,7 @@ export class ProductCardComponent implements OnChanges {
   @Input() currentQty = 0;
   @Output() add = new EventEmitter<number>();
   @Output() decrease = new EventEmitter<void>();
+  @Output() zoom = new EventEmitter<void>();
 
   quantity = 0;
   isAdded = false;
@@ -34,6 +35,10 @@ export class ProductCardComponent implements OnChanges {
     this.add.emit(1);
   }
 
+  onZoom() {
+    this.zoom.emit();
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if ('currentQty' in changes) {
       const qty = this.currentQty || 0;
@@ -42,5 +47,4 @@ export class ProductCardComponent implements OnChanges {
     }
   }
 }
-
 

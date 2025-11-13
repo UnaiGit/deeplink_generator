@@ -1,16 +1,18 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, HostListener, ElementRef, Renderer2, Inject } from '@angular/core';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ModalContext, ModalMode } from '@/types/menu2/modes.type';
+import { BaseModalComponent } from '../../../../../shared/components/modal/base-modal';
+import { ModalConfig } from '../../../../../shared/components/modal/modal-config.type';
 
 @Component({
   selector: 'app-modal-panel',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BaseModalComponent],
   templateUrl: './modal-panel.html',
   styleUrl: './modal-panel.scss',
 })
-export class ModalPanel implements OnInit, OnChanges, OnDestroy {
+export class ModalPanel implements OnInit, OnChanges {
   @Input() isOpen: boolean = false;
   @Input() context: ModalContext = 'category';
   @Input() mode: ModalMode = 'add';
@@ -26,17 +28,6 @@ export class ModalPanel implements OnInit, OnChanges, OnDestroy {
   @Output() updateCategories = new EventEmitter<void>();
 
   showAddFormInList: boolean = false;
-
-  private modalElement: HTMLElement | null = null;
-  private bodyElement: HTMLElement | null = null;
-
-  constructor(
-    private el: ElementRef,
-    private renderer: Renderer2,
-    @Inject(DOCUMENT) private document: Document
-  ) {
-    this.bodyElement = this.document.body;
-  }
 
   formData: any = {
     name: '',
@@ -74,34 +65,26 @@ export class ModalPanel implements OnInit, OnChanges, OnDestroy {
     } else if (!this.showAddFormInList) {
       this.resetForm();
     }
-
-    // Move modal to body when open to ensure it overlays everything
-    if (this.isOpen && this.bodyElement) {
-      setTimeout(() => this.moveModalToBody(), 0);
-    } else if (!this.isOpen && this.modalElement) {
-      this.removeModalFromBody();
-    }
   }
 
-  private moveModalToBody(): void {
-    if (!this.bodyElement || !this.el.nativeElement) return;
-    
-    const modalOverlay = this.el.nativeElement.querySelector('.modal-overlay');
-    if (modalOverlay && !this.modalElement) {
-      this.modalElement = modalOverlay;
-      this.renderer.appendChild(this.bodyElement, modalOverlay);
+  getModalConfig(): ModalConfig {
+    if (this.mode === 'delete') {
+      return {
+        position: 'center',
+        width: '90%',
+        maxWidth: '480px',
+        animation: 'scale',
+        borderRadius: '16px',
+        closeOnOverlayClick: false
+      };
     }
-  }
-
-  private removeModalFromBody(): void {
-    if (this.modalElement && this.bodyElement) {
-      this.renderer.removeChild(this.bodyElement, this.modalElement);
-      this.modalElement = null;
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.removeModalFromBody();
+    return {
+      position: 'right',
+      width: '100%',
+      maxWidth: '480px',
+      height: '100%',
+      animation: 'slide'
+    };
   }
 
   resetForm(): void {

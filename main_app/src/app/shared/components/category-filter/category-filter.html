@@ -1,0 +1,24 @@
+<div class="categories">
+  <button class="cat" [class.active]="active === 'All'" (click)="select('All')">
+    <div class="cat-icon" [class.active-icon]="active === 'All'">
+      <img [src]="allIcon" alt="all menu" />
+    </div>
+    <div class="cat-text">
+      <div class="cat-name">{{ allLabel | translate }}</div>
+      <div class="count">{{ totalItems }} {{ itemsLabel | translate }}</div>
+    </div>
+  </button>
+  <ng-container *ngFor="let item of displayItems">
+    <button class="cat" [class.active]="active === item.id" (click)="select(item.id)">
+      <div class="cat-icon" [class.active-icon]="active === item.id">
+        <img [src]="item.icon || getCategoryIcon(item.id)" [alt]="item.label" />
+      </div>
+      <div class="cat-text">
+        <div class="cat-name">{{ item.label | translate }}</div>
+        <div class="count">{{ item.count !== undefined ? item.count : getCategoryCount(item.id) }} {{ itemsLabel | translate }}</div>
+      </div>
+    </button>
+  </ng-container>
+  <div class="spacer"></div>
+</div>
+

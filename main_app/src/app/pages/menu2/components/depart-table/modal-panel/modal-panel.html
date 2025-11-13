@@ -1,10 +1,9 @@
-<div class="modal-overlay" *ngIf="isOpen">
   <!-- Delete Confirmation Modal (Centered) -->
-  <div
+<app-base-modal
     *ngIf="isDeleteMode()"
-    class="delete-modal-container"
-    [class.open]="isOpen"
-    (click)="$event.stopPropagation()">
+  [isOpen]="isOpen"
+  [config]="getModalConfig()"
+  (close)="onClose()">
     <!-- Header -->
     <div class="modal-header">
       <h2 class="modal-title">{{ getTitle() }}</h2>
@@ -23,14 +22,14 @@
       <button class="delete-button" type="button"
         (click)="onConfirmDelete()">Delete</button>
     </div>
-  </div>
+</app-base-modal>
 
   <!-- Order of Departure List View (Side Panel) -->
-  <div
+<app-base-modal
     *ngIf="!isDeleteMode()"
-    class="modal-container"
-    [class.open]="isOpen"
-    (click)="$event.stopPropagation()">
+  [isOpen]="isOpen"
+  [config]="getModalConfig()"
+  (close)="onClose()">
     <!-- Header -->
     <div class="modal-header">
       <div class="header-left-group">
@@ -155,5 +154,4 @@
         Update
       </button>
     </div>
-  </div>
-</div>
+</app-base-modal>

@@ -63,6 +63,7 @@ export class Sidebar implements OnInit {
         subItems: [
           { href: '/menu2', title: 'Editor Menu', active: false },
           { href: '/employees', title: 'Employees', active: false },
+          { href: '/orders', title: 'Orders', active: false },
         ],
       },
       {

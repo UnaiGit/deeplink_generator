@@ -2,11 +2,13 @@ import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StaffMember } from '@/types/interfaces/employees/staff-member.interface';
+import { BaseModalComponent } from '../../../../../shared/components/modal/base-modal';
+import { ModalConfig } from '../../../../../shared/components/modal/modal-config.type';
 
 @Component({
   selector: 'app-add-employee',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BaseModalComponent],
   templateUrl: './add-employee.html',
   styleUrl: './add-employee.scss',
 })
@@ -57,6 +59,16 @@ export class AddEmployee implements OnChanges {
     if (changes['isEditMode'] && this.isEditMode && this.employee && this.isOpen) {
       this.loadEmployeeData();
     }
+  }
+
+  getModalConfig(): ModalConfig {
+    return {
+      position: 'right',
+      width: '100%',
+      maxWidth: '500px',
+      height: '100%',
+      animation: 'slide'
+    };
   }
 
   loadEmployeeData(): void {

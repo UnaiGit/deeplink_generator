@@ -16,4 +16,16 @@ export type AppDispatch = typeof store.dispatch;
 export const selectCartState = () => store.getState().cart;
 export const selectEmployeeState = () => store.getState().employee;
 
+// Helper to get table-specific cart
+export const selectTableCart = (tableId: number | string) => {
+  const state = store.getState().cart;
+  return state.tableCarts[String(tableId)] || [];
+};
+
+// Helper to get table-specific payment info
+export const selectTablePayment = (tableId: number | string) => {
+  const state = store.getState().cart;
+  return state.payments[String(tableId)] || null;
+};
+
 

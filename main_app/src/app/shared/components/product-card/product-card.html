@@ -1,0 +1,26 @@
+<div class="product-card">
+  <div class="image-container">
+    <img [src]="image || '/images/placeholder.png'" [alt]="title" />
+    <button class="zoom-button" type="button" (click)="onZoom()"
+      aria-label="Zoom image">
+      <img src="/icons/zoom.svg" alt="zoom" srcset class="zoom-icon">
+    </button>
+  </div>
+  <div class="title">{{ title }}</div>
+  <div class="footer">
+    <div class="price">{{ price | currency:'USD':'symbol':'1.2-2' }}</div>
+    <div class="qty-controls" *ngIf="isAdded">
+      <button class="qty-btn minus" (click)="dec()"
+        aria-label="Decrease quantity">
+        <span class="minus-line"></span>
+      </button>
+      <span class="qty-value">{{ quantity }}</span>
+      <button class="qty-btn plus" (click)="inc()"
+        aria-label="Increase quantity"><img src="/icons/plus.svg" alt="plus" srcset></button>
+    </div>
+    <button class="add-button" *ngIf="!isAdded" (click)="onAdd()"
+      aria-label="Add to cart">
+      <img src="/icons/plus.svg" alt="plus" srcset>
+    </button>
+  </div>
+</div>
