@@ -1,5 +1,6 @@
 import { FloorType } from '../components/Models/interface-legends';
 import { Table } from './table.model';
+import { KitchenItem } from '../core/interfaces/kitchen.interface';
 
 const TABLE_STATUS_PRESETS: ReadonlyArray<Partial<Table>> = [
   {
@@ -377,14 +378,9 @@ export function getTerraceFloorTables(): Table[] {
   return layout;
 }
 
-/**
- * Kitchen Item interface for kitchen floor
- */
-export interface KitchenItem {
-  id: string;
-  label: string;
-  image: string;
-}
+// KitchenItem is now imported from '../core/interfaces/kitchen.interface'
+// Re-export for backward compatibility
+export type { KitchenItem } from '../core/interfaces/kitchen.interface';
 
 /**
  * Get kitchen items for Kitchen Floor

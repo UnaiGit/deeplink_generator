@@ -130,10 +130,14 @@ export class App implements OnInit, OnDestroy {
       const target = event.target as HTMLElement;
       // Don't hide if clicking inside notifications container, bell button, or sidebar
       // Also don't hide if clicking the main app notification button
+      // Don't hide if clicking inside table config or departments panels
       if (!target.closest('.notifications-container') && 
           !target.closest('.notification-bell-button') &&
           !target.closest('.notifications-sidebar') &&
-          !target.closest('.btn.ghost.badge')) {
+          !target.closest('.btn.ghost.badge') &&
+          !target.closest('.table-config-overlay') &&
+          !target.closest('.departments-overlay') &&
+          !target.closest('.departments-modal')) {
         // Only hide if notifications are currently visible
         if (this.showNotifications()) {
           console.log('Panel Constructor: Click outside detected, hiding notifications');

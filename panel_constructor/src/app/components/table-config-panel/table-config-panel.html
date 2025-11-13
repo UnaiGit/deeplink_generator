@@ -1,5 +1,5 @@
-<div class="table-config-overlay">
-  <div class="table-config-backdrop" (click)="cancel.emit()"></div>
+<div class="table-config-overlay" (click)="$event.stopPropagation()">
+  <div class="table-config-backdrop" (click)="cancel.emit(); $event.stopPropagation()"></div>
   <div class="table-config-panel" [class.nfc-step]="isNfcStep" (click)="$event.stopPropagation()">
     <header class="table-config-header">
       <div>
@@ -7,7 +7,7 @@
         <p *ngIf="isDetailsStep">{{ 'tableConfig.detailsSubtitle' | translate }}</p>
         <p *ngIf="isNfcStep">{{ 'tableConfig.nfcSubtitle' | translate }}</p>
       </div>
-      <button class="close-button" (click)="cancel.emit()" aria-label="Close">
+      <button class="close-button" (click)="cancel.emit(); $event.stopPropagation()" aria-label="Close">
         ×
       </button>
     </header>
@@ -128,7 +128,7 @@
     </ng-template>
 
     <footer class="table-config-footer">
-      <button type="button" class="btn btn-neutral" (click)="cancel.emit()">
+      <button type="button" class="btn btn-neutral" (click)="cancel.emit(); $event.stopPropagation()">
         {{ 'tableConfig.buttons.cancel' | translate }}
       </button>
       <div class="actions">
