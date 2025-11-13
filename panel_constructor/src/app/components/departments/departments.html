@@ -1,5 +1,5 @@
 @if (isOpen()) {
-  <div class="departments-overlay">
+  <div class="departments-overlay" (click)="$event.stopPropagation()">
     <div class="departments-modal" (click)="$event.stopPropagation()">
       <!-- Header -->
       <div class="departments-header">

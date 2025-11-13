@@ -15,16 +15,28 @@ import { TableLayoutService } from '../../core/services/table-layout.service';
 import { EmployeeDragService } from '../../core/services/employee-drag.service';
 import { EmployeeService } from '../../core/services/employee.service';
 import { ToastService } from '../../core/services/toast.service';
-import { getKitchenFloorItems, KitchenItem } from '../../utils/floor-data.util';
+import { Department } from '../../core/models/department.model';
+import { getKitchenFloorItems } from '../../utils/floor-data.util';
+import { 
+  KitchenItem, 
+  KitchenLayoutItem,
+  Point2D,
+  DragState,
+  PanState,
+  CanvasOffset,
+  TablePosition,
+  TablePositionsMap,
+  FloorOffsets,
+  DragDropState,
+  TableCapacityPreset,
+  TableCapacityPresets,
+  TableConfigOriginal,
+  TableIdentity,
+  ChairPosition,
+  CanvasCoordinates
+} from '../../core/interfaces';
 
-interface KitchenLayoutItem extends KitchenItem {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-const TABLE_CAPACITY_PRESETS: Record<number, { width: number; height: number; shape: Table['shape'] }> = {
+const TABLE_CAPACITY_PRESETS: TableCapacityPresets = {
   2: { width: 120, height: 140, shape: 'rectangular' },
   4: { width: 140, height: 200, shape: 'rectangular' },
   6: { width: 160, height: 264, shape: 'rectangular' },
@@ -73,16 +85,24 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
 
   // Tables state for drag and drop
   private tables: Table[] = [];
-  private draggedTable: Table | null = null;
-  private dragOffset = { x: 0, y: 0 };
-  private isDragging = false;
+  private dragState: DragState = {
+    isDragging: false,
+    draggedTable: null,
+    dragOffset: { x: 0, y: 0 },
+    hasDragMovement: false,
+    dragEnabled: false
+  };
   private dragOverTable: Table | null = null;
   private lastHoveredTableId: string | null = null; // Track last hovered table to avoid unnecessary redraws
   private pendingRedraw: number | null = null; // RAF id for throttled redraws
-  private dragEnabled = false; // Only true after double click
-  private hasDragMovement = false;
-  private isPanning = false; // Track if we're panning the canvas
-  private panStart = { x: 0, y: 0 }; // Starting position for pan
+  private panState: PanState = {
+    isPanning: false,
+    panStart: { x: 0, y: 0 },
+    panOffset: { x: 0, y: 0 },
+    isPanModeActive: false,
+    pendingPanActivation: false,
+    spacePressed: false
+  };
   private pendingDepartmentId: string | null = null; // latched during drag enter/over
 
   // Kitchen items state
@@ -102,11 +122,10 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   private readonly PAN_STEP = 20; // Pixels to pan per arrow key press
   canvasOffsetX = signal<number>(0);
   canvasOffsetY = signal<number>(0);
-  private floorOffsets: Partial<Record<string, { x: number; y: number }>> = {};
-  private tablePositions: Partial<Record<string, Record<string, { x: number; y: number }>>> = {};
-  private isPanModeActive = false;
-  private pendingPanActivation = false;
-  private spacePressed = false;
+  private floorOffsets: FloorOffsets = {};
+  private tablePositions: TablePositionsMap = {};
+  // Pan state properties moved to panState object above
+  // Keeping these for backward compatibility but they should use panState
 
   // Table configuration state (for modal flow)
   tableConfigTable: Table | null = null;
@@ -117,19 +136,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     capacity: 6,
     maxStay: ''
   };
-  private tableConfigOriginal: {
-    seats?: number;
-    capacity?: number;
-    widthGrid?: number;
-    heightGrid?: number;
-    maxStayMinutes?: number;
-    width?: number;
-    height?: number;
-    shape?: Table['shape'];
-    x?: number;
-    y?: number;
-    occupiedChairs?: number[];
-  } | null = null;
+  private tableConfigOriginal: TableConfigOriginal | null = null;
   nfcState: NfcState = {
     read: false,
     write: false,
@@ -465,7 +472,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     };
   }
 
-  private toCanvasCoordinates(screenX: number, screenY: number): { canvasX: number; canvasY: number } {
+  private toCanvasCoordinates(screenX: number, screenY: number): CanvasCoordinates {
     const zoom = this.zoomLevel();
     const offsetX = this.canvasOffsetX();
     const offsetY = this.canvasOffsetY();
@@ -514,7 +521,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   /**
    * Get chair at coordinates (if any)
    */
-  private getChairAt(x: number, y: number): { table: Table; chairNumber: number } | null {
+  private getChairAt(x: number, y: number): ChairPosition | null {
     const { canvasX, canvasY } = this.toCanvasCoordinates(x, y);
 
     const chairWidth = 20; // Chair width (horizontal)
@@ -929,21 +936,21 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
 
     const shouldPan =
       event.button === 1 ||
-      (event.button === 0 && (event.ctrlKey || this.spacePressed || this.isPanModeActive || this.pendingPanActivation));
-    const baseCursor = this.isPanModeActive || this.spacePressed ? 'grab' : 'default';
+      (event.button === 0 && (event.ctrlKey || this.panState.spacePressed || this.panState.isPanModeActive || this.panState.pendingPanActivation));
+    const baseCursor = this.panState.isPanModeActive || this.panState.spacePressed ? 'grab' : 'default';
 
     if (shouldPan) {
       event.preventDefault();
-      this.isPanning = true;
+      this.panState.isPanning = true;
       const combined = this.getCombinedOffset();
-      this.panStart.x = x - combined.x;
-      this.panStart.y = y - combined.y;
-      this.pendingPanActivation = false;
+      this.panState.panStart.x = x - combined.x;
+      this.panState.panStart.y = y - combined.y;
+      this.panState.pendingPanActivation = false;
       canvas.style.cursor = 'grabbing';
       return;
     }
 
-    this.pendingPanActivation = false;
+    this.panState.pendingPanActivation = false;
 
     const { canvasX, canvasY } = this.toCanvasCoordinates(x, y);
 
@@ -1027,15 +1034,15 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       // Hide hover tooltip when table is selected
       this.isTableHovered.set(false);
       // Don't prepare for drag on single click
-      this.isDragging = false;
-      this.dragEnabled = false;
-      this.draggedTable = null;
+      this.dragState.isDragging = false;
+      this.dragState.dragEnabled = false;
+      this.dragState.draggedTable = null;
       canvas.style.cursor = baseCursor;
     } else {
       // Click outside any table - deselect
       this.selectedTableId.set(null);
-      this.dragEnabled = false;
-      this.draggedTable = null;
+      this.dragState.dragEnabled = false;
+      this.dragState.draggedTable = null;
       // Hide hover tooltip when clicking outside
       this.isTableHovered.set(false);
       canvas.style.cursor = baseCursor;
@@ -1057,24 +1064,24 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     const table = this.getTableAt(x, y);
     if (table) {
       console.log(`Double clicked on table no ${table.label} - dragging enabled`);
-      this.isPanModeActive = false;
-      this.pendingPanActivation = false;
+      this.panState.isPanModeActive = false;
+      this.panState.pendingPanActivation = false;
       // Enable dragging mode
-      this.dragEnabled = true;
-      this.draggedTable = table;
-      this.hasDragMovement = false;
+      this.dragState.dragEnabled = true;
+      this.dragState.draggedTable = table;
+      this.dragState.hasDragMovement = false;
       // Calculate drag offset accounting for zoom
-      this.dragOffset.x = canvasX - table.x;
-      this.dragOffset.y = canvasY - table.y;
+      this.dragState.dragOffset.x = canvasX - table.x;
+      this.dragState.dragOffset.y = canvasY - table.y;
       canvas.style.cursor = 'grabbing';
       // Start dragging immediately on double click
-      this.isDragging = true;
+      this.dragState.isDragging = true;
       return;
     }
 
-    this.isPanModeActive = !this.isPanModeActive;
-    this.pendingPanActivation = this.isPanModeActive;
-    const baseCursor = this.isPanModeActive || this.spacePressed ? 'grab' : 'default';
+    this.panState.isPanModeActive = !this.panState.isPanModeActive;
+    this.panState.pendingPanActivation = this.panState.isPanModeActive;
+    const baseCursor = this.panState.isPanModeActive || this.panState.spacePressed ? 'grab' : 'default';
     canvas.style.cursor = baseCursor;
   }
 
@@ -1129,11 +1136,11 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    const baseCursor = this.isPanModeActive || this.spacePressed ? 'grab' : 'default';
+    const baseCursor = this.panState.isPanModeActive || this.panState.spacePressed ? 'grab' : 'default';
 
-    if (this.isPanning) {
-      const combinedX = x - this.panStart.x;
-      const combinedY = y - this.panStart.y;
+    if (this.panState.isPanning) {
+      const combinedX = x - this.panState.panStart.x;
+      const combinedY = y - this.panState.panStart.y;
       const newOffsetX = combinedX - this.panOffset.x;
       const newOffsetY = combinedY - this.panOffset.y;
       this.updateCanvasOffset(newOffsetX, newOffsetY);
@@ -1149,11 +1156,11 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     }
 
     // Only allow dragging if drag is enabled (after double click)
-    if (this.isDragging && this.draggedTable && this.dragEnabled) {
+    if (this.dragState.isDragging && this.dragState.draggedTable && this.dragState.dragEnabled) {
       const { canvasX, canvasY } = this.toCanvasCoordinates(x, y);
-      this.draggedTable.x = canvasX - this.dragOffset.x;
-      this.draggedTable.y = canvasY - this.dragOffset.y;
-      this.hasDragMovement = true;
+      this.dragState.draggedTable.x = canvasX - this.dragState.dragOffset.x;
+      this.dragState.draggedTable.y = canvasY - this.dragState.dragOffset.y;
+      this.dragState.hasDragMovement = true;
 
       // Hide tooltip during drag
       this.isTableHovered.set(false);
@@ -1165,7 +1172,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       const table = this.getTableAt(x, y);
       const selectedId = this.selectedTableId();
       // Only show grab cursor if drag is enabled, otherwise default
-      canvas.style.cursor = (table && this.dragEnabled) ? 'grab' : baseCursor;
+      canvas.style.cursor = (table && this.dragState.dragEnabled) ? 'grab' : baseCursor;
       
       if (table) {
         // Only show tooltip if table is not selected (when selected, edit/delete icons are shown instead)
@@ -1219,27 +1226,27 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
 
   private onMouseUp(event: MouseEvent): void {
     const canvas = this.canvasRef.nativeElement;
-    const wasDragging = this.isDragging;
-    const baseCursor = this.isPanModeActive || this.spacePressed ? 'grab' : 'default';
+    const wasDragging = this.dragState.isDragging;
+    const baseCursor = this.panState.isPanModeActive || this.panState.spacePressed ? 'grab' : 'default';
     
     // Stop panning
-    if (this.isPanning) {
-      this.isPanning = false;
+    if (this.panState.isPanning) {
+      this.panState.isPanning = false;
       canvas.style.cursor = baseCursor;
       return;
     }
     
-    if (this.isDragging) {
-      this.isDragging = false;
+    if (this.dragState.isDragging) {
+      this.dragState.isDragging = false;
       // Keep dragEnabled true so table can be moved again without double clicking
       // Only reset if clicking outside
-      canvas.style.cursor = this.dragEnabled ? 'grab' : baseCursor;
+      canvas.style.cursor = this.dragState.dragEnabled ? 'grab' : baseCursor;
     }
 
-    if (wasDragging && this.draggedTable && this.hasDragMovement) {
+    if (wasDragging && this.dragState.draggedTable && this.dragState.hasDragMovement) {
       this.persistTablePositions();
       this.saveTableLayout(); // Save to service so drag/drop works on all floors
-      this.hasDragMovement = false;
+      this.dragState.hasDragMovement = false;
     }
   }
 
@@ -1247,10 +1254,10 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     // Hide tooltip when mouse leaves canvas
     this.isTableHovered.set(false);
     // Stop panning if mouse leaves canvas
-    if (this.isPanning) {
-      this.isPanning = false;
+    if (this.panState.isPanning) {
+      this.panState.isPanning = false;
       const canvas = this.canvasRef.nativeElement;
-      const baseCursor = this.isPanModeActive || this.spacePressed ? 'grab' : 'default';
+      const baseCursor = this.panState.isPanModeActive || this.panState.spacePressed ? 'grab' : 'default';
       canvas.style.cursor = baseCursor;
     }
   }
@@ -1267,9 +1274,9 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
 
     if (event.code === 'Space') {
       event.preventDefault();
-      if (!this.spacePressed) {
-        this.spacePressed = true;
-        if (!this.isPanning) {
+      if (!this.panState.spacePressed) {
+        this.panState.spacePressed = true;
+        if (!this.panState.isPanning) {
           const canvas = this.canvasRef.nativeElement;
           canvas.style.cursor = 'grab';
         }
@@ -1319,10 +1326,10 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     }
 
     if (event.code === 'Space') {
-      this.spacePressed = false;
-      if (!this.isPanning) {
+      this.panState.spacePressed = false;
+      if (!this.panState.isPanning) {
         const canvas = this.canvasRef.nativeElement;
-        const baseCursor = this.isPanModeActive ? 'grab' : 'default';
+        const baseCursor = this.panState.isPanModeActive ? 'grab' : 'default';
         canvas.style.cursor = baseCursor;
       }
     }
@@ -1489,7 +1496,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     if (!department && event.dataTransfer) {
       const id = event.dataTransfer.getData('text/plain');
       if (id) {
-        department = { id, name: id.charAt(0).toUpperCase() + id.slice(1), description: '', icon: '' } as any;
+        department = { id, name: id.charAt(0).toUpperCase() + id.slice(1), description: '', icon: '' } as Department;
         console.log('📦 Fallback department from dataTransfer:', id, performance.now() - dropTime, 'ms');
       }
     }
@@ -1513,23 +1520,31 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
 
     // If not exactly over a table, pick the nearest one within a small radius
     let targetTable = this.dragOverTable ?? table;
+    let isExistingTable = !!targetTable; // Track if table existed before drop
     if (!targetTable) {
       targetTable = this.getNearestTable(x, y, 200); // widen tolerance while dragging
       if (targetTable) {
         console.log(`📍 Using nearest table: "${targetTable.label}"`, performance.now() - dropTime, 'ms');
+        isExistingTable = true; // Found an existing table
       }
     }
     if (!targetTable) {
       console.warn('⚠️ No table found nearby', performance.now() - dropTime, 'ms');
     }
 
+    // Check if dropping on kitchen items (kitchen floor)
+    const isKitchenFloor = this.floorName() === 'kitchen';
+    const kitchenItem = isKitchenFloor ? this.getKitchenItemAt(x, y) : null;
+    
     // If no table was targeted and the user dropped a new table department, create one on the fly
-    if (!targetTable && department?.id?.toLowerCase() === 'table') {
+    // But don't create on kitchen floor or on kitchen items
+    if (!targetTable && department?.id?.toLowerCase() === 'table' && !isKitchenFloor && !kitchenItem) {
       const newTable = this.createTableFromDrop(x, y);
       if (newTable) {
         this.tables.push(newTable);
         // Track this table for subsequent operations
         targetTable = newTable;
+        isExistingTable = false; // This is a newly created table
       }
     }
 
@@ -1551,8 +1566,11 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       // Show success feedback
       this.showDropFeedback(targetTable, department);
 
-      // If the dropped department is "Table", open the configuration panel
-      if (department.id?.toLowerCase() === 'table') {
+      // If the dropped department is "Table", ONLY open the configuration panel if:
+      // 1. It's an existing table (not newly created)
+      // 2. We're not on the kitchen floor
+      // 3. We're not dropping on a kitchen item
+      if (department.id?.toLowerCase() === 'table' && isExistingTable && !isKitchenFloor && !kitchenItem) {
         // Seed suggested grid/capacity from current table dimensions
         const suggestedWidthGrid = Math.max(2, Math.round(targetTable.width / 40));
         const suggestedHeightGrid = Math.max(2, Math.round(targetTable.height / 40));
@@ -1560,7 +1578,8 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
         targetTable.heightGrid = suggestedHeightGrid;
         targetTable.capacity = this.clampCapacity(targetTable.seats ?? 6);
         this.openTableConfig(targetTable);
-        // Show success toast when table is created
+      } else if (department.id?.toLowerCase() === 'table' && !isExistingTable) {
+        // Show success toast when table is created (but don't open config)
         this.toastService.success('Table created.');
       }
 
@@ -1617,7 +1636,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     return best ? best.table : null;
   }
 
-  private showDropFeedback(table: Table, department: any): void {
+  private showDropFeedback(table: Table, department: Department): void {
     // You can add visual feedback here, like a toast notification
     console.log(`✓ ${department.name} assigned to ${table.label}`);
   }
@@ -1738,7 +1757,8 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     this.tableConfigTable.seats = previewCapacity;
     this.trimOccupiedChairs(this.tableConfigTable, previewCapacity);
 
-    // Always apply a preset when capacity changes to automatically resize table
+    // Always apply a preset when capacity changes (both increase and decrease) to automatically resize table
+    // This works for both directions: increasing finds larger preset, decreasing finds smaller preset
     if (capacityChanged) {
       this.applyCapacityPreset(this.tableConfigTable, previewCapacity, true);
     }
@@ -1907,7 +1927,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     const baseCursor =
       floor === 'kitchen'
         ? 'default'
-        : (this.isPanModeActive || this.spacePressed ? 'grab' : 'default');
+        : (this.panState.isPanModeActive || this.panState.spacePressed ? 'grab' : 'default');
     canvas.style.cursor = baseCursor;
 
     // Clear canvas
@@ -2393,7 +2413,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     return table;
   }
 
-  private generateTableIdentity(floor: FloorType | string): { id: string; label: string } | null {
+  private generateTableIdentity(floor: FloorType | string): TableIdentity | null {
     const prefix = `${floor}-`;
     const existingNumbers = this.tables
       .filter(table => table.id.startsWith(prefix))
