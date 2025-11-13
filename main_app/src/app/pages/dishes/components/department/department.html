@@ -30,7 +30,7 @@
 
       <div class="card-actions">
         <button class="btn-delete" (click)="deleteDepartment(dept.id)">
-          <img src="/icons/refresh.svg" alt="" srcset="">
+          <img src="/icons/refresh.svg" alt srcset>
           <span>{{ 'Delete' | translate }}</span>
         </button>
         <button class="btn-clear" (click)="clearTickets(dept.id)">
@@ -44,8 +44,8 @@
 
 <!-- Add Department Side Panel -->
 @if (showAddPanel()) {
-<div class="side-panel-overlay" (click)="closeAddPanel()"></div>
-<div class="side-panel">
+<div class="side-panel-overlay"></div>
+<div class="side-panel" (click)="$event.stopPropagation()">
   <div class="panel-header">
     <h3 class="panel-title">{{ 'New department' | translate }}</h3>
     <button class="btn-close" (click)="closeAddPanel()">

@@ -1,8 +1,11 @@
-<div class="modal-overlay" *ngIf="isOpen">
-  <!-- Dual Panel View: Dish (Left) and Extra (Right) - For Add and Edit Mode -->
-  <div *ngIf="(mode === 'add' || mode === 'edit') && !isDeleteMode()"
-    class="dual-modal-container"
-    [class.open]="isOpen" (click)="$event.stopPropagation()">
+<!-- Dual Panel View: Dish (Left) and Extra (Right) - For Add and Edit Mode -->
+<app-base-modal
+  *ngIf="(mode === 'add' || mode === 'edit') && !isDeleteMode()"
+  [isOpen]="isOpen"
+  [config]="getModalConfig()"
+  (close)="onClose()">
+
+  <div class="dual-modal-container" (click)="$event.stopPropagation()">
     <!-- Dish Panel (Left) -->
     <div class="modal-panel left-panel">
       <!-- Header -->
@@ -719,60 +722,254 @@
       </div>
     </div>
   </div>
+</app-base-modal>
 
-  <!-- Delete Confirmation Modal (Centered) -->
-  <div
-    *ngIf="isDeleteMode()"
-    class="delete-modal-container"
-    [class.open]="isOpen"
-    (click)="$event.stopPropagation()">
-    <!-- Header -->
-    <div class="modal-header">
-      <h2 class="modal-title">{{ getTitle() }}</h2>
-      <button class="close-button" type="button" (click)="onClose()">×</button>
-    </div>
-
-    <!-- Content -->
-    <div class="modal-content">
-      <p class="delete-message">{{ getDeleteMessage() }}</p>
-    </div>
-
-    <!-- Footer -->
-    <div class="modal-footer delete-footer">
-      <button class="cancel-button" type="button"
-        (click)="onClose()">Cancel</button>
-      <button class="delete-button" type="button"
-        (click)="onDelete()">Delete</button>
-    </div>
+<!-- Delete Confirmation Modal (Centered) -->
+<app-base-modal
+  *ngIf="isDeleteMode()"
+  [isOpen]="isOpen"
+  [config]="getModalConfig()"
+  (close)="onClose()">
+  <!-- Header -->
+  <div class="modal-header">
+    <h2 class="modal-title">{{ getTitle() }}</h2>
+    <button class="close-button" type="button" (click)="onClose()">×</button>
   </div>
 
-  <!-- Edit Dish Modal (Side Panel - Left) - Only for Edit Mode -->
-  <div
-    *ngIf="false"
-    class="modal-container modal-right"
-    [class.open]="showExtraModal"
-    (click)="$event.stopPropagation()">
-    <!-- Header -->
-    <div class="modal-header">
-      <div class="header-left-content">
-        <h2 class="modal-title">Create/Edit Extra</h2>
-        <div *ngIf="showSuccessMessage" class="success-message">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M13.3333 4L6 11.3333L2.66666 8" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          Extra created
-        </div>
+  <!-- Content -->
+  <div class="modal-content">
+    <p class="delete-message">{{ getDeleteMessage() }}</p>
+  </div>
+
+  <!-- Footer -->
+  <div class="modal-footer delete-footer">
+    <button class="cancel-button" type="button"
+      (click)="onClose()">Cancel</button>
+    <button class="delete-button" type="button"
+      (click)="onDelete()">Delete</button>
+  </div>
+</app-base-modal>
+
+<!-- Edit Dish Modal (Side Panel - Left) - Only for Edit Mode -->
+<div
+  *ngIf="false"
+  class="modal-container modal-right"
+  [class.open]="showExtraModal"
+  (click)="$event.stopPropagation()">
+  <!-- Header -->
+  <div class="modal-header">
+    <div class="header-left-content">
+      <h2 class="modal-title">Create/Edit Extra</h2>
+      <div *ngIf="showSuccessMessage" class="success-message">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M13.3333 4L6 11.3333L2.66666 8" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        Extra created
       </div>
-      <button class="close-button" type="button"
-        (click)="onCloseExtraModal()">×</button>
+    </div>
+    <button class="close-button" type="button"
+      (click)="onCloseExtraModal()">×</button>
+  </div>
+
+  <!-- Content -->
+  <div class="modal-content">
+    <!-- Name Field -->
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <div class="input-wrapper">
+        <div class="input-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M13.5 2H2.5C1.67 2 1 2.67 1 3.5V12.5C1 13.33 1.67 14 2.5 14H13.5C14.33 14 15 13.33 15 12.5V3.5C15 2.67 14.33 2 13.5 2Z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              fill="none" />
+          </svg>
+        </div>
+        <input
+          type="text"
+          class="form-input"
+          placeholder="ex : Sauces"
+          [(ngModel)]="extraFormData.name" />
+      </div>
     </div>
 
-    <!-- Content -->
-    <div class="modal-content">
-      <!-- Name Field -->
+    <!-- Price Field -->
+    <div class="form-group">
+      <label class="form-label">Price (in €)</label>
+      <div class="input-wrapper">
+        <div class="input-icon">
+          <span style="font-size: 14px; font-weight: 600">€</span>
+        </div>
+        <input
+          type="number"
+          class="form-input"
+          placeholder="€8"
+          [(ngModel)]="extraFormData.price"
+          step="0.01"
+          min="0" />
+      </div>
+      <div class="price-explanation-box">
+        <ul class="price-rules">
+          <li>Price = 0 → no additional price</li>
+          <li>Price > 0 → the price goes up extra</li>
+          <li>Price < 0 → for substitutions (permission-gated)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Subcategory -->
+    <div class="form-group">
+      <label class="form-label">Subcategory</label>
+      <div class="subcategory-dropdown-wrapper">
+        <div class="input-wrapper" (click)="toggleSubcategoryDropdown()">
+          <div class="input-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M13.5 2H2.5C1.67 2 1 2.67 1 3.5V12.5C1 13.33 1.67 14 2.5 14H13.5C14.33 14 15 13.33 15 12.5V3.5C15 2.67 14.33 2 13.5 2Z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                fill="none" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            class="form-input dropdown-input"
+            [value]="extraFormData.subcategory || 'Meal'"
+            readonly />
+          <div class="dropdown-arrow">▼</div>
+        </div>
+
+        <!-- Subcategory Dropdown -->
+        <div *ngIf="showSubcategoryDropdown"
+          class="subcategory-dropdown-menu">
+          <div class="subcategory-header-label">Subcategory</div>
+
+          <button class="create-subcategory-btn" type="button"
+            (click)="openSubcategoryModal(); $event.stopPropagation()">
+            <span class="plus-icon">+</span>
+            Create subcategory
+            <span class="subcategory-type-badge">Meal</span>
+          </button>
+
+          <div class="subcategories-list">
+            <div *ngFor="let subcategory of subcategories"
+              class="subcategory-card">
+              <div class="subcategory-card-header">
+                <div class="subcategory-left">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                    class="drag-handle">
+                    <circle cx="5" cy="5" r="1" fill="currentColor" />
+                    <circle cx="11" cy="5" r="1" fill="currentColor" />
+                    <circle cx="5" cy="11" r="1" fill="currentColor" />
+                    <circle cx="11" cy="11" r="1" fill="currentColor" />
+                  </svg>
+                  <span class="subcategory-title">{{ subcategory.name
+                    }}</span>
+                </div>
+                <label class="toggle-switch-small">
+                  <input type="checkbox" [checked]="true" />
+                  <span class="toggle-slider-small"></span>
+                </label>
+              </div>
+
+              <div class="subcategory-badges">
+                <span class="badge-primary">{{ subcategory.format }}</span>
+                <span class="badge-secondary">Min {{ subcategory.min }}</span>
+                <span class="badge-secondary">Max {{ subcategory.max }}</span>
+                <span class="badge-position">{{ subcategory.position }}</span>
+              </div>
+
+              <div class="subcategory-items-list">
+                <div *ngFor="let item of subcategory.items"
+                  class="subcategory-item-checkbox">
+                  <label class="checkbox-container">
+                    <input
+                      type="checkbox"
+                      [checked]="item.checked"
+                      (change)="toggleSubcategoryItem(item)" />
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-text">{{ item.name }}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="manage-subcategories-link" type="button">
+        Manage subcategories
+      </button>
+    </div>
+
+    <!-- Extra Allergens Section -->
+    <div class="form-group">
+      <div class="allergens-header">
+        <label class="form-label">Extra Allergens</label>
+        <button class="conscious-override-button" type="button">Conscious
+          Override</button>
+      </div>
+      <div class="allergens-grid extra-allergens-grid">
+        <div
+          *ngFor="let allergen of allergens"
+          class="allergen-item"
+          [class.selected]="allergen.selected"
+          (click)="toggleAllergen(allergen)">
+          <div class="allergen-icon"
+            [style.background-color]="allergen.color">
+            <span class="allergen-icon-text">{{ allergen.icon }}</span>
+          </div>
+          <span class="allergen-name">{{ allergen.name }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ingredient Section -->
+    <div class="form-group">
+      <label class="form-label">Ingredient</label>
+      <div class="ingredient-search-wrapper">
+        <div class="input-wrapper">
+          <div class="input-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="7" cy="7" r="5" stroke="currentColor"
+                stroke-width="1.5" fill="none" />
+              <path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            class="form-input"
+            placeholder="Vinegar (L)"
+            [(ngModel)]="ingredientSearch"
+            (input)="onIngredientInput()"
+            (blur)="closeIngredientDropdown()" />
+        </div>
+
+        <!-- Ingredient Dropdown -->
+        <div *ngIf="showIngredientDropdown && filteredIngredients.length > 0"
+          class="ingredient-dropdown">
+          <div
+            *ngFor="let ingredient of filteredIngredients"
+            class="ingredient-option"
+            (mousedown)="selectIngredient(ingredient)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+              class="check-icon" *ngIf="ingredientSearch === ingredient">
+              <path d="M13.3333 4L6 11.3333L2.66666 8" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+            {{ ingredient }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quantity and UoM Row -->
+    <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Name</label>
+        <label class="form-label">Quantity</label>
         <div class="input-wrapper">
           <div class="input-icon">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -786,273 +983,371 @@
           <input
             type="text"
             class="form-input"
-            placeholder="ex : Sauces"
-            [(ngModel)]="extraFormData.name" />
+            placeholder="ex:23"
+            [(ngModel)]="ingredientQuantity" />
         </div>
       </div>
 
-      <!-- Price Field -->
       <div class="form-group">
-        <label class="form-label">Price (in €)</label>
+        <label class="form-label">UoM</label>
         <div class="input-wrapper">
           <div class="input-icon">
-            <span style="font-size: 14px; font-weight: 600">€</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M13.5 2H2.5C1.67 2 1 2.67 1 3.5V12.5C1 13.33 1.67 14 2.5 14H13.5C14.33 14 15 13.33 15 12.5V3.5C15 2.67 14.33 2 13.5 2Z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                fill="none" />
+            </svg>
           </div>
+          <select class="form-input" [(ngModel)]="ingredientUom">
+            <option value="kg">kg</option>
+            <option value="g">g</option>
+            <option value="L">L</option>
+            <option value="ml">ml</option>
+          </select>
+          <div class="dropdown-arrow">▼</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inventory Rule -->
+    <div class="form-group">
+      <label class="form-label">Inventory rule</label>
+      <div class="radio-group">
+        <label class="radio-option"
+          [class.selected]="extraFormData.inventoryRule === 'deducts'">
           <input
-            type="number"
-            class="form-input"
-            placeholder="€8"
-            [(ngModel)]="extraFormData.price"
-            step="0.01"
-            min="0" />
-        </div>
-        <div class="price-explanation-box">
-          <ul class="price-rules">
-            <li>Price = 0 → no additional price</li>
-            <li>Price > 0 → the price goes up extra</li>
-            <li>Price < 0 → for substitutions (permission-gated)</li>
-          </ul>
+            type="radio"
+            name="inventoryRule"
+            value="deducts"
+            [(ngModel)]="extraFormData.inventoryRule" />
+          <span class="radio-label">Deducts</span>
+        </label>
+        <label class="radio-option"
+          [class.selected]="extraFormData.inventoryRule === 'inform-only'">
+          <input
+            type="radio"
+            name="inventoryRule"
+            value="inform-only"
+            [(ngModel)]="extraFormData.inventoryRule" />
+          <span class="radio-label">Inform-only</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Add Button -->
+    <div class="form-group">
+      <button class="add-ingredient-button" type="button"
+        (click)="addIngredient()">
+        <span class="add-icon">+</span>
+        <span>Add</span>
+      </button>
+    </div>
+
+    <!-- Added Ingredients List -->
+    <div class="form-group" *ngIf="extraFormData.ingredients.length > 0">
+      <div class="ingredients-list">
+        <div *ngFor="let ingredient of extraFormData.ingredients"
+          class="ingredient-tag" [class.new-ingredient]="ingredient.isNew">
+          <span *ngIf="ingredient.isNew" class="new-badge">New</span>
+          <span class="ingredient-text">{{ ingredient.name }} ({{
+            ingredient.quantity }}{{ ingredient.uom }})</span>
+          <button
+            class="remove-ingredient-button"
+            type="button"
+            (click)="removeIngredient(ingredient.name)">
+            ×
+          </button>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Subcategory -->
-      <div class="form-group">
-        <label class="form-label">Subcategory</label>
-        <div class="subcategory-dropdown-wrapper">
-          <div class="input-wrapper" (click)="toggleSubcategoryDropdown()">
-            <div class="input-icon">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path
-                  d="M13.5 2H2.5C1.67 2 1 2.67 1 3.5V12.5C1 13.33 1.67 14 2.5 14H13.5C14.33 14 15 13.33 15 12.5V3.5C15 2.67 14.33 2 13.5 2Z"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  fill="none" />
-              </svg>
-            </div>
-            <input
-              type="text"
-              class="form-input dropdown-input"
-              [value]="extraFormData.subcategory || 'Meal'"
-              readonly />
-            <div class="dropdown-arrow">▼</div>
-          </div>
+  <!-- Footer -->
+  <div class="modal-footer">
+    <button class="save-attach-button" type="button" (click)="onSaveExtra()">
+      Save & attach
+    </button>
+  </div>
+</div>
 
-          <!-- Subcategory Dropdown -->
-          <div *ngIf="showSubcategoryDropdown"
-            class="subcategory-dropdown-menu">
-            <div class="subcategory-header-label">Subcategory</div>
-
-            <button class="create-subcategory-btn" type="button"
-              (click)="openSubcategoryModal(); $event.stopPropagation()">
-              <span class="plus-icon">+</span>
-              Create subcategory
-              <span class="subcategory-type-badge">Meal</span>
-            </button>
-
-            <div class="subcategories-list">
-              <div *ngFor="let subcategory of subcategories"
-                class="subcategory-card">
-                <div class="subcategory-card-header">
-                  <div class="subcategory-left">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                      class="drag-handle">
-                      <circle cx="5" cy="5" r="1" fill="currentColor" />
-                      <circle cx="11" cy="5" r="1" fill="currentColor" />
-                      <circle cx="5" cy="11" r="1" fill="currentColor" />
-                      <circle cx="11" cy="11" r="1" fill="currentColor" />
-                    </svg>
-                    <span class="subcategory-title">{{ subcategory.name
-                      }}</span>
-                  </div>
-                  <label class="toggle-switch-small">
-                    <input type="checkbox" [checked]="true" />
-                    <span class="toggle-slider-small"></span>
-                  </label>
-                </div>
-
-                <div class="subcategory-badges">
-                  <span class="badge-primary">{{ subcategory.format }}</span>
-                  <span class="badge-secondary">Min {{ subcategory.min }}</span>
-                  <span class="badge-secondary">Max {{ subcategory.max }}</span>
-                  <span class="badge-position">{{ subcategory.position }}</span>
-                </div>
-
-                <div class="subcategory-items-list">
-                  <div *ngFor="let item of subcategory.items"
-                    class="subcategory-item-checkbox">
-                    <label class="checkbox-container">
-                      <input
-                        type="checkbox"
-                        [checked]="item.checked"
-                        (change)="toggleSubcategoryItem(item)" />
-                      <span class="checkbox-custom"></span>
-                      <span class="checkbox-text">{{ item.name }}</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <button class="manage-subcategories-link" type="button">
-          Manage subcategories
+<!-- OLD Edit Dish Modal - Disabled (Now using dual panel for edit mode) -->
+<div
+  *ngIf="false"
+  class="modal-container modal-left"
+  [class.open]="isOpen"
+  [class.with-extra]="showExtraModal"
+  (click)="$event.stopPropagation()">
+  <!-- Header -->
+  <div class="modal-header">
+    <div class="header-left-content">
+      <h2 class="modal-title">{{ getTitle() }}</h2>
+      <div class="selection-mode-buttons">
+        <button
+          class="mode-btn"
+          [class.active]="selectionMode === 'Multi'"
+          (click)="setSelectionMode('Multi')"
+          type="button">
+          Multi
+        </button>
+        <button
+          class="mode-btn"
+          [class.active]="selectionMode === 'Min1'"
+          (click)="setSelectionMode('Min1')"
+          type="button">
+          Min 1
+        </button>
+        <button
+          class="mode-btn"
+          [class.active]="selectionMode === 'Max3'"
+          (click)="setSelectionMode('Max3')"
+          type="button">
+          Max 3
         </button>
       </div>
+    </div>
+    <button class="close-button" type="button" (click)="onClose()">×</button>
+  </div>
 
-      <!-- Extra Allergens Section -->
-      <div class="form-group">
-        <div class="allergens-header">
-          <label class="form-label">Extra Allergens</label>
-          <button class="conscious-override-button" type="button">Conscious
-            Override</button>
+  <!-- Content -->
+  <div class="modal-content">
+    <!-- Name Field -->
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <div class="input-wrapper">
+        <div class="input-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M8 2C6.9 2 6 2.9 6 4C6 5.1 6.9 6 8 6C9.1 6 10 5.1 10 4C10 2.9 9.1 2 8 2ZM8 7C6.34 7 4 7.67 4 9V10H12V9C12 7.67 9.66 7 8 7Z"
+              fill="currentColor" />
+          </svg>
         </div>
-        <div class="allergens-grid extra-allergens-grid">
-          <div
-            *ngFor="let allergen of allergens"
-            class="allergen-item"
-            [class.selected]="allergen.selected"
-            (click)="toggleAllergen(allergen)">
-            <div class="allergen-icon"
-              [style.background-color]="allergen.color">
-              <span class="allergen-icon-text">{{ allergen.icon }}</span>
-            </div>
-            <span class="allergen-name">{{ allergen.name }}</span>
+        <input
+          type="text"
+          class="form-input"
+          placeholder="ex : Cheesburger"
+          [(ngModel)]="formData.name" />
+      </div>
+    </div>
+
+    <!-- Kitchen Department -->
+    <div class="form-group">
+      <label class="form-label">Kitchen department</label>
+      <div class="input-wrapper">
+        <div class="input-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M13.5 2H2.5C1.67 2 1 2.67 1 3.5V12.5C1 13.33 1.67 14 2.5 14H13.5C14.33 14 15 13.33 15 12.5V3.5C15 2.67 14.33 2 13.5 2Z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              fill="none" />
+            <path
+              d="M4 6H12M4 9H10"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round" />
+          </svg>
+        </div>
+        <select class="form-input" [(ngModel)]="formData.kitchenDepartment">
+          <option *ngFor="let dept of kitchenDepartments" [value]="dept">{{
+            dept }}</option>
+        </select>
+        <div class="dropdown-arrow">▼</div>
+      </div>
+    </div>
+
+    <!-- Allergens Section -->
+    <div class="form-group">
+      <div class="allergens-header">
+        <label class="form-label">Allergens</label>
+        <button class="conscious-override-button" type="button">Conscious
+          Override</button>
+      </div>
+      <div class="allergens-grid">
+        <div
+          *ngFor="let allergen of allergens"
+          class="allergen-item"
+          [class.selected]="allergen.selected"
+          (click)="toggleAllergen(allergen)">
+          <div class="allergen-icon"
+            [style.background-color]="allergen.color">
+            <span class="allergen-icon-text">{{ allergen.icon }}</span>
           </div>
+          <span class="allergen-name">{{ allergen.name }}</span>
         </div>
       </div>
 
-      <!-- Ingredient Section -->
-      <div class="form-group">
-        <label class="form-label">Ingredient</label>
-        <div class="ingredient-search-wrapper">
-          <div class="input-wrapper">
-            <div class="input-icon">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <circle cx="7" cy="7" r="5" stroke="currentColor"
-                  stroke-width="1.5" fill="none" />
-                <path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5"
-                  stroke-linecap="round" />
-              </svg>
-            </div>
-            <input
-              type="text"
-              class="form-input"
-              placeholder="Vinegar (L)"
-              [(ngModel)]="ingredientSearch"
-              (input)="onIngredientInput()"
-              (blur)="closeIngredientDropdown()" />
-          </div>
+    </div>
 
-          <!-- Ingredient Dropdown -->
-          <div *ngIf="showIngredientDropdown && filteredIngredients.length > 0"
-            class="ingredient-dropdown">
-            <div
-              *ngFor="let ingredient of filteredIngredients"
-              class="ingredient-option"
-              (mousedown)="selectIngredient(ingredient)">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                class="check-icon" *ngIf="ingredientSearch === ingredient">
-                <path d="M13.3333 4L6 11.3333L2.66666 8" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round"
-                  stroke-linejoin="round" />
-              </svg>
-              {{ ingredient }}
-            </div>
-          </div>
+    <!-- Price Field -->
+    <div class="form-group">
+      <label class="form-label">Price (in €)</label>
+      <div class="input-wrapper">
+        <div class="input-icon">
+          <span style="font-size: 14px; font-weight: 600">€</span>
+        </div>
+        <input
+          type="number"
+          class="form-input"
+          placeholder="€8"
+          [(ngModel)]="formData.price"
+          step="0.01"
+          min="0" />
+      </div>
+    </div>
+
+    <!-- Category -->
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <div class="input-wrapper">
+        <div class="input-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M13.5 2H2.5C1.67 2 1 2.67 1 3.5V12.5C1 13.33 1.67 14 2.5 14H13.5C14.33 14 15 13.33 15 12.5V3.5C15 2.67 14.33 2 13.5 2Z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              fill="none" />
+            <path
+              d="M4 6H12M4 9H10"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round" />
+          </svg>
+        </div>
+        <select class="form-input" [(ngModel)]="formData.category">
+          <option value>ex : Meats</option>
+          <option *ngFor="let category of categoryOptions" [value]="category">
+            {{ category }}
+          </option>
+        </select>
+        <div class="dropdown-arrow">▼</div>
+      </div>
+      <button class="manage-subcategories-button" type="button">
+        Manage subcategories
+      </button>
+    </div>
+
+    <!-- Image Upload -->
+    <div class="form-group">
+      <label class="form-label">Image</label>
+      <div class="image-upload-area" (click)="triggerFileInput()">
+        <div *ngIf="!formData.imagePreview" class="upload-placeholder">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="20" r="19" stroke="currentColor"
+              stroke-width="2" fill="none" />
+            <path d="M20 28V12M12 20H28" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" />
+          </svg>
+          <p class="upload-text">Choose a file or drag & drop it here</p>
+          <p class="upload-hint">JPEG, PNG, PDF up to 10 MB</p>
+          <button class="browse-button" type="button">Browse File</button>
+        </div>
+        <div *ngIf="formData.imagePreview" class="image-preview">
+          <img [src]="formData.imagePreview" alt="Preview" />
+          <button class="remove-image-button" type="button"
+            (click)="formData.imagePreview = ''; $event.stopPropagation()">×</button>
+        </div>
+      </div>
+      <input
+        type="file"
+        id="fileInput"
+        accept="image/*"
+        (change)="onFileSelected($event)"
+        style="display: none" />
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea
+        class="form-textarea"
+        placeholder="Meats"
+        [(ngModel)]="formData.description"
+        rows="4"
+        maxlength="200"></textarea>
+      <div class="character-count">{{ formData.description?.length || 0
+        }}/200</div>
+      <p class="field-note">Description cannot exceed 200 characters.</p>
+    </div>
+
+    <!-- Extras Section -->
+    <div class="form-group">
+      <div class="extras-header">
+        <label class="form-label">Extras</label>
+        <div class="extras-actions">
+          <button class="create-extra-button" type="button"
+            (click)="openCreateExtra()">
+            <span class="plus-icon">+</span>
+            Create Extra
+          </button>
+          <button class="filters-button" type="button"
+            (click)="toggleFilters()">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor"
+                stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+            Filters
+          </button>
         </div>
       </div>
 
-      <!-- Quantity and UoM Row -->
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Quantity</label>
-          <div class="input-wrapper">
-            <div class="input-icon">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path
-                  d="M13.5 2H2.5C1.67 2 1 2.67 1 3.5V12.5C1 13.33 1.67 14 2.5 14H13.5C14.33 14 15 13.33 15 12.5V3.5C15 2.67 14.33 2 13.5 2Z"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  fill="none" />
-              </svg>
-            </div>
-            <input
-              type="text"
-              class="form-input"
-              placeholder="ex:23"
-              [(ngModel)]="ingredientQuantity" />
-          </div>
+      <!-- Filters Panel -->
+      <div *ngIf="showFilters" class="filters-panel">
+        <div class="filters-title">Filters</div>
+
+        <div class="filter-group">
+          <label class="filter-label">Subcategory</label>
+          <select class="filter-select" [(ngModel)]="filterData.subcategory">
+            <option value="Topping Pizza">Topping Pizza</option>
+            <option value="Topping Burger">Topping Burger</option>
+          </select>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">UoM</label>
-          <div class="input-wrapper">
-            <div class="input-icon">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path
-                  d="M13.5 2H2.5C1.67 2 1 2.67 1 3.5V12.5C1 13.33 1.67 14 2.5 14H13.5C14.33 14 15 13.33 15 12.5V3.5C15 2.67 14.33 2 13.5 2Z"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  fill="none" />
-              </svg>
-            </div>
-            <select class="form-input" [(ngModel)]="ingredientUom">
-              <option value="kg">kg</option>
-              <option value="g">g</option>
-              <option value="L">L</option>
-              <option value="ml">ml</option>
+        <div class="filter-group">
+          <label class="filter-label">Allergens</label>
+          <div class="filter-row">
+            <select class="filter-select" [(ngModel)]="filterData.allergen">
+              <option value="Apio">Apio</option>
+              <option value="Gluten">Gluten</option>
             </select>
-            <div class="dropdown-arrow">▼</div>
+            <div class="availability-toggle">
+              <span class="availability-label">Availability</span>
+              <label class="toggle-switch-small">
+                <input type="checkbox"
+                  [(ngModel)]="filterData.allergenAvailable" />
+                <span class="toggle-slider-small"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Ingredients</label>
+          <div class="filter-ingredients">
+            <div class="ingredient-tag">
+              <span class="ingredient-text">Smoked Mayonnaise (0.2kg)</span>
+              <button class="remove-ingredient-button"
+                type="button">×</button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Inventory Rule -->
-      <div class="form-group">
-        <label class="form-label">Inventory rule</label>
-        <div class="radio-group">
-          <label class="radio-option"
-            [class.selected]="extraFormData.inventoryRule === 'deducts'">
-            <input
-              type="radio"
-              name="inventoryRule"
-              value="deducts"
-              [(ngModel)]="extraFormData.inventoryRule" />
-            <span class="radio-label">Deducts</span>
-          </label>
-          <label class="radio-option"
-            [class.selected]="extraFormData.inventoryRule === 'inform-only'">
-            <input
-              type="radio"
-              name="inventoryRule"
-              value="inform-only"
-              [(ngModel)]="extraFormData.inventoryRule" />
-            <span class="radio-label">Inform-only</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Add Button -->
-      <div class="form-group">
-        <button class="add-ingredient-button" type="button"
-          (click)="addIngredient()">
-          <span class="add-icon">+</span>
-          <span>Add</span>
-        </button>
-      </div>
-
-      <!-- Added Ingredients List -->
-      <div class="form-group" *ngIf="extraFormData.ingredients.length > 0">
-        <div class="ingredients-list">
-          <div *ngFor="let ingredient of extraFormData.ingredients"
-            class="ingredient-tag" [class.new-ingredient]="ingredient.isNew">
-            <span *ngIf="ingredient.isNew" class="new-badge">New</span>
-            <span class="ingredient-text">{{ ingredient.name }} ({{
-              ingredient.quantity }}{{ ingredient.uom }})</span>
+      <div *ngFor="let group of extraGroups" class="extra-group">
+        <div class="extra-group-header-text">{{ group.name }}</div>
+        <div class="extras-tag-list">
+          <div
+            *ngFor="let extra of group.extras"
+            class="extra-tag-item"
+            [class.selected]="extra.selected"
+            (click)="toggleExtra(extra)">
+            <span class="extra-tag-name">{{ extra.name }}</span>
             <button
-              class="remove-ingredient-button"
+              *ngIf="extra.selected"
+              class="remove-extra-btn"
               type="button"
-              (click)="removeIngredient(ingredient.name)">
+              (click)="removeExtra(group.name, extra.name); $event.stopPropagation()">
               ×
             </button>
           </div>
@@ -1060,450 +1355,158 @@
       </div>
     </div>
 
-    <!-- Footer -->
-    <div class="modal-footer">
-      <button class="save-attach-button" type="button" (click)="onSaveExtra()">
-        Save & attach
-      </button>
+    <!-- Ingredients Section -->
+    <div class="form-group">
+      <label class="form-label">Ingredients</label>
+      <div class="ingredients-list">
+        <div class="ingredient-tag">
+          <span class="ingredient-text">Smoked Mayonnaise (0.2kg)</span>
+          <button class="remove-ingredient-button" type="button">×</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- OLD Edit Dish Modal - Disabled (Now using dual panel for edit mode) -->
-  <div
-    *ngIf="false"
-    class="modal-container modal-left"
-    [class.open]="isOpen"
-    [class.with-extra]="showExtraModal"
-    (click)="$event.stopPropagation()">
-    <!-- Header -->
-    <div class="modal-header">
-      <div class="header-left-content">
-        <h2 class="modal-title">{{ getTitle() }}</h2>
-        <div class="selection-mode-buttons">
-          <button
-            class="mode-btn"
-            [class.active]="selectionMode === 'Multi'"
-            (click)="setSelectionMode('Multi')"
-            type="button">
-            Multi
-          </button>
-          <button
-            class="mode-btn"
-            [class.active]="selectionMode === 'Min1'"
-            (click)="setSelectionMode('Min1')"
-            type="button">
-            Min 1
-          </button>
-          <button
-            class="mode-btn"
-            [class.active]="selectionMode === 'Max3'"
-            (click)="setSelectionMode('Max3')"
-            type="button">
-            Max 3
-          </button>
+  <!-- Footer -->
+  <div class="modal-footer">
+    <button class="update-button" type="button" (click)="onSave()">
+      {{ getButtonText() }}
+    </button>
+  </div>
+</div>
+
+<!-- Subcategory Name Modal (Right Side Panel) -->
+<div
+  *ngIf="showSubcategoryModal"
+  class="modal-container modal-subcategory"
+  [class.open]="showSubcategoryModal"
+  (click)="$event.stopPropagation()">
+  <!-- Header -->
+  <div class="modal-header">
+    <h2 class="modal-title">Name</h2>
+    <button class="close-button" type="button"
+      (click)="closeSubcategoryModal()">×</button>
+  </div>
+
+  <!-- Content -->
+  <div class="modal-content">
+    <!-- Name Field -->
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <div class="input-wrapper">
+        <div class="input-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M13.5 2H2.5C1.67 2 1 2.67 1 3.5V12.5C1 13.33 1.67 14 2.5 14H13.5C14.33 14 15 13.33 15 12.5V3.5C15 2.67 14.33 2 13.5 2Z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              fill="none" />
+          </svg>
         </div>
+        <input
+          type="text"
+          class="form-input"
+          placeholder="ex : Sauces"
+          [(ngModel)]="subcategoryFormData.name" />
       </div>
-      <button class="close-button" type="button" (click)="onClose()">×</button>
     </div>
 
-    <!-- Content -->
-    <div class="modal-content">
-      <!-- Name Field -->
+    <!-- Format Field -->
+    <div class="form-group">
+      <label class="form-label">Format</label>
+      <div class="input-wrapper">
+        <div class="input-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 3h10M3 8h10M3 13h10" stroke="currentColor"
+              stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+        </div>
+        <select class="form-input" [(ngModel)]="subcategoryFormData.format">
+          <option value="Multiselector">Multiselector</option>
+          <option value="Single Selector">Single Selector</option>
+        </select>
+        <div class="dropdown-arrow">▼</div>
+      </div>
+    </div>
+
+    <!-- Min and Min Row -->
+    <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Name</label>
+        <label class="form-label">Min</label>
         <div class="input-wrapper">
           <div class="input-icon">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path
-                d="M8 2C6.9 2 6 2.9 6 4C6 5.1 6.9 6 8 6C9.1 6 10 5.1 10 4C10 2.9 9.1 2 8 2ZM8 7C6.34 7 4 7.67 4 9V10H12V9C12 7.67 9.66 7 8 7Z"
-                fill="currentColor" />
+              <path d="M3 5h10M3 8h10M3 11h10" stroke="currentColor"
+                stroke-width="1.5" stroke-linecap="round" />
             </svg>
-          </div>
-          <input
-            type="text"
-            class="form-input"
-            placeholder="ex : Cheesburger"
-            [(ngModel)]="formData.name" />
-        </div>
-      </div>
-
-      <!-- Kitchen Department -->
-      <div class="form-group">
-        <label class="form-label">Kitchen department</label>
-        <div class="input-wrapper">
-          <div class="input-icon">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path
-                d="M13.5 2H2.5C1.67 2 1 2.67 1 3.5V12.5C1 13.33 1.67 14 2.5 14H13.5C14.33 14 15 13.33 15 12.5V3.5C15 2.67 14.33 2 13.5 2Z"
-                stroke="currentColor"
-                stroke-width="1.5"
-                fill="none" />
-              <path
-                d="M4 6H12M4 9H10"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round" />
-            </svg>
-          </div>
-          <select class="form-input" [(ngModel)]="formData.kitchenDepartment">
-            <option *ngFor="let dept of kitchenDepartments" [value]="dept">{{
-              dept }}</option>
-          </select>
-          <div class="dropdown-arrow">▼</div>
-        </div>
-      </div>
-
-      <!-- Allergens Section -->
-      <div class="form-group">
-        <div class="allergens-header">
-          <label class="form-label">Allergens</label>
-          <button class="conscious-override-button" type="button">Conscious
-            Override</button>
-        </div>
-        <div class="allergens-grid">
-          <div
-            *ngFor="let allergen of allergens"
-            class="allergen-item"
-            [class.selected]="allergen.selected"
-            (click)="toggleAllergen(allergen)">
-            <div class="allergen-icon"
-              [style.background-color]="allergen.color">
-              <span class="allergen-icon-text">{{ allergen.icon }}</span>
-            </div>
-            <span class="allergen-name">{{ allergen.name }}</span>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Price Field -->
-      <div class="form-group">
-        <label class="form-label">Price (in €)</label>
-        <div class="input-wrapper">
-          <div class="input-icon">
-            <span style="font-size: 14px; font-weight: 600">€</span>
           </div>
           <input
             type="number"
             class="form-input"
-            placeholder="€8"
-            [(ngModel)]="formData.price"
-            step="0.01"
-            min="0" />
+            placeholder="ex : 1"
+            [(ngModel)]="subcategoryFormData.min" />
         </div>
       </div>
 
-      <!-- Category -->
       <div class="form-group">
-        <label class="form-label">Category</label>
+        <label class="form-label">Min</label>
         <div class="input-wrapper">
           <div class="input-icon">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path
-                d="M13.5 2H2.5C1.67 2 1 2.67 1 3.5V12.5C1 13.33 1.67 14 2.5 14H13.5C14.33 14 15 13.33 15 12.5V3.5C15 2.67 14.33 2 13.5 2Z"
-                stroke="currentColor"
-                stroke-width="1.5"
-                fill="none" />
-              <path
-                d="M4 6H12M4 9H10"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round" />
-            </svg>
-          </div>
-          <select class="form-input" [(ngModel)]="formData.category">
-            <option value>ex : Meats</option>
-            <option *ngFor="let category of categoryOptions" [value]="category">
-              {{ category }}
-            </option>
-          </select>
-          <div class="dropdown-arrow">▼</div>
-        </div>
-        <button class="manage-subcategories-button" type="button">
-          Manage subcategories
-        </button>
-      </div>
-
-      <!-- Image Upload -->
-      <div class="form-group">
-        <label class="form-label">Image</label>
-        <div class="image-upload-area" (click)="triggerFileInput()">
-          <div *ngIf="!formData.imagePreview" class="upload-placeholder">
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-              <circle cx="20" cy="20" r="19" stroke="currentColor"
-                stroke-width="2" fill="none" />
-              <path d="M20 28V12M12 20H28" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" />
-            </svg>
-            <p class="upload-text">Choose a file or drag & drop it here</p>
-            <p class="upload-hint">JPEG, PNG, PDF up to 10 MB</p>
-            <button class="browse-button" type="button">Browse File</button>
-          </div>
-          <div *ngIf="formData.imagePreview" class="image-preview">
-            <img [src]="formData.imagePreview" alt="Preview" />
-            <button class="remove-image-button" type="button"
-              (click)="formData.imagePreview = ''; $event.stopPropagation()">×</button>
-          </div>
-        </div>
-        <input
-          type="file"
-          id="fileInput"
-          accept="image/*"
-          (change)="onFileSelected($event)"
-          style="display: none" />
-      </div>
-
-      <!-- Description -->
-      <div class="form-group">
-        <label class="form-label">Description</label>
-        <textarea
-          class="form-textarea"
-          placeholder="Meats"
-          [(ngModel)]="formData.description"
-          rows="4"
-          maxlength="200"></textarea>
-        <div class="character-count">{{ formData.description?.length || 0
-          }}/200</div>
-        <p class="field-note">Description cannot exceed 200 characters.</p>
-      </div>
-
-      <!-- Extras Section -->
-      <div class="form-group">
-        <div class="extras-header">
-          <label class="form-label">Extras</label>
-          <div class="extras-actions">
-            <button class="create-extra-button" type="button"
-              (click)="openCreateExtra()">
-              <span class="plus-icon">+</span>
-              Create Extra
-            </button>
-            <button class="filters-button" type="button"
-              (click)="toggleFilters()">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor"
-                  stroke-width="1.5" stroke-linecap="round" />
-              </svg>
-              Filters
-            </button>
-          </div>
-        </div>
-
-        <!-- Filters Panel -->
-        <div *ngIf="showFilters" class="filters-panel">
-          <div class="filters-title">Filters</div>
-
-          <div class="filter-group">
-            <label class="filter-label">Subcategory</label>
-            <select class="filter-select" [(ngModel)]="filterData.subcategory">
-              <option value="Topping Pizza">Topping Pizza</option>
-              <option value="Topping Burger">Topping Burger</option>
-            </select>
-          </div>
-
-          <div class="filter-group">
-            <label class="filter-label">Allergens</label>
-            <div class="filter-row">
-              <select class="filter-select" [(ngModel)]="filterData.allergen">
-                <option value="Apio">Apio</option>
-                <option value="Gluten">Gluten</option>
-              </select>
-              <div class="availability-toggle">
-                <span class="availability-label">Availability</span>
-                <label class="toggle-switch-small">
-                  <input type="checkbox"
-                    [(ngModel)]="filterData.allergenAvailable" />
-                  <span class="toggle-slider-small"></span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div class="filter-group">
-            <label class="filter-label">Ingredients</label>
-            <div class="filter-ingredients">
-              <div class="ingredient-tag">
-                <span class="ingredient-text">Smoked Mayonnaise (0.2kg)</span>
-                <button class="remove-ingredient-button"
-                  type="button">×</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div *ngFor="let group of extraGroups" class="extra-group">
-          <div class="extra-group-header-text">{{ group.name }}</div>
-          <div class="extras-tag-list">
-            <div
-              *ngFor="let extra of group.extras"
-              class="extra-tag-item"
-              [class.selected]="extra.selected"
-              (click)="toggleExtra(extra)">
-              <span class="extra-tag-name">{{ extra.name }}</span>
-              <button
-                *ngIf="extra.selected"
-                class="remove-extra-btn"
-                type="button"
-                (click)="removeExtra(group.name, extra.name); $event.stopPropagation()">
-                ×
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Ingredients Section -->
-      <div class="form-group">
-        <label class="form-label">Ingredients</label>
-        <div class="ingredients-list">
-          <div class="ingredient-tag">
-            <span class="ingredient-text">Smoked Mayonnaise (0.2kg)</span>
-            <button class="remove-ingredient-button" type="button">×</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="modal-footer">
-      <button class="update-button" type="button" (click)="onSave()">
-        {{ getButtonText() }}
-      </button>
-    </div>
-  </div>
-
-  <!-- Subcategory Name Modal (Right Side Panel) -->
-  <div
-    *ngIf="showSubcategoryModal"
-    class="modal-container modal-subcategory"
-    [class.open]="showSubcategoryModal"
-    (click)="$event.stopPropagation()">
-    <!-- Header -->
-    <div class="modal-header">
-      <h2 class="modal-title">Name</h2>
-      <button class="close-button" type="button"
-        (click)="closeSubcategoryModal()">×</button>
-    </div>
-
-    <!-- Content -->
-    <div class="modal-content">
-      <!-- Name Field -->
-      <div class="form-group">
-        <label class="form-label">Name</label>
-        <div class="input-wrapper">
-          <div class="input-icon">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path
-                d="M13.5 2H2.5C1.67 2 1 2.67 1 3.5V12.5C1 13.33 1.67 14 2.5 14H13.5C14.33 14 15 13.33 15 12.5V3.5C15 2.67 14.33 2 13.5 2Z"
-                stroke="currentColor"
-                stroke-width="1.5"
-                fill="none" />
-            </svg>
-          </div>
-          <input
-            type="text"
-            class="form-input"
-            placeholder="ex : Sauces"
-            [(ngModel)]="subcategoryFormData.name" />
-        </div>
-      </div>
-
-      <!-- Format Field -->
-      <div class="form-group">
-        <label class="form-label">Format</label>
-        <div class="input-wrapper">
-          <div class="input-icon">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M3 3h10M3 8h10M3 13h10" stroke="currentColor"
+              <path d="M3 5h10M3 8h10M3 11h10" stroke="currentColor"
                 stroke-width="1.5" stroke-linecap="round" />
             </svg>
           </div>
-          <select class="form-input" [(ngModel)]="subcategoryFormData.format">
-            <option value="Multiselector">Multiselector</option>
-            <option value="Single Selector">Single Selector</option>
-          </select>
-          <div class="dropdown-arrow">▼</div>
-        </div>
-      </div>
-
-      <!-- Min and Min Row -->
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Min</label>
-          <div class="input-wrapper">
-            <div class="input-icon">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3 5h10M3 8h10M3 11h10" stroke="currentColor"
-                  stroke-width="1.5" stroke-linecap="round" />
-              </svg>
-            </div>
-            <input
-              type="number"
-              class="form-input"
-              placeholder="ex : 1"
-              [(ngModel)]="subcategoryFormData.min" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Min</label>
-          <div class="input-wrapper">
-            <div class="input-icon">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3 5h10M3 8h10M3 11h10" stroke="currentColor"
-                  stroke-width="1.5" stroke-linecap="round" />
-              </svg>
-            </div>
-            <input
-              type="number"
-              class="form-input"
-              placeholder="ex : 10"
-              [(ngModel)]="subcategoryFormData.max" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Category -->
-      <div class="form-group">
-        <label class="form-label">Category</label>
-        <div class="input-wrapper">
-          <div class="input-icon">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path
-                d="M13.5 2H2.5C1.67 2 1 2.67 1 3.5V12.5C1 13.33 1.67 14 2.5 14H13.5C14.33 14 15 13.33 15 12.5V3.5C15 2.67 14.33 2 13.5 2Z"
-                stroke="currentColor"
-                stroke-width="1.5"
-                fill="none" />
-            </svg>
-          </div>
-          <select class="form-input" [(ngModel)]="subcategoryFormData.category">
-            <option value>ex : Meals</option>
-            <option value="Meals">Meals</option>
-            <option value="Drinks">Drinks</option>
-          </select>
-          <div class="dropdown-arrow">▼</div>
-        </div>
-      </div>
-
-      <!-- Mandatory Toggle Row -->
-      <div class="form-group">
-        <div class="mandatory-row-inline">
-          <span class="mandatory-label">Mandatory</span>
-          <label class="toggle-switch">
-            <input type="checkbox"
-              [(ngModel)]="subcategoryFormData.mandatory" />
-            <span class="toggle-slider"
-              [class.active]="subcategoryFormData.mandatory"></span>
-          </label>
+          <input
+            type="number"
+            class="form-input"
+            placeholder="ex : 10"
+            [(ngModel)]="subcategoryFormData.max" />
         </div>
       </div>
     </div>
 
-    <!-- Footer -->
-    <div class="modal-footer">
-      <button class="add-subcategory-button" type="button"
-        (click)="saveSubcategory()">
-        Add subcategory
-      </button>
+    <!-- Category -->
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <div class="input-wrapper">
+        <div class="input-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M13.5 2H2.5C1.67 2 1 2.67 1 3.5V12.5C1 13.33 1.67 14 2.5 14H13.5C14.33 14 15 13.33 15 12.5V3.5C15 2.67 14.33 2 13.5 2Z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              fill="none" />
+          </svg>
+        </div>
+        <select class="form-input" [(ngModel)]="subcategoryFormData.category">
+          <option value>ex : Meals</option>
+          <option value="Meals">Meals</option>
+          <option value="Drinks">Drinks</option>
+        </select>
+        <div class="dropdown-arrow">▼</div>
+      </div>
     </div>
+
+    <!-- Mandatory Toggle Row -->
+    <div class="form-group">
+      <div class="mandatory-row-inline">
+        <span class="mandatory-label">Mandatory</span>
+        <label class="toggle-switch">
+          <input type="checkbox"
+            [(ngModel)]="subcategoryFormData.mandatory" />
+          <span class="toggle-slider"
+            [class.active]="subcategoryFormData.mandatory"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="modal-footer">
+    <button class="add-subcategory-button" type="button"
+      (click)="saveSubcategory()">
+      Add subcategory
+    </button>
   </div>
 </div>

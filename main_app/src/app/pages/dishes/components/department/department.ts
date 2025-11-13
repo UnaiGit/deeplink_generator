@@ -1,5 +1,5 @@
-import { Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, signal, OnDestroy, ElementRef, Renderer2, Inject } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { DepartmentItem } from '@/types/interfaces/dishes/department-item.interface';
@@ -12,8 +12,19 @@ export { }
   templateUrl: './department.html',
   styleUrl: './department.scss',
 })
-export class Department {
+export class Department implements OnDestroy {
   showAddPanel = signal(false);
+  
+  private modalElement: HTMLElement | null = null;
+  private bodyElement: HTMLElement | null = null;
+
+  constructor(
+    private el: ElementRef,
+    private renderer: Renderer2,
+    @Inject(DOCUMENT) private document: Document
+  ) {
+    this.bodyElement = this.document.body;
+  }
   
   departments: DepartmentItem[] = [
     {
@@ -56,11 +67,43 @@ export class Department {
 
   openAddPanel(): void {
     this.showAddPanel.set(true);
+    setTimeout(() => this.moveModalToBody(), 0);
   }
 
   closeAddPanel(): void {
     this.showAddPanel.set(false);
     this.resetForm();
+    this.removeModalFromBody();
+  }
+
+  private moveModalToBody(): void {
+    if (!this.bodyElement || !this.el.nativeElement) return;
+    
+    const modalOverlay = this.el.nativeElement.querySelector('.side-panel-overlay');
+    const sidePanel = this.el.nativeElement.querySelector('.side-panel');
+    
+    if (modalOverlay && sidePanel && !this.modalElement) {
+      // Create a wrapper to hold both overlay and panel
+      const wrapper = this.renderer.createElement('div');
+      this.renderer.addClass(wrapper, 'modal-wrapper');
+      
+      this.renderer.appendChild(wrapper, modalOverlay);
+      this.renderer.appendChild(wrapper, sidePanel);
+      this.renderer.appendChild(this.bodyElement, wrapper);
+      
+      this.modalElement = wrapper;
+    }
+  }
+
+  private removeModalFromBody(): void {
+    if (this.modalElement && this.bodyElement) {
+      this.renderer.removeChild(this.bodyElement, this.modalElement);
+      this.modalElement = null;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.removeModalFromBody();
   }
 
   resetForm(): void {

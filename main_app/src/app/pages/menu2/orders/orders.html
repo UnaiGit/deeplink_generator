@@ -1,0 +1,86 @@
+<div class="orders-page" [class.with-panel]="showPanel">
+  <div class="orders-main-content">
+    <!-- Header Section -->
+    <div class="orders-header">
+      <div class="header-left">
+        <h1 class="page-title">{{ 'New Order' | translate }}</h1>
+        <p class="page-subtitle">{{ 'Select menu, set variants & extras' |
+          translate }}</p>
+      </div>
+      <div class="header-right">
+        <div class="time-indicator">
+          <img src="/icons/history2.svg" alt="time" class="time-icon" />
+          <span class="time-text">Est. 15 mins</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table List Section -->
+    <div class="table-section">
+      <app-tablelist
+        [tables]="tables"
+        [activeTable]="activeTable"
+        (tableSelected)="onTableSelected($event)">
+      </app-tablelist>
+    </div>
+
+    <!-- Categories Section -->
+    <div class="categories-section">
+      <h3 class="section-title">{{ 'Categories' | translate }}</h3>
+      <app-category-filter
+        [categories]="categories"
+        [active]="activeCategory"
+        [totalItems]="getCategoryCount('All')"
+        [categoryCounts]="getAllCategoryCounts()"
+        (changed)="onCategoryChange($event)">
+      </app-category-filter>
+    </div>
+
+    <!-- Products Grid Section -->
+    <div class="products-section">
+      <div class="products-grid" [class.with-panel]="showPanel">
+        <ng-container *ngFor="let product of products">
+          <app-product-card
+            [title]="product.title"
+            [price]="product.price"
+            [image]="product.image"
+            [currentQty]="getQty(product.id)"
+            (add)="addToCart(product, $event)"
+            (decrease)="decProduct(product)">
+          </app-product-card>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Panel -->
+  <div class="order-panel-wrapper" *ngIf="showPanel">
+    <app-orderpannel
+      [tableNumber]="activeTable"
+      [hasOrders]="hasOrders"
+      [subTotal]="subTotal"
+      [discount]="discount"
+      [tax]="tax"
+      [total]="total"
+      [cartItems]="cart"
+      [clientsCount]="getActiveTableClients()"
+      [tableStatus]="getActiveTableStatus()"
+      [isLocked]="isTableLocked()"
+      (increment)="incItem($event)"
+      (decrement)="decItem($event)"
+      (remove)="removeItem($event); onRemoveFromOrder()"
+      (unlock)="onUnlockOrder()"
+      (placeOrderEvent)="onPlaceOrder()"
+      (updateOrderEvent)="onUpdateOrder()"
+      (sendToKitchen)="onSendToKitchen($event)"
+      (markAllDelivered)="onMarkAllDelivered()">
+    </app-orderpannel>
+  </div>
+
+  <!-- Unsynced Changes Modal -->
+  <app-unsynced-modal
+    *ngIf="showUnsyncedModal"
+    (cancel)="onModalCancel()"
+    (switch)="onModalSwitch()">
+  </app-unsynced-modal>
+</div>

@@ -1,0 +1,70 @@
+<div class="order-item" [class.locked]="status === 'locked'">
+    <input 
+        type="checkbox" 
+        class="item-checkbox"
+        [checked]="selected"
+        (change)="onCheckboxChange($event.target.checked)"
+        *ngIf="status !== 'locked' && selected !== false" />
+    <img class="thumb" [src]="image || '/images/placeholder.png'"
+        [alt]="title" [class.faded]="status === 'locked'" />
+    <div class="right-content">
+        <div class="top-section">
+            <div class="info">
+                <div class="title-row">
+                    <div class="title">{{ title }}</div>
+                    <div class="status-badge" *ngIf="status === 'open'">
+                        <img src="/icons/check.svg" alt="check" class="status-icon" />
+                        <span>{{ getStatusText() }}</span>
+                    </div>
+                </div>
+                <div class="price-row">
+                    <div class="price">{{ price |
+                        currency:'USD':'symbol':'1.2-2' }}</div>
+                </div>
+            </div>
+            <button 
+                class="trash" 
+                [disabled]="isLocked"
+                [class.disabled]="isLocked"
+                (click)="!isLocked && remove.emit()" 
+                type="button"
+                aria-label="Remove item">
+                <img src="/icons/delete.svg" alt="trash" />
+            </button>
+        </div>
+        <div class="bottom-section">
+            <button 
+                class="edit-btn" 
+                [disabled]="isLocked"
+                [class.disabled]="isLocked"
+                type="button" 
+                aria-label="Edit item" 
+                *ngIf="status !== 'locked'">
+                <img src="/icons/pen.svg" alt="edit" />
+            </button>
+            <button class="lock-btn" type="button" aria-label="Lock item" *ngIf="status === 'locked'">
+                <img src="/icons/lock.svg" alt="lock" />
+            </button>
+            <div class="qty" *ngIf="status !== 'locked'">
+                <button 
+                    class="qty-btn minus" 
+                    [disabled]="isLocked"
+                    [class.disabled]="isLocked"
+                    (click)="!isLocked && decrement.emit()"
+                    aria-label="Decrease quantity">−</button>
+                <span>{{ quantity }}</span>
+                <button 
+                    class="qty-btn plus" 
+                    [disabled]="isLocked"
+                    [class.disabled]="isLocked"
+                    (click)="!isLocked && increment.emit()"
+                    aria-label="Increase quantity">+</button>
+            </div>
+        </div>
+        <div class="tags-row" *ngIf="clientName || status === 'delivered' || status === 'billing-only'">
+            <span class="tag" *ngIf="clientName">{{ clientName }}</span>
+            <span class="tag" *ngIf="status === 'delivered'">{{ getStatusText() }}</span>
+            <span class="tag" *ngIf="status === 'billing-only'">{{ getStatusText() }}</span>
+        </div>
+    </div>
+</div>

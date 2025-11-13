@@ -1,11 +1,9 @@
-<div class="modal-backdrop" *ngIf="isOpen">
-  <!-- Delete Confirmation Modal (Centered) -->
-  <div
-    *ngIf="isDeleteMode()"
-    class="delete-modal-container"
-    [class.open]="isOpen && isDeleteMode()"
-    (click)="$event.stopPropagation()"
-  >
+<!-- Delete Confirmation Modal (Centered) -->
+<app-base-modal
+  *ngIf="isDeleteMode()"
+  [isOpen]="isOpen"
+  [config]="getModalConfig()"
+  (close)="onClose()">
     <div class="delete-modal-content">
       <h3 class="delete-title">{{ 'Delete Menu' | translate }}?</h3>
       <p class="delete-message">
@@ -17,15 +15,14 @@
         <button class="delete-confirm-button" type="button" (click)="onDelete()">{{ 'Delete' | translate }}</button>
       </div>
     </div>
-  </div>
+</app-base-modal>
 
-  <!-- Create/Edit Menu Modal (Side Panel) -->
-  <div
-    *ngIf="!isDeleteMode()"
-    class="modal-container"
-    [class.open]="isOpen"
-    (click)="$event.stopPropagation()"
-  >
+<!-- Create/Edit Menu Modal (Side Panel) -->
+<app-base-modal
+  *ngIf="!isDeleteMode()"
+  [isOpen]="isOpen"
+  [config]="getModalConfig()"
+  (close)="onClose()">
     <!-- Header -->
     <div class="modal-header">
       <h2 class="modal-title">{{ getTitle() | translate }}</h2>
@@ -232,6 +229,5 @@
         {{ getButtonText() | translate }}
       </button>
     </div>
-  </div>
-</div>
+</app-base-modal>
 

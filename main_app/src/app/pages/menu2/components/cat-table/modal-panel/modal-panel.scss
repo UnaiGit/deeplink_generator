@@ -1,33 +1,5 @@
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--overlay-medium);
-  z-index: 1000;
-  backdrop-filter: blur(2px);
-}
-
-.modal-container {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  max-width: 480px;
-  background: var(--white);
-  box-shadow: -2px 0 12px var(--shadow-light-medium);
-  display: flex;
-  flex-direction: column;
-  z-index: 1001;
-  transform: translateX(100%);
-  transition: transform 0.3s ease-in-out;
-  overflow: hidden;
-  height: 100%;
-
-  &.open {
-    transform: translateX(0);
-  }
-}
-
+// Common modal styles are now handled by BaseModalComponent
+// Only category-specific styles remain here
 // Header
 .modal-header {
   display: flex;
@@ -588,28 +560,7 @@ select.form-input {
   }
 }
 
-// Delete Modal (Centered)
-.delete-modal-container {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.95);
-  width: 90%;
-  max-width: 480px;
-  background: var(--white);
-  border-radius: 16px;
-  box-shadow: 0 10px 40px var(--shadow-dark);
-  display: flex;
-  flex-direction: column;
-  z-index: 1002;
-  opacity: 0;
-  transition: all 0.3s ease-in-out;
-
-  &.open {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-  }
-}
+// Delete Modal styles are now handled by BaseModalComponent with center position
 
 .delete-message {
   font-size: 14px;
@@ -666,16 +617,6 @@ select.form-input {
 
 // Responsive
 @media (max-width: 768px) {
-  .modal-container {
-    width: 95%;
-    max-height: 95vh;
-  }
-
-  .delete-modal-container {
-    width: 95%;
-    max-width: 420px;
-  }
-
   .modal-header,
   .modal-content,
   .modal-footer {

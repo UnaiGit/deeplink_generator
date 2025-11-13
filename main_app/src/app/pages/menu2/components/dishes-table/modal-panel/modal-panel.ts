@@ -1,19 +1,20 @@
-import { Component, OnInit, OnChanges, OnDestroy, Input, Output, EventEmitter, HostListener, ElementRef, Renderer2, Inject } from '@angular/core';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, OnInit, OnChanges, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { DishModalMode } from '@/types/menu2/modes.type';
-
 import { Allergen, ExtraToggle as Extra, ExtraGroup, Subcategory, SubcategoryItem } from '@/types/interfaces/menu2/modals';
+import { BaseModalComponent } from '../../../../../shared/components/modal/base-modal';
+import { ModalConfig } from '../../../../../shared/components/modal/modal-config.type';
 
 @Component({
   selector: 'app-dish-modal-panel',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BaseModalComponent],
   templateUrl: './modal-panel.html',
   styleUrl: './modal-panel.scss',
   standalone: true,
 })
-export class DishModalPanel implements OnInit, OnChanges, OnDestroy {
+export class DishModalPanel implements OnInit, OnChanges {
   @Input() isOpen: boolean = false;
   @Input() mode: DishModalMode = 'add';
   @Input() data: any = null;
@@ -192,16 +193,6 @@ export class DishModalPanel implements OnInit, OnChanges, OnDestroy {
     allergenAvailable: true,
   };
 
-  private modalElement: HTMLElement | null = null;
-  private bodyElement: HTMLElement | null = null;
-
-  constructor(
-    private el: ElementRef,
-    private renderer: Renderer2,
-    @Inject(DOCUMENT) private document: Document
-  ) {
-    this.bodyElement = this.document.body;
-  }
 
   ngOnInit(): void {
     if (this.mode === 'edit' && this.data) {
@@ -219,34 +210,28 @@ export class DishModalPanel implements OnInit, OnChanges, OnDestroy {
     } else if (this.mode === 'add') {
       this.resetForm();
     }
-
-    // Move modal to body when open to ensure it overlays everything
-    if (this.isOpen && this.bodyElement) {
-      setTimeout(() => this.moveModalToBody(), 0);
-    } else if (!this.isOpen && this.modalElement) {
-      this.removeModalFromBody();
-    }
   }
 
-  private moveModalToBody(): void {
-    if (!this.bodyElement || !this.el.nativeElement) return;
-    
-    const modalOverlay = this.el.nativeElement.querySelector('.modal-overlay');
-    if (modalOverlay && !this.modalElement) {
-      this.modalElement = modalOverlay;
-      this.renderer.appendChild(this.bodyElement, modalOverlay);
+  getModalConfig(): ModalConfig {
+    if (this.isDeleteMode()) {
+      return {
+        position: 'center',
+        width: '90%',
+        maxWidth: '480px',
+        animation: 'scale',
+        borderRadius: '16px',
+        closeOnOverlayClick: false
+      };
     }
-  }
-
-  private removeModalFromBody(): void {
-    if (this.modalElement && this.bodyElement) {
-      this.renderer.removeChild(this.bodyElement, this.modalElement);
-      this.modalElement = null;
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.removeModalFromBody();
+    // For dual panel (add/edit mode)
+    return {
+      position: 'right',
+      width: '100%',
+      maxWidth: '1000px',
+      height: '100%',
+      animation: 'slide',
+      backgroundColor: 'transparent'
+    };
   }
 
   syncAllergens(): void {

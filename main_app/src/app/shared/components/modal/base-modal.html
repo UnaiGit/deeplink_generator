@@ -1,0 +1,17 @@
+<div 
+  class="modal-overlay" 
+  *ngIf="isOpen"
+  [ngStyle]="getOverlayStyles()"
+  (click)="onOverlayClick()">
+  
+  <div 
+    class="modal-container"
+    [ngClass]="getModalClasses()"
+    [ngStyle]="getModalStyles()"
+    (click)="$event.stopPropagation()">
+    
+    <!-- Project all content from parent component -->
+    <ng-content></ng-content>
+  </div>
+</div>
+
