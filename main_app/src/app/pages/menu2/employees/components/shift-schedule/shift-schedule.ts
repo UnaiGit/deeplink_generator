@@ -1,52 +1,109 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { addDays, startOfWeek, format } from 'date-fns';
+import { addDays, startOfWeek, format, startOfDay, endOfDay, addHours, addMinutes } from 'date-fns';
+import { CalendarModule, DateAdapter, MOMENT } from 'angular-calendar';
+import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
+import { SchedulerModule, CalendarSchedulerEvent } from 'angular-calendar-scheduler';
+import moment from 'moment';
 import { ShiftEntry } from '@/types/interfaces/employees/shift-entry.interface';
 import { store, selectEmployeeState } from '../../../../../store/store';
 import { StaffMember } from '@/types/interfaces/employees/staff-member.interface';
 
-interface ShiftDisplay {
-  timeRange: string;
-  role: string;
-  employeeName: string;
-  dayIndex: number;
+// Extended staff member for calendar display
+interface SchedulerEmployee extends StaffMember {
+  id: string;
 }
 
 @Component({
   selector: 'app-shift-schedule',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [
+    CommonModule, 
+    TranslateModule, 
+    CalendarModule,
+    SchedulerModule
+  ],
+  providers: [
+    {
+      provide: DateAdapter,
+      useFactory: adapterFactory
+    },
+    {
+      provide: MOMENT,
+      useValue: moment
+    }
+  ],
   templateUrl: './shift-schedule.html',
   styleUrl: './shift-schedule.scss',
 })
 export class ShiftSchedule implements OnInit, OnDestroy {
   viewDate: Date = new Date();
-  weekDays: Date[] = [];
+  viewDays: number = 7;
+  dayStartHour: number = 12;
+  dayEndHour: number = 18;
+  hourSegments: 1 | 2 | 4 | 6 = 2;
   
-  employees: string[] = [];
+  employees: SchedulerEmployee[] = [];
   shiftData: ShiftEntry[] = [];
+  events: CalendarSchedulerEvent[] = [];
+  timeSlots: string[] = [];
   private unsubscribe?: () => void;
 
   constructor(private translate: TranslateService) {}
   
-  // Role color mapping
+  // Role color mapping matching the design
   roleColors: { [key: string]: string } = {
-    'Waiter': '#2d71f7',      // Blue
-    'Cooking': '#ef4444',     // Red
-    'Delivery': '#40c4aa',    // Teal
+    'Kitchen': '#2d71f7',      // Blue
+    'Clients': '#40c4aa',      // Teal
+    'Management': '#ffbe4c',   // Orange
+    'Not working': '#9ca3af',  // Grey
+    // Fallback for existing roles
+    'Waiter': '#40c4aa',      // Teal (Clients)
+    'Cooking': '#2d71f7',      // Blue (Kitchen)
+    'Delivery': '#40c4aa',     // Teal (Clients)
     'Cashier': '#ffbe4c',     // Orange
-    'Manager': '#9333ea',     // Purple
+    'Manager': '#ffbe4c',     // Orange (Management)
   };
 
+  // Role labels for legend
+  roleLabels = [
+    { name: 'Kitchen', color: '#2d71f7' },
+    { name: 'Clients', color: '#40c4aa' },
+    { name: 'Management', color: '#ffbe4c' },
+    { name: 'Not working', color: '#9ca3af' }
+  ];
+
+  // Generate performance metrics for shifts
+  getPerformanceMetrics(role: string): { primary: string; secondary: string } {
+    const metrics: { [key: string]: { primary: string; secondary: string } } = {
+      'Kitchen': { primary: '0.18 OPM', secondary: '75 WR' },
+      'Clients': { primary: '1.4 APM', secondary: '7 LI' },
+      'Management': { primary: '102 AAPM', secondary: '7 IIR' },
+      'Not working': { primary: '80% TWL', secondary: '92% RO' },
+      'Cooking': { primary: '0.18 OPM', secondary: '75 WR' },
+      'Waiter': { primary: '1.4 APM', secondary: '7 LI' },
+      'Delivery': { primary: '1.4 APM', secondary: '7 LI' },
+      'Manager': { primary: '102 AAPM', secondary: '7 IIR' },
+    };
+    return metrics[role] || { primary: 'N/A', secondary: 'N/A' };
+  }
+
   ngOnInit(): void {
-    this.weekDays = this.getWeekDays();
+    this.generateTimeSlots();
     this.loadEmployeesFromStore();
     
     // Subscribe to state changes
     this.unsubscribe = store.subscribe(() => {
       this.loadEmployeesFromStore();
     });
+  }
+
+  generateTimeSlots(): void {
+    this.timeSlots = [];
+    for (let hour = this.dayStartHour; hour <= this.dayEndHour; hour++) {
+      this.timeSlots.push(`${hour.toString().padStart(2, '0')}:00`);
+    }
   }
 
   ngOnDestroy(): void {
@@ -57,8 +114,13 @@ export class ShiftSchedule implements OnInit, OnDestroy {
 
   loadEmployeesFromStore(): void {
     const state = selectEmployeeState();
-    this.employees = state.employees.map((emp: StaffMember) => emp.name);
+    // Convert StaffMember to SchedulerEmployee by adding id
+    this.employees = state.employees.map((emp: StaffMember) => ({
+      ...emp,
+      id: emp.name // Using name as id for now
+    }));
     this.generateShiftData(state.employees);
+    this.convertShiftsToEvents();
   }
 
   generateShiftData(employees: StaffMember[]): void {
@@ -76,12 +138,12 @@ export class ShiftSchedule implements OnInit, OnDestroy {
         if (employee.rank <= 2) {
           // Top employees get more shifts
           this.shiftData.push(
-            { employeeName: employee.name, dayIndex: 0, range: { start: '09:00', end: '17:00' }, role: primaryRole },
-            { employeeName: employee.name, dayIndex: 2, range: { start: '09:00', end: '17:00' }, role: primaryRole },
+            { employeeName: employee.name, dayIndex: 1, range: { start: '09:00', end: '17:00' }, role: primaryRole },
+            { employeeName: employee.name, dayIndex: 3, range: { start: '09:00', end: '17:00' }, role: primaryRole },
           );
         } else if (employee.rank <= 3) {
           this.shiftData.push(
-            { employeeName: employee.name, dayIndex: 1, range: { start: '09:00', end: '17:00' }, role: primaryRole },
+            { employeeName: employee.name, dayIndex: 2, range: { start: '09:00', end: '17:00' }, role: primaryRole },
           );
         }
         
@@ -89,66 +151,115 @@ export class ShiftSchedule implements OnInit, OnDestroy {
         if (employee.tags.length > 1 && employee.rank <= 2) {
           const secondaryRole = employee.tags[1];
           this.shiftData.push(
-            { employeeName: employee.name, dayIndex: 4, range: { start: '09:00', end: '17:00' }, role: secondaryRole },
+            { employeeName: employee.name, dayIndex: 5, range: { start: '09:00', end: '17:00' }, role: secondaryRole },
           );
         }
       }
     });
   }
 
-  getWeekDays(): Date[] {
+  convertShiftsToEvents(): void {
     const weekStart = startOfWeek(this.viewDate, { weekStartsOn: 0 });
-    return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
-  }
-
-  getDayName(date: Date): string {
-    const dayKey = format(date, 'EEE');
-    // Map day abbreviations to translation keys
-    const dayMap: { [key: string]: string } = {
-      'Mon': 'Mon',
-      'Tue': 'Tue',
-      'Wed': 'Wed',
-      'Thu': 'Thu',
-      'Fri': 'Fri',
-      'Sat': 'Sat',
-      'Sun': 'Sun'
-    };
-    const translationKey = dayMap[dayKey] || dayKey;
-    return this.translate.instant(translationKey);
-  }
-
-  formatTimeRange(range: { start: string; end: string }): string {
-    const [startHour24, startMinute] = range.start.split(':').map(Number);
-    const [endHour24, endMinute] = range.end.split(':').map(Number);
     
-    const startPeriod = startHour24 >= 12 ? 'pm' : 'am';
-    const startHour12 = startHour24 % 12 || 12;
-    const startTimeFormatted = `${String(startHour12).padStart(2, '0')}.${String(startMinute).padStart(2, '0')}${startPeriod}`;
+    this.events = this.shiftData.map((shift, index) => {
+      const shiftDate = addDays(weekStart, shift.dayIndex);
+      const [startHour, startMinute] = shift.range.start.split(':').map(Number);
+      const [endHour, endMinute] = shift.range.end.split(':').map(Number);
     
-    const endPeriod = endHour24 >= 12 ? 'pm' : 'am';
-    const endHour12 = endHour24 % 12 || 12;
-    const endTimeFormatted = `${String(endHour12).padStart(2, '0')}.${String(endMinute).padStart(2, '0')}${endPeriod}`;
-    
-    return `${startTimeFormatted} - ${endTimeFormatted}`;
-  }
-
-  getShiftsForEmployeeAndDay(employeeName: string, dayIndex: number): ShiftDisplay[] {
-    return this.shiftData
-      .filter(shift => shift.employeeName === employeeName && shift.dayIndex === dayIndex)
-      .map(shift => ({
-        timeRange: this.formatTimeRange(shift.range),
-        role: shift.role,
-        employeeName: shift.employeeName,
-        dayIndex: shift.dayIndex,
-      }));
+      const start = addMinutes(addHours(startOfDay(shiftDate), startHour), startMinute);
+      const end = addMinutes(addHours(startOfDay(shiftDate), endHour), endMinute);
+      
+      // Find employee to use as resource
+      const employee = this.employees.find(emp => emp.name === shift.employeeName);
+      
+      const metrics = this.getPerformanceMetrics(shift.role);
+      const roleColor = this.getRoleColor(shift.role);
+      
+      return {
+        id: `event-${index}`,
+        start: start,
+        end: end,
+        title: `${shift.employeeName} - ${shift.role}`,
+        content: `${shift.employeeName}: ${metrics.primary} | ${metrics.secondary}`,
+        color: {
+          primary: roleColor,
+          secondary: roleColor + '20'
+        },
+        resizable: {
+          beforeStart: true,
+          afterEnd: true
+        },
+        draggable: true,
+        isClickable: true,
+        isDisabled: false,
+        userId: employee?.id || shift.employeeName,
+        meta: {
+          employeeName: shift.employeeName,
+          role: shift.role,
+          metrics: metrics
+        }
+      } as CalendarSchedulerEvent;
+    });
   }
 
   getRoleColor(role: string): string {
     return this.roleColors[role] || '#2d71f7';
   }
 
-  onShiftClick(shift: ShiftDisplay): void {
-    console.log('Shift clicked:', shift);
+  getShiftsForEmployeeAndTime(employeeName: string, timeSlot: string): CalendarSchedulerEvent[] {
+    return this.events.filter(event => {
+      const eventHour = new Date(event.start).getHours();
+      const slotHour = parseInt(timeSlot.split(':')[0]);
+      // Find the shift data that matches this event
+      const eventIndex = parseInt(event.id.toString().replace('event-', ''));
+      const shift = this.shiftData[eventIndex];
+      return shift?.employeeName === employeeName && eventHour === slotHour;
+    });
+  }
+
+  formatTime(time: string): string {
+    const [hour] = time.split(':');
+    const hourNum = parseInt(hour);
+    return `${hourNum}:00`;
+  }
+
+  getEmployeeNameFromEvent(event: CalendarSchedulerEvent): string {
+    // Try to get from meta first
+    if ((event as any).meta?.employeeName) {
+      return (event as any).meta.employeeName;
+    }
+    // Fallback to finding from shift data
+    const eventIndex = parseInt(event.id.toString().replace('event-', ''));
+    const shift = this.shiftData[eventIndex];
+    return shift?.employeeName || 'Unknown';
+  }
+
+  onEventClicked(event: { event: CalendarSchedulerEvent; action?: string }): void {
+    console.log('Event clicked:', event);
+  }
+
+  onSegmentClicked(event: any): void {
+    console.log('Segment clicked:', event);
+    // You can add a new shift here based on the clicked segment
+    // event contains: date, segment, sourceEvent, etc.
+  }
+
+  onDayHeaderClicked(event: any): void {
+    console.log('Day clicked:', event);
+  }
+
+  onEventTimesChanged(event: { event: CalendarSchedulerEvent; newStart: Date; newEnd?: Date }): void {
+    console.log('Event times changed:', event);
+    // Update the event with new times
+    const eventToUpdate = this.events.find(e => e.id === event.event.id);
+    if (eventToUpdate && event.newStart && event.newEnd) {
+      eventToUpdate.start = event.newStart;
+      eventToUpdate.end = event.newEnd;
+    }
+  }
+
+  changeView(view: 'week' | 'day'): void {
+    this.viewDays = view === 'week' ? 7 : 1;
   }
 
   onOptimizeWithAI(): void {
@@ -157,6 +268,10 @@ export class ShiftSchedule implements OnInit, OnDestroy {
 
   onAddShift(): void {
     console.log('Add shift clicked');
+  }
+
+  onFilterPeriod(): void {
+    console.log('Filter period clicked');
   }
 }
  

@@ -16,21 +16,20 @@
       <h2 class="schedule-title">{{ 'Shift' | translate }}</h2>
     </div>
     <div class="header-right">
-      <button class="btn-optimize" (click)="onOptimizeWithAI()">
+      <button class="btn-filter" (click)="onFilterPeriod()">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
           xmlns="http://www.w3.org/2000/svg">
-          <rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor"
+          <rect x="2" y="3" width="12" height="10" rx="2" stroke="currentColor"
             stroke-width="1.5" fill="none" />
-          <rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor"
-            stroke-width="1.5" fill="none" />
-          <rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor"
-            stroke-width="1.5" fill="none" />
-          <rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor"
-            stroke-width="1.5" fill="none" />
-          <path d="M7 7L9 9M9 7L7 9" stroke="currentColor" stroke-width="1.5"
+          <path d="M5 6H11M7 9H9" stroke="currentColor" stroke-width="1.5"
             stroke-linecap="round" />
         </svg>
-        {{ 'Optimize with AI' | translate }}
+        {{ 'Filter period' | translate }}
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
       </button>
       <button class="btn-add" (click)="onAddShift()">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
@@ -43,49 +42,44 @@
     </div>
   </div>
 
-  <!-- Schedule Grid or Empty State -->
-  <div class="schedule-container" *ngIf="shiftData.length > 0">
-    <div class="schedule-grid">
-      <!-- Header Row - Days -->
-      <div class="grid-header">
-        <div class="grid-cell employee-header">{{ 'Employee' | translate }}</div>
-        <div class="grid-cell day-header" *ngFor="let day of weekDays">
-          {{ getDayName(day) }}
-        </div>
-      </div>
-
-      <!-- Employee Rows -->
-      <div class="grid-row" *ngFor="let employee of employees">
-        <div class="grid-cell employee-name">{{ employee }}</div>
-        <div class="grid-cell day-cell"
-          *ngFor="let day of weekDays; let dayIndex = index">
-          <div class="shift-block"
-            *ngFor="let shift of getShiftsForEmployeeAndDay(employee, dayIndex)"
-            [style.background-color]="getRoleColor(shift.role)"
-            (click)="onShiftClick(shift)">
-            <div class="shift-time">{{ shift.timeRange }}</div>
-            <div class="shift-role">{{ shift.role }}</div>
-          </div>
-        </div>
-      </div>
+  <!-- Role Legend -->
+  <div class="role-legend">
+    <div class="legend-item" *ngFor="let role of roleLabels">
+      <div class="legend-dot" [style.background-color]="role.color"></div>
+      <span class="legend-label">{{ role.name }}</span>
     </div>
   </div>
 
+  <!-- Calendar Scheduler -->
+  <div class="schedule-container">
+    <calendar-scheduler-view
+      [viewDate]="viewDate"
+      [events]="events"
+      [dayStartHour]="dayStartHour"
+      [dayEndHour]="dayEndHour"
+      [hourSegments]="hourSegments"
+      [viewDays]="viewDays"
+      [showEventActions]="false"
+      [locale]="'en'"
+      (eventClicked)="onEventClicked($event)"
+      (segmentClicked)="onSegmentClicked($event)"
+      (dayHeaderClicked)="onDayHeaderClicked($event)"
+      (eventTimesChanged)="onEventTimesChanged($event)">
+    </calendar-scheduler-view>
+  </div>
+
   <!-- Empty State -->
-  <div class="empty-state" *ngIf="shiftData.length === 0">
-    <div class="empty-grid">
-      <div class="empty-grid-header">
-        <div class="empty-grid-cell employee-header">{{ 'Employee' | translate }}</div>
-        <div class="empty-grid-cell day-header" *ngFor="let day of weekDays">
-          {{ getDayName(day) }}
-        </div>
-      </div>
-      <div class="empty-grid-row" *ngFor="let employee of employees">
-        <div class="empty-grid-cell employee-name">{{ employee }}</div>
-        <div class="empty-grid-cell day-cell" *ngFor="let day of weekDays">
-          <span class="empty-dash">-</span>
-        </div>
-      </div>
+  <div class="empty-state" *ngIf="events.length === 0">
+    <div class="empty-message">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M8 2V5M16 2V5M3.5 9.09H20.5M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z"
+          stroke="#9CA3AF" stroke-width="1.5" stroke-miterlimit="10"
+          stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <h3>{{ 'No shifts scheduled' | translate }}</h3>
+      <p>{{ 'Add shifts to get started' | translate }}</p>
     </div>
   </div>
 </div>
