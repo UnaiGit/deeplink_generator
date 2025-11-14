@@ -15,23 +15,21 @@ interface AlertItem {
   styleUrl: './feedback-alerts.scss',
 })
 export class FeedbackAlerts {
-  // alerts: AlertItem[] = [];
-  // Uncomment below to see data:
   alerts: AlertItem[] = [
     { 
-      message: 'Removed from Sushi By Jove, my quick study of lexicography won a prize!',
+      message: 'Employee John Doe completed training successfully',
       color: 'green'
     },
     { 
-      message: 'Removed from Sushi By Jove, my quick study of lexicography won a prize!',
+      message: 'Shift schedule updated for next week',
       color: 'pink'
     },
     { 
-      message: 'Removed from Sushi By Jove, my quick study of lexicography won a prize!',
+      message: 'Performance review reminder for Sarah Smith',
       color: 'yellow'
     },
     { 
-      message: 'Removed from Sushi By Jove, my quick study of lexicography won a prize!',
+      message: 'New employee onboarding completed',
       color: 'green'
     },
   ];

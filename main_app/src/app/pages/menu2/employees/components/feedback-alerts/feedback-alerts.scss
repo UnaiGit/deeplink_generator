@@ -8,6 +8,7 @@
   flex-direction: column;
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 // Header
@@ -74,6 +75,26 @@
   gap: 12px;
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
+  padding-right: 4px;
+  
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--gray-400, #ced4da);
+    border-radius: 3px;
+    
+    &:hover {
+      background: var(--gray-500, #adb5bd);
+    }
+  }
 }
 
 .alert-item {
