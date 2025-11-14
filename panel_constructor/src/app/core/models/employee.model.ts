@@ -5,5 +5,8 @@ export interface Employee {
   initials: string;
   avatarGradient: string;
   badgeLabel?: string;
+  // Kitchen/Department assignments
+  assignedKitchenId?: string; // ID of kitchen station/department assigned to
+  assignedTableId?: string; // ID of table assigned to (for floor service)
 }
 

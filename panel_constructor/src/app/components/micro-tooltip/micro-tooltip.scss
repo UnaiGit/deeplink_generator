@@ -1,0 +1,98 @@
+.micro-tooltip {
+  position: fixed;
+  z-index: 10000;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(8px);
+  border-radius: 8px;
+  padding: 10px 12px;
+  min-width: 200px;
+  max-width: 280px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 8px));
+  color: #ffffff;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.tooltip-header {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.department-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.emoji {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.tooltip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &.notes {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+.label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.value {
+  color: #ffffff;
+  font-size: 12px;
+  flex: 1;
+}
+
+.load-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.load-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 60px;
+}
+
+.load-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.load-value {
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 500;
+  min-width: 35px;
+  text-align: right;
+}
+

@@ -11,6 +11,7 @@ import { TABLE_CONSTANTS } from '../../core/constants/table.constants';
 import { TableInfo } from '../table-info/table-info';
 import { DragDropService } from '../../core/services/drag-drop.service';
 import { TableConfigPanel, TableConfigFormData, NfcState } from '../table-config-panel/table-config-panel';
+import { MicroTooltip } from '../micro-tooltip/micro-tooltip';
 import { TableLayoutService } from '../../core/services/table-layout.service';
 import { EmployeeDragService } from '../../core/services/employee-drag.service';
 import { EmployeeService } from '../../core/services/employee.service';
@@ -56,7 +57,7 @@ const LAYOUT_V_GAP = 88;     // min space between table rows vertically
 
 @Component({
   selector: 'app-floor-canvas',
-  imports: [CommonModule, TranslateModule, TableInfo, TableConfigPanel],
+  imports: [CommonModule, TranslateModule, TableInfo, TableConfigPanel, MicroTooltip],
   templateUrl: './floor-canvas.html',
   styleUrl: './floor-canvas.scss',
 })
@@ -65,7 +66,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   private themeService = inject(ThemeService);
   private dragDropService = inject(DragDropService);
   private employeeDragService = inject(EmployeeDragService);
-  private employeeService = inject(EmployeeService);
+  employeeService = inject(EmployeeService); // Exposed for template
   private readonly tableLayoutService = inject(TableLayoutService);
   private toastService = inject(ToastService);
 
@@ -80,6 +81,9 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   private viewportWidth = 0;
   private viewportHeight = 0;
   floorName = input<FloorType | string>('main');
+  showEmployees = input<boolean>(false);
+  showKitchenBuilder = input<boolean>(false);
+  private previousFloor: FloorType | string | null = null;
   private globalDragOverHandler?: (e: DragEvent) => void;
   private globalDropHandler?: (e: DragEvent) => void;
 
@@ -107,10 +111,10 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
 
   // Kitchen items state
   private kitchenCatalog: KitchenItem[] = [];
-  private kitchenItems: KitchenLayoutItem[] = [];
-  private kitchenImages: Map<string, HTMLImageElement> = new Map();
-  private selectedKitchenItemId = signal<string | null>(null);
-  private readonly KITCHEN_DISPLAY_COUNT = 3; // Display 3 images at a time
+  kitchenItems = signal<KitchenLayoutItem[]>([]);
+  kitchenImages = new Map<string, HTMLImageElement>(); // Exposed for template
+  selectedKitchenItemId = signal<string | null>(null); // Exposed for template
+  private readonly KITCHEN_DISPLAY_COUNT = 2; // Display 2 images at a time
   private kitchenStartIndex = 0;
   private kitchenAnimationState: {
     isAnimating: boolean;
@@ -164,6 +168,15 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   hoveredTable = signal<Table | null>(null);
   tooltipX = signal<number>(0);
   tooltipY = signal<number>(0);
+  
+  // Kitchen item tooltip state
+  isKitchenItemHovered = signal<boolean>(false);
+  hoveredKitchenItem = signal<KitchenLayoutItem | null>(null);
+  kitchenTooltipX = signal<number>(0);
+  kitchenTooltipY = signal<number>(0);
+  
+  // Kitchen build mode (when ON, hide tables; when OFF, show tables)
+  kitchenBuildMode = signal<boolean>(false);
 
   // Selected table state
   selectedTableId = signal<string | null>(null);
@@ -172,6 +185,13 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   private floorEffect = effect(() => {
     const floor = this.floorName();
     if (this.ctx) {
+      // Only reset table configuration state when actually switching floors (not on initial load)
+      // This ensures lastPreviewCapacity and table config state don't persist across floors
+      if (this.previousFloor !== null && this.previousFloor !== floor) {
+        this.resetTableConfigState();
+      }
+      this.previousFloor = floor;
+      
       // Set fixed zoom for kitchen floor
       if (floor === 'kitchen') {
         this.zoomLevel.set(0.6);
@@ -194,6 +214,31 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   // Effect to redraw canvas when selected kitchen item changes
   private selectedKitchenItemEffect = effect(() => {
     const selectedId = this.selectedKitchenItemId();
+    if (this.ctx && this.floorName() === 'kitchen') {
+      this.drawFloorCanvas(this.floorName());
+    }
+  });
+
+  // Effect to sync footer buttons with kitchen build mode
+  private footerButtonsEffect = effect(() => {
+    if (this.floorName() === 'kitchen') {
+      const showBuilder = this.showKitchenBuilder();
+      const showEmployees = this.showEmployees();
+      
+      // When build button is clicked (showKitchenBuilder = true), hide tables (build mode ON)
+      if (showBuilder) {
+        this.kitchenBuildMode.set(true);
+      }
+      // When employees button is clicked (showEmployees = true), show tables (build mode OFF)
+      else if (showEmployees) {
+        this.kitchenBuildMode.set(false);
+      }
+    }
+  });
+
+  // Effect to redraw canvas when build mode changes
+  private kitchenBuildModeEffect = effect(() => {
+    const buildMode = this.kitchenBuildMode();
     if (this.ctx && this.floorName() === 'kitchen') {
       this.drawFloorCanvas(this.floorName());
     }
@@ -369,6 +414,8 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     // Load kitchen items if kitchen floor
     if (floor === 'kitchen') {
       this.kitchenCatalog = getKitchenFloorItems();
+      // Load persisted employee assignments
+      this.loadKitchenAssignments();
       this.kitchenStartIndex = 0;
       this.kitchenCatalog.forEach((item, idx) => {
         if (item.id === this.selectedKitchenItemId()) {
@@ -379,12 +426,35 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
         ? this.kitchenStartIndex % this.kitchenCatalog.length
         : 0;
       this.loadKitchenImages();
+      
+      // Also load tables for kitchen floor (they'll be shown/hidden based on build mode)
+      const defaultTables = this.tableLayoutService.getTablesForFloor(floor);
+      const savedPositions = this.tablePositions[floor] || {};
+      const currentTablePositions: Record<string, { x: number; y: number }> = {};
+      if (this.tables.length > 0) {
+        this.tables.forEach(table => {
+          currentTablePositions[table.id] = { x: table.x, y: table.y };
+        });
+      }
+      
+      this.tables = defaultTables.map(table => {
+        if (currentTablePositions[table.id]) {
+          return { ...table, x: currentTablePositions[table.id].x, y: currentTablePositions[table.id].y };
+        }
+        const savedPos = savedPositions[table.id];
+        if (savedPos) {
+          return { ...table, x: savedPos.x, y: savedPos.y };
+        }
+        return { ...table };
+      });
+      
+      this.persistTablePositions();
       return;
     }
     
     // Clear kitchen-specific state when leaving kitchen floor
     this.kitchenCatalog = [];
-    this.kitchenItems = [];
+    this.kitchenItems.set([]);
     this.selectedKitchenItemId.set(null);
     
     // Get tables from service (these should have updated positions if we've saved them)
@@ -393,20 +463,40 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     // Check if we have saved positions for this floor
     const savedPositions = this.tablePositions[floor] || {};
     
+    // IMPORTANT: Preserve current table positions if tables are already loaded
+    // This prevents losing positions when loadTables() is called after a drag operation
+    const currentTablePositions: Record<string, { x: number; y: number }> = {};
+    if (this.tables.length > 0) {
+      // We have tables already loaded - preserve their current positions
+      this.tables.forEach(table => {
+        currentTablePositions[table.id] = { x: table.x, y: table.y };
+      });
+    }
+    
     this.tables = defaultTables.map(table => {
-      // Prioritize saved positions from this.tablePositions (most recent)
-      // Otherwise use position from service (which should have saved positions)
-      // Finally fall back to default position from layout
+      // Priority order:
+      // 1. Current table positions (if tables are already loaded - most recent)
+      // 2. Saved positions from this.tablePositions (from current session)
+      // 3. Position from service (which should have saved positions from previous sessions)
+      // 4. Default position from layout
+      
+      if (currentTablePositions[table.id]) {
+        // Use current position if tables are already loaded (preserves drag operations)
+        return { ...table, x: currentTablePositions[table.id].x, y: currentTablePositions[table.id].y };
+      }
+      
       const savedPos = savedPositions[table.id];
       if (savedPos) {
+        // Use saved position from current session
         return { ...table, x: savedPos.x, y: savedPos.y };
       }
+      
       // Use position from service (which may have been updated by saveTableLayout)
-      // This ensures positions persist even if this.tablePositions is cleared
       return { ...table };
     });
     
     // Update saved positions from loaded tables to keep them in sync
+    // But preserve any positions we just kept from current tables
     this.persistTablePositions();
     
     // Only apply layout adjustments if no saved positions exist (first time loading)
@@ -541,6 +631,37 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     };
   }
 
+  private loadKitchenAssignments(): void {
+    try {
+      const stored = localStorage.getItem('kitchen_assignments');
+      if (stored) {
+        const assignments: Record<string, string[]> = JSON.parse(stored);
+        // Apply assignments to kitchen catalog
+        this.kitchenCatalog.forEach(item => {
+          if (assignments[item.id]) {
+            item.assignedEmployees = assignments[item.id];
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load kitchen assignments:', error);
+    }
+  }
+
+  private saveKitchenAssignments(): void {
+    try {
+      const assignments: Record<string, string[]> = {};
+      this.kitchenCatalog.forEach(item => {
+        if (item.assignedEmployees && item.assignedEmployees.length > 0) {
+          assignments[item.id] = item.assignedEmployees;
+        }
+      });
+      localStorage.setItem('kitchen_assignments', JSON.stringify(assignments));
+    } catch (error) {
+      console.error('Failed to save kitchen assignments:', error);
+    }
+  }
+
   private persistTablePositions(): void {
     const floor = this.floorName();
     this.tablePositions[floor] = this.tables.reduce<Record<string, { x: number; y: number }>>((acc, table) => {
@@ -567,8 +688,9 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     const { canvasX, canvasY } = this.toCanvasCoordinates(x, y);
     
     // Check kitchen items in reverse order (top to bottom)
-    for (let i = this.kitchenItems.length - 1; i >= 0; i--) {
-      const item = this.kitchenItems[i];
+    const items = this.kitchenItems();
+    for (let i = items.length - 1; i >= 0; i--) {
+      const item = items[i];
       if (canvasX >= item.x && canvasX <= item.x + item.width &&
           canvasY >= item.y && canvasY <= item.y + item.height) {
         return item;
@@ -1015,6 +1137,28 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
 
     // Handle kitchen floor differently
     if (this.floorName() === 'kitchen') {
+      const isBuildMode = this.kitchenBuildMode();
+      
+      // If build mode is OFF, allow table selection and dragging
+      if (!isBuildMode) {
+        const table = this.getTableAt(x, y);
+        if (table) {
+          // Select the table (single click - just show icons)
+          this.selectedTableId.set(table.id);
+          this.selectedKitchenItemId.set(null);
+          // Hide hover tooltip when table is selected
+          this.isTableHovered.set(false);
+          // Don't prepare for drag on single click
+          this.dragState.isDragging = false;
+          this.dragState.dragEnabled = false;
+          this.dragState.draggedTable = null;
+          canvas.style.cursor = baseCursor;
+          this.drawFloorCanvas(this.floorName());
+          return;
+        }
+      }
+      
+      // Check for kitchen items
       const item = this.getKitchenItemAt(x, y);
       if (item) {
         this.selectedKitchenItemId.set(item.id);
@@ -1122,6 +1266,15 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     // Check if double click is on a table
     const table = this.getTableAt(x, y);
     if (table) {
+      // Allow table dragging on kitchen floor when build mode is OFF
+      if (this.floorName() === 'kitchen') {
+        const isBuildMode = this.kitchenBuildMode();
+        if (isBuildMode) {
+          // Don't allow dragging in build mode
+          return;
+        }
+      }
+      
       console.log(`Double clicked on table no ${table.label} - dragging enabled`);
       this.panState.isPanModeActive = false;
       this.panState.pendingPanActivation = false;
@@ -1209,9 +1362,26 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     }
 
     if (this.floorName() === 'kitchen') {
+      const isBuildMode = this.kitchenBuildMode();
+      
+      // Allow table dragging on kitchen floor when build mode is OFF
+      if (!isBuildMode && this.dragState.isDragging && this.dragState.draggedTable && this.dragState.dragEnabled) {
+        const { canvasX, canvasY } = this.toCanvasCoordinates(x, y);
+        this.dragState.draggedTable.x = canvasX - this.dragState.dragOffset.x;
+        this.dragState.draggedTable.y = canvasY - this.dragState.dragOffset.y;
+        this.dragState.hasDragMovement = true;
+
+        // Hide tooltip during drag
+        this.isTableHovered.set(false);
+        this.isKitchenItemHovered.set(false);
+
+        // Redraw canvas
+        this.drawFloorCanvas(this.floorName());
+        return;
+      }
+      
+      // Continue with normal hover logic for kitchen floor
       canvas.style.cursor = baseCursor;
-      this.isTableHovered.set(false);
-      return;
     }
 
     // Only allow dragging if drag is enabled (after double click)
@@ -1223,11 +1393,99 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
 
       // Hide tooltip during drag
       this.isTableHovered.set(false);
+      this.isKitchenItemHovered.set(false);
 
       // Redraw canvas
       this.drawFloorCanvas(this.floorName());
     } else {
-      // Update cursor and tooltip on hover
+      // Handle kitchen floor tooltips
+      if (this.floorName() === 'kitchen') {
+        const isBuildMode = this.kitchenBuildMode();
+        
+        // Check for tables first if build mode is OFF
+        if (!isBuildMode) {
+          const table = this.getTableAt(x, y);
+          if (table) {
+            this.isTableHovered.set(true);
+            this.hoveredTable.set(table);
+            this.isKitchenItemHovered.set(false);
+            
+            // Position tooltip for table
+            const tooltipOffset = 15;
+            const tooltipWidth = 350;
+            const tooltipHeight = 500;
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            let tooltipX = event.clientX + tooltipOffset;
+            let tooltipY = event.clientY + tooltipOffset;
+            
+            if (tooltipX + tooltipWidth > viewportWidth) {
+              tooltipX = event.clientX - tooltipWidth - tooltipOffset;
+            }
+            if (tooltipY + tooltipHeight > viewportHeight) {
+              tooltipY = event.clientY - tooltipHeight - tooltipOffset;
+            }
+            if (tooltipX < 0) {
+              tooltipX = tooltipOffset;
+            }
+            if (tooltipY < 0) {
+              tooltipY = tooltipOffset;
+            }
+            
+            this.tooltipX.set(tooltipX);
+            this.tooltipY.set(tooltipY);
+            return;
+          } else {
+            this.isTableHovered.set(false);
+          }
+        }
+        
+        // Check for kitchen items
+        const kitchenItem = this.getKitchenItemAt(x, y);
+        if (kitchenItem) {
+          this.isKitchenItemHovered.set(true);
+          this.hoveredKitchenItem.set(kitchenItem);
+          
+          // Position tooltip near mouse cursor with smart boundary detection
+          const tooltipOffset = 15;
+          const tooltipWidth = 280; // Approximate tooltip width
+          const tooltipHeight = 200; // Approximate tooltip height
+          const viewportWidth = window.innerWidth;
+          const viewportHeight = window.innerHeight;
+          
+          let tooltipX = event.clientX + tooltipOffset;
+          let tooltipY = event.clientY + tooltipOffset;
+          
+          // Adjust if tooltip would go off right edge
+          if (tooltipX + tooltipWidth > viewportWidth) {
+            tooltipX = event.clientX - tooltipWidth - tooltipOffset;
+          }
+          
+          // Adjust if tooltip would go off bottom edge - show above cursor
+          if (tooltipY + tooltipHeight > viewportHeight) {
+            tooltipY = event.clientY - tooltipHeight - tooltipOffset;
+          }
+          
+          // Ensure tooltip doesn't go off left edge
+          if (tooltipX < 0) {
+            tooltipX = tooltipOffset;
+          }
+          
+          // Ensure tooltip doesn't go off top edge
+          if (tooltipY < 0) {
+            tooltipY = tooltipOffset;
+          }
+          
+          this.kitchenTooltipX.set(tooltipX);
+          this.kitchenTooltipY.set(tooltipY);
+        } else {
+          this.isKitchenItemHovered.set(false);
+        }
+        return;
+      }
+      
+      // Update cursor and tooltip on hover for tables
       const table = this.getTableAt(x, y);
       const selectedId = this.selectedTableId();
       // Only show grab cursor if drag is enabled, otherwise default
@@ -1312,6 +1570,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   private onMouseLeave(): void {
     // Hide tooltip when mouse leaves canvas
     this.isTableHovered.set(false);
+    this.isKitchenItemHovered.set(false);
     // Stop panning if mouse leaves canvas
     if (this.panState.isPanning) {
       this.panState.isPanning = false;
@@ -1647,9 +1906,66 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       this.tableLayoutService.addFloor(this.floorName(), this.tables);
     }
 
-    if (targetTable && employee) {
+    // Handle employee drop on kitchen items (kitchen floor only)
+    if (isKitchenFloor && kitchenItem && employee) {
+      // Check if employee is already assigned to this kitchen item
+      const currentAssigned = kitchenItem.assignedEmployees || [];
+      const isAlreadyAssigned = currentAssigned.includes(employee.id);
+      
+      if (!isAlreadyAssigned) {
+        // Add employee to kitchen item
+        if (!kitchenItem.assignedEmployees) {
+          kitchenItem.assignedEmployees = [];
+        }
+        kitchenItem.assignedEmployees.push(employee.id);
+        
+        // Update employee assignment
+        this.employeeService.updateEmployee(employee.id, {
+          assignedKitchenId: kitchenItem.id
+        });
+        
+        // Update the kitchen catalog to persist the change
+        const catalogIndex = this.kitchenCatalog.findIndex(item => item.id === kitchenItem.id);
+        if (catalogIndex !== -1) {
+          this.kitchenCatalog[catalogIndex] = { ...kitchenItem };
+        }
+        
+        // Persist assignments to localStorage
+        this.saveKitchenAssignments();
+        
+        // Show toast notification
+        const departmentName = kitchenItem.departmentName || kitchenItem.label;
+        const emoji = kitchenItem.emoji || '';
+        this.toastService.success(`Added to ${departmentName} ${emoji}`);
+        
+        // Redraw canvas
+        this.drawFloorCanvas(this.floorName());
+        
+        console.log(`✅ DROPPED: "${employee.name}" → "${departmentName}" (${kitchenItem.id})`, {
+          dragStartTime: dragStartTimeEmp,
+          dropTime: dropTime,
+          totalDuration: `${totalDuration.toFixed(2)}ms`,
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        // Employee already assigned, show info message
+        this.toastService.info(`${employee.name} is already assigned to this station`);
+      }
+    }
+    
+    // Handle employee drop on tables (for floor service)
+    if (targetTable && employee && !isKitchenFloor) {
       const floor = this.floorName();
       const floorLabel = floor.charAt(0).toUpperCase() + floor.slice(1);
+      
+      // Update employee assignment
+      this.employeeService.updateEmployee(employee.id, {
+        assignedTableId: targetTable.id
+      });
+      
+      // Show toast notification
+      this.toastService.success(`Assigned to ${targetTable.label}`);
+      
       // Log immediately with full timeline
       console.log(`✅ DROPPED: "${employee.name}" → "${targetTable.label}" (${floorLabel})`, {
         dragStartTime: dragStartTimeEmp,
@@ -1713,37 +2029,100 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   }
 
   private openTableConfig(table: Table): void {
-    this.tableConfigTable = table;
+    // Ensure we're using the table from the current floor's tables array
+    // This prevents issues with stale references after floor changes
+    const currentFloorTable = this.tables.find(t => t.id === table.id) || table;
+    
+    this.tableConfigTable = currentFloorTable;
     this.tableConfigStep = 'details';
     this.tableConfigOriginal = {
-      seats: table.seats,
-      capacity: table.capacity,
-      widthGrid: table.widthGrid,
-      heightGrid: table.heightGrid,
-      maxStayMinutes: table.maxStayMinutes,
-      width: table.width,
-      height: table.height,
-      shape: table.shape,
-      x: table.x,
-      y: table.y,
-      occupiedChairs: table.occupiedChairs ? [...table.occupiedChairs] : undefined,
+      seats: currentFloorTable.seats,
+      capacity: currentFloorTable.capacity,
+      widthGrid: currentFloorTable.widthGrid,
+      heightGrid: currentFloorTable.heightGrid,
+      maxStayMinutes: currentFloorTable.maxStayMinutes,
+      width: currentFloorTable.width,
+      height: currentFloorTable.height,
+      shape: currentFloorTable.shape,
+      x: currentFloorTable.x,
+      y: currentFloorTable.y,
+      occupiedChairs: currentFloorTable.occupiedChairs ? [...currentFloorTable.occupiedChairs] : undefined,
     };
-    const initialCapacity = this.clampCapacity(table.capacity ?? table.seats ?? 6);
+    const initialCapacity = this.clampCapacity(currentFloorTable.capacity ?? currentFloorTable.seats ?? 6);
     this.tableConfigData = {
-      width: table.widthGrid ?? 4,
-      height: table.heightGrid ?? 4,
+      width: currentFloorTable.widthGrid ?? 4,
+      height: currentFloorTable.heightGrid ?? 4,
       capacity: initialCapacity,
-      maxStay: table.maxStayMinutes ? String(table.maxStayMinutes) : ''
+      maxStay: currentFloorTable.maxStayMinutes ? String(currentFloorTable.maxStayMinutes) : ''
     };
-    // Initialize lastPreviewCapacity to the current capacity so we can detect changes
-    this.lastPreviewCapacity = initialCapacity;
-    this.previewTableConfiguration();
+    // Initialize lastPreviewCapacity to null first, then let previewTableConfiguration set it
+    // This ensures proper initialization and change detection
+    this.lastPreviewCapacity = null;
     this.nfcState = {
       read: false,
       write: false,
       test: false
     };
+    // Call previewTableConfiguration to initialize the table state
+    // This will set lastPreviewCapacity to the initial capacity
+    this.previewTableConfiguration();
     this.drawFloorCanvas(this.floorName());
+  }
+
+  /**
+   * Reset table configuration state when switching floors
+   * This ensures state doesn't persist across different floors
+   */
+  private resetTableConfigState(): void {
+    // Reset capacity tracking to ensure proper change detection on new floor
+    // This is the key fix - reset lastPreviewCapacity so capacity changes are detected correctly
+    this.lastPreviewCapacity = null;
+    
+    // Close any open table config panel and restore original values
+    if (this.tableConfigTable && this.tableConfigOriginal) {
+      // Restore original values before closing
+      this.tableConfigTable.capacity = this.tableConfigOriginal.capacity;
+      this.tableConfigTable.seats = this.tableConfigOriginal.seats;
+      this.tableConfigTable.widthGrid = this.tableConfigOriginal.widthGrid;
+      this.tableConfigTable.heightGrid = this.tableConfigOriginal.heightGrid;
+      this.tableConfigTable.maxStayMinutes = this.tableConfigOriginal.maxStayMinutes;
+      if (typeof this.tableConfigOriginal.width === 'number') {
+        this.tableConfigTable.width = this.tableConfigOriginal.width;
+      }
+      if (typeof this.tableConfigOriginal.height === 'number') {
+        this.tableConfigTable.height = this.tableConfigOriginal.height;
+      }
+      if (this.tableConfigOriginal.shape) {
+        this.tableConfigTable.shape = this.tableConfigOriginal.shape;
+      }
+      if (typeof this.tableConfigOriginal.x === 'number') {
+        this.tableConfigTable.x = this.tableConfigOriginal.x;
+      }
+      if (typeof this.tableConfigOriginal.y === 'number') {
+        this.tableConfigTable.y = this.tableConfigOriginal.y;
+      }
+      this.tableConfigTable.occupiedChairs = this.tableConfigOriginal.occupiedChairs ? [...this.tableConfigOriginal.occupiedChairs] : undefined;
+      
+      // Clear all table config state
+      this.tableConfigTable = null;
+      this.tableConfigOriginal = null;
+      this.tableConfigStep = 'details';
+      this.tableConfigData = {
+        width: 4,
+        height: 4,
+        capacity: 6,
+        maxStay: ''
+      };
+      this.nfcState = {
+        read: false,
+        write: false,
+        test: false
+      };
+    } else {
+      // If no panel is open, just reset the capacity tracking
+      // Don't reset other state as it might interfere with operations
+      // Only reset lastPreviewCapacity which is the key to detecting capacity changes
+    }
   }
 
   cancelTableConfig(): void {
@@ -1811,13 +2190,37 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     if (!this.tableConfigTable) {
       return;
     }
+    
+    // Ensure we're using the table from the current floor's tables array
+    // This prevents issues with stale references
+    const currentTable = this.tables.find(t => t.id === this.tableConfigTable!.id) || this.tableConfigTable;
+    if (currentTable !== this.tableConfigTable) {
+      this.tableConfigTable = currentTable;
+    }
+    
     // Ensure capacity is a number (range inputs can sometimes return strings)
     const capacityValue = typeof this.tableConfigData.capacity === 'string' 
       ? parseInt(this.tableConfigData.capacity, 10) 
       : this.tableConfigData.capacity;
     const previewCapacity = this.clampCapacity(capacityValue);
-    const capacityChanged = this.lastPreviewCapacity !== previewCapacity;
+    
+    // If lastPreviewCapacity is null or undefined, initialize it without applying changes
+    // This handles the case where previewTableConfiguration is called before lastPreviewCapacity is set
+    if (this.lastPreviewCapacity === null || this.lastPreviewCapacity === undefined) {
+      this.lastPreviewCapacity = previewCapacity;
+      this.tableConfigTable.capacity = previewCapacity;
+      this.tableConfigTable.seats = previewCapacity;
+      this.trimOccupiedChairs(this.tableConfigTable, previewCapacity);
+      return;
+    }
+    
+    // Use strict comparison to detect capacity changes
+    // Convert both to numbers to ensure proper comparison (handle any type issues)
+    const lastCapacityNum = Number(this.lastPreviewCapacity);
+    const newCapacityNum = Number(previewCapacity);
+    const capacityChanged = !isNaN(lastCapacityNum) && !isNaN(newCapacityNum) && lastCapacityNum !== newCapacityNum;
 
+    // Always update the table capacity and seats
     this.tableConfigTable.capacity = previewCapacity;
     this.tableConfigTable.seats = previewCapacity;
     this.trimOccupiedChairs(this.tableConfigTable, previewCapacity);
@@ -1826,8 +2229,13 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     // This works for both directions: increasing finds larger preset, decreasing finds smaller preset
     if (capacityChanged) {
       this.applyCapacityPreset(this.tableConfigTable, previewCapacity, true);
+      // Save changes to the service immediately so they persist
+      // This prevents the table from reverting to its original state
+      this.persistTablePositions();
+      this.tableLayoutService.addFloor(this.floorName(), this.tables);
     }
 
+    // Update lastPreviewCapacity after processing
     this.lastPreviewCapacity = previewCapacity;
   }
 
@@ -1946,6 +2354,69 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     return Math.max(this.capacityRange.min, Math.min(this.capacityRange.max, value));
   }
 
+  onKitchenItemMouseEnter(item: KitchenLayoutItem, event: MouseEvent): void {
+    this.isKitchenItemHovered.set(true);
+    this.hoveredKitchenItem.set(item);
+    
+    // Position tooltip near mouse cursor
+    const tooltipOffset = 15;
+    const tooltipWidth = 280;
+    const tooltipHeight = 200;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    let tooltipX = event.clientX + tooltipOffset;
+    let tooltipY = event.clientY + tooltipOffset;
+    
+    if (tooltipX + tooltipWidth > viewportWidth) {
+      tooltipX = event.clientX - tooltipWidth - tooltipOffset;
+    }
+    if (tooltipY + tooltipHeight > viewportHeight) {
+      tooltipY = event.clientY - tooltipHeight - tooltipOffset;
+    }
+    if (tooltipX < 0) {
+      tooltipX = tooltipOffset;
+    }
+    if (tooltipY < 0) {
+      tooltipY = tooltipOffset;
+    }
+    
+    this.kitchenTooltipX.set(tooltipX);
+    this.kitchenTooltipY.set(tooltipY);
+  }
+
+  onKitchenItemMouseLeave(): void {
+    this.isKitchenItemHovered.set(false);
+  }
+
+  onKitchenItemClick(item: KitchenLayoutItem): void {
+    this.selectedKitchenItemId.set(item.id);
+    this.selectedTableId.set(null);
+  }
+
+  getKitchenImageSrc(itemId: string): string | null {
+    const img = this.kitchenImages.get(itemId);
+    return img?.complete ? img.src : null;
+  }
+
+  isKitchenImageLoaded(itemId: string): boolean {
+    const img = this.kitchenImages.get(itemId);
+    return img?.complete ?? false;
+  }
+
+  // Convert canvas coordinates to screen coordinates for HTML positioning
+  canvasToScreenX(canvasX: number): number {
+    const zoom = this.zoomLevel();
+    const combined = this.getCombinedOffset();
+    return canvasX * zoom + combined.x;
+  }
+
+  canvasToScreenY(canvasY: number): number {
+    const zoom = this.zoomLevel();
+    const combined = this.getCombinedOffset();
+    return canvasY * zoom + combined.y;
+  }
+
   ngOnDestroy(): void {
     // Cancel any pending animation
     if (this.kitchenAnimationState.animationFrameId !== null) {
@@ -1986,6 +2457,11 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     this.zoomEffect.destroy();
     this.selectedTableEffect.destroy();
     this.selectedKitchenItemEffect.destroy();
+    this.kitchenBuildModeEffect.destroy();
+  }
+
+  toggleKitchenBuildMode(): void {
+    this.kitchenBuildMode.set(!this.kitchenBuildMode());
   }
 
   private drawFloorCanvas(floor: FloorType | string): void {
@@ -2073,22 +2549,55 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     const dpr = window.devicePixelRatio || 1;
     const canvasWidth = canvas.width / dpr;
     const canvasHeight = canvas.height / dpr;
+    
+    // Draw tables on the left side if build mode is OFF
+    const isBuildMode = this.kitchenBuildMode();
+    if (!isBuildMode) {
+      this.tableRenderer.drawTables(this.tables, {
+        selectedId: this.selectedTableId(),
+        hoveredId: this.hoveredTable()?.id ?? null,
+        dragTargetId: this.dragOverTable?.id ?? null,
+      });
+    }
 
     const totalItems = this.kitchenCatalog.length;
     if (!totalItems) {
-      this.kitchenItems = [];
+      this.kitchenItems.set([]);
       return;
     }
 
     const displayCount = Math.min(this.KITCHEN_DISPLAY_COUNT, totalItems);
-    const spacing = 30;
-    const cardWidth = 220; // Card width
-    const cardHeight = 280; // Card height (includes info pill + image + padding)
-    const imageHeight = 200; // Image area height
-    const horizontalPadding = 60; // Right alignment with padding
+    const spacing = 40; // Consistent gap between kitchen images (applied to all images)
+    const cardWidth = 360; // Card width (increased for bigger images)
+    const cardHeight = 480; // Card height (includes info pill + image + employee avatars + padding)
+    const imageHeight = 360; // Image area height (increased for bigger images)
+    const horizontalPadding = 60; // Right alignment with padding when build mode ON
+    const controlsRight = -388; // Controls right position - moved 400px more to the right (12 - 400 = -388)
+    const controlsTop = 24; // Controls top position
+    const buildButtonHeight = 44; // Build button height
+    const carouselButtonHeight = 44; // Each carousel button height
+    const carouselButtonGap = 8; // Gap between carousel buttons
+    const controlsGap = 12; // Gap between build button and carousel buttons (in row layout, but we need vertical space)
+    const gapBelowCarousel = 16; // Gap between carousel buttons and images
     const totalHeight = displayCount * cardHeight + (displayCount - 1) * spacing;
-    const baseStartY = Math.max(60, (canvasHeight - totalHeight) / 2);
-    const startX = canvasWidth - horizontalPadding - cardWidth; // Right-aligned
+    
+    // When tables are visible (build mode OFF), position images directly under carousel buttons
+    // Build button: top 24px, height 44px = ends at 68px
+    // Carousel buttons: 2 buttons (44px each) + gap (8px) = 96px total height
+    // Since controls are in a row, carousel buttons are at same top level (24px)
+    // But we want images below the carousel buttons, so calculate from the bottom of carousel area
+    // Carousel buttons bottom: top (24px) + max height (44px for single button, but they're stacked vertically in the row)
+    // Actually, carousel buttons are in a column (flex-direction: column), so they stack vertically
+    // Total carousel height: 44px + 8px + 44px = 96px
+    // Carousel buttons end at: 24px + 96px = 120px
+    const carouselButtonsBottom = controlsTop + carouselButtonHeight + carouselButtonGap + carouselButtonHeight;
+    const baseStartY = isBuildMode 
+      ? Math.max(60, (canvasHeight - totalHeight) / 2) // Center vertically when build mode ON
+      : carouselButtonsBottom + gapBelowCarousel; // Directly under carousel buttons when tables are visible
+    
+    // Position images right-aligned with controls when tables are visible
+    const padding = isBuildMode ? horizontalPadding : controlsRight;
+    const startX = canvasWidth - padding - cardWidth; // Right-aligned with controls when tables are visible
 
     const isAnimating = this.kitchenAnimationState.isAnimating;
     const progress = this.kitchenAnimationState.progress;
@@ -2100,7 +2609,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     if (isAnimating && direction) {
       // During animation, show both old and new items with interpolation
       if (direction === 'next') {
-        // Next animation: first slides out up, second->first, third->second, new slides in from bottom
+        // Next animation: first slides out up, second->first, new slides in from bottom
         // Draw the old first item sliding out (up)
         const oldFirstIndex = this.kitchenStartIndex % totalItems;
         const oldFirstItem = this.kitchenCatalog[oldFirstIndex];
@@ -2115,7 +2624,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
           height: cardHeight,
         });
 
-        // Draw the three visible items moving up
+        // Draw the two visible items moving up
         for (let i = 0; i < displayCount; i++) {
           const newIndex = (this.kitchenAnimationState.targetIndex + i) % totalItems;
           const catalogItem = this.kitchenCatalog[newIndex];
@@ -2126,15 +2635,10 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
             const fromY = baseStartY + slideDistance;
             const toY = baseStartY;
             y = fromY + (toY - fromY) * progress;
-          } else if (i === 1) {
-            // Second position: third item moving up (from position 2 to 1)
+          } else {
+            // Second position: new item sliding in from bottom
             const fromY = baseStartY + 2 * slideDistance;
             const toY = baseStartY + slideDistance;
-            y = fromY + (toY - fromY) * progress;
-          } else {
-            // Third position: new item sliding in from bottom
-            const fromY = baseStartY + 3 * slideDistance;
-            const toY = baseStartY + 2 * slideDistance;
             y = fromY + (toY - fromY) * progress;
           }
 
@@ -2147,22 +2651,22 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
           });
         }
       } else {
-        // Previous animation: third slides out down, second->third, first->second, new slides in from top
-        // Draw the old third item sliding out (down)
-        const oldThirdIndex = (this.kitchenStartIndex + 2) % totalItems;
-        const oldThirdItem = this.kitchenCatalog[oldThirdIndex];
-        const oldThirdFromY = baseStartY + 2 * slideDistance;
-        const oldThirdToY = baseStartY + 3 * slideDistance;
-        const oldThirdY = oldThirdFromY + (oldThirdToY - oldThirdFromY) * progress;
+        // Previous animation: second slides out down, first->second, new slides in from top
+        // Draw the old second item sliding out (down)
+        const oldSecondIndex = (this.kitchenStartIndex + 1) % totalItems;
+        const oldSecondItem = this.kitchenCatalog[oldSecondIndex];
+        const oldSecondFromY = baseStartY + slideDistance;
+        const oldSecondToY = baseStartY + 2 * slideDistance;
+        const oldSecondY = oldSecondFromY + (oldSecondToY - oldSecondFromY) * progress;
         layoutItems.push({
-          ...oldThirdItem,
+          ...oldSecondItem,
           x: startX,
-          y: oldThirdY,
+          y: oldSecondY,
           width: cardWidth,
           height: cardHeight,
         });
 
-        // Draw the three visible items moving down
+        // Draw the two visible items moving down
         for (let i = 0; i < displayCount; i++) {
           const newIndex = (this.kitchenAnimationState.targetIndex + i) % totalItems;
           const catalogItem = this.kitchenCatalog[newIndex];
@@ -2173,15 +2677,10 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
             const fromY = baseStartY - slideDistance;
             const toY = baseStartY;
             y = fromY + (toY - fromY) * progress;
-          } else if (i === 1) {
+          } else {
             // Second position: first item moving down (from position 0 to 1)
             const fromY = baseStartY;
             const toY = baseStartY + slideDistance;
-            y = fromY + (toY - fromY) * progress;
-          } else {
-            // Third position: second item moving down (from position 1 to 2)
-            const fromY = baseStartY + slideDistance;
-            const toY = baseStartY + 2 * slideDistance;
             y = fromY + (toY - fromY) * progress;
           }
 
@@ -2210,117 +2709,10 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       }
     }
 
-    this.kitchenItems = layoutItems;
+    this.kitchenItems.set(layoutItems);
     canvas.style.cursor = 'default';
 
-    // Draw kitchen items (images) instead of tables
-    this.kitchenItems.forEach(item => {
-      const img = this.kitchenImages.get(item.id);
-      const isSelected = this.selectedKitchenItemId() === item.id;
-      
-      const radius = 12;
-        const x = item.x;
-        const y = item.y;
-        const width = item.width;
-      const cardHeight = item.height;
-      const infoPillHeight = 28;
-      const infoPillTopPadding = 20;
-      const infoPillGap = 16;
-      const imageHeight = 200;
-        
-      // Draw card background with light gray
-      this.ctx.shadowColor = 'rgba(0, 0, 0, 0.08)';
-      this.ctx.shadowBlur = 8;
-        this.ctx.shadowOffsetX = 0;
-      this.ctx.shadowOffsetY = 2;
-        
-        this.ctx.beginPath();
-        this.ctx.moveTo(x + radius, y);
-        this.ctx.lineTo(x + width - radius, y);
-        this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-      this.ctx.lineTo(x + width, y + cardHeight - radius);
-      this.ctx.quadraticCurveTo(x + width, y + cardHeight, x + width - radius, y + cardHeight);
-      this.ctx.lineTo(x + radius, y + cardHeight);
-      this.ctx.quadraticCurveTo(x, y + cardHeight, x, y + cardHeight - radius);
-        this.ctx.lineTo(x, y + radius);
-        this.ctx.quadraticCurveTo(x, y, x + radius, y);
-        this.ctx.closePath();
-        
-      // Fill with light gray background
-      this.ctx.fillStyle = '#f3f4f6';
-        this.ctx.fill();
-        
-        // Reset shadow
-        this.ctx.shadowColor = 'transparent';
-        this.ctx.shadowBlur = 0;
-        this.ctx.shadowOffsetX = 0;
-        this.ctx.shadowOffsetY = 0;
-        
-      // Draw info pill
-      const pillText = item.label;
-      this.ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-      const pillPaddingX = 14;
-      const textMetrics = this.ctx.measureText(pillText);
-      const pillWidth = Math.min(width - 32, textMetrics.width + pillPaddingX * 2);
-      const pillX = x + (width - pillWidth) / 2;
-      const pillY = y + infoPillTopPadding;
-      const pillRadius = infoPillHeight / 2;
-
-      this.ctx.fillStyle = '#34d399';
-        this.ctx.beginPath();
-      this.ctx.moveTo(pillX + pillRadius, pillY);
-      this.ctx.lineTo(pillX + pillWidth - pillRadius, pillY);
-      this.ctx.quadraticCurveTo(pillX + pillWidth, pillY, pillX + pillWidth, pillY + pillRadius);
-      this.ctx.lineTo(pillX + pillWidth, pillY + infoPillHeight - pillRadius);
-      this.ctx.quadraticCurveTo(pillX + pillWidth, pillY + infoPillHeight, pillX + pillWidth - pillRadius, pillY + infoPillHeight);
-      this.ctx.lineTo(pillX + pillRadius, pillY + infoPillHeight);
-      this.ctx.quadraticCurveTo(pillX, pillY + infoPillHeight, pillX, pillY + infoPillHeight - pillRadius);
-      this.ctx.lineTo(pillX, pillY + pillRadius);
-      this.ctx.quadraticCurveTo(pillX, pillY, pillX + pillRadius, pillY);
-        this.ctx.closePath();
-      this.ctx.fill();
-        
-      this.ctx.fillStyle = '#0f172a';
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
-      this.ctx.fillText(pillText, pillX + pillWidth / 2, pillY + infoPillHeight / 2);
-
-      const imagePaddingX = 18;
-      const imageX = x + imagePaddingX;
-      const imageWidth = width - imagePaddingX * 2;
-      const imageY = pillY + infoPillHeight + infoPillGap;
-
-      if (img && img.complete) {
-        this.ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight);
-      } else {
-        // Draw placeholder while image loads
-        this.ctx.fillStyle = '#e5e7eb';
-        this.ctx.fillRect(imageX, imageY, imageWidth, imageHeight);
-        this.ctx.fillStyle = '#9ca3af';
-        this.ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText('Loading…', imageX + imageWidth / 2, imageY + imageHeight / 2);
-      }
-        
-        // Draw selection border if selected
-        if (isSelected) {
-          this.ctx.strokeStyle = '#407bff';
-        this.ctx.lineWidth = 2;
-          this.ctx.beginPath();
-          this.ctx.moveTo(x + radius, y);
-          this.ctx.lineTo(x + width - radius, y);
-          this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-        this.ctx.lineTo(x + width, y + cardHeight - radius);
-        this.ctx.quadraticCurveTo(x + width, y + cardHeight, x + width - radius, y + cardHeight);
-        this.ctx.lineTo(x + radius, y + cardHeight);
-        this.ctx.quadraticCurveTo(x, y + cardHeight, x, y + cardHeight - radius);
-          this.ctx.lineTo(x, y + radius);
-          this.ctx.quadraticCurveTo(x, y, x + radius, y);
-          this.ctx.closePath();
-          this.ctx.stroke();
-      }
-    });
+    // Kitchen items are now rendered as HTML elements above canvas, not drawn on canvas
   }
 
   private drawMajorFloor(): void {

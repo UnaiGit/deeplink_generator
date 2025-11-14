@@ -384,32 +384,207 @@ export type { KitchenItem } from '../core/interfaces/kitchen.interface';
 
 /**
  * Get kitchen items for Kitchen Floor
- * Returns kitchen images positioned on the canvas
+ * Returns kitchen images positioned on the canvas with department metadata
+ * Maps 13 kitchen images to 15 kitchen stations/departments
  */
 export function getKitchenFloorItems(): KitchenItem[] {
+  const baseUrl = 'http://localhost:4201/kitchen_data';
+  
   return [
-    { id: 'kitchen-1', label: 'Kitchen Station 1', image: 'http://localhost:4201/kitchen_data/IMG_3794.jpg' },
-    { id: 'kitchen-2', label: 'Kitchen Station 2', image: 'http://localhost:4201/kitchen_data/IMG_3790.jpg' },
-    { id: 'bar', label: 'Bar', image: 'http://localhost:4201/kitchen_data/IMG_3789.jpg' },
-    { id: 'seafood', label: 'Seafood', image: 'http://localhost:4201/kitchen_data/IMG_3787.jpg' },
-    { id: 'pastry', label: 'Pastry', image: 'http://localhost:4201/kitchen_data/IMG_3786.jpg' },
-    { id: 'sushi', label: 'Sushi', image: 'http://localhost:4201/kitchen_data/IMG_3784.jpg' },
-    { id: 'grill', label: 'Grill', image: 'http://localhost:4201/kitchen_data/IMG_3782.jpg' },
-    { id: 'oven', label: 'Oven', image: 'http://localhost:4201/kitchen_data/IMG_3780.jpg' },
-    { id: 'chef', label: 'Chef Station', image: 'http://localhost:4201/kitchen_data/IMG_3778.jpg' },
-    { id: 'prep', label: 'Prep Area', image: 'http://localhost:4201/kitchen_data/IMG_3777.jpg' },
-    { id: 'dessert', label: 'Desserts', image: 'http://localhost:4201/kitchen_data/IMG_3776.jpg' },
-    { id: 'kitchen-3', label: 'Kitchen Station 3', image: 'http://localhost:4201/kitchen_data/IMG_3775.jpg' },
-    { id: 'kitchen-4', label: 'Kitchen Station 4', image: 'http://localhost:4201/kitchen_data/IMG_3773.jpg' },
+    { 
+      id: 'hot-kitchen', 
+      label: 'Hot Kitchen', 
+      image: `${baseUrl}/hot_dep.png`,
+      departmentName: 'Hot Kitchen',
+      emoji: '🍳',
+      preparationTime: 15,
+      currentLoad: 0,
+      assignedEmployees: []
+    },
+    { 
+      id: 'cold-kitchen', 
+      label: 'Cold Kitchen', 
+      image: `${baseUrl}/fresh_dep.png`,
+      departmentName: 'Cold Kitchen',
+      emoji: '🥗',
+      preparationTime: 10,
+      currentLoad: 0,
+      assignedEmployees: []
+    },
+    { 
+      id: 'grill', 
+      label: 'Grill Station', 
+      image: `${baseUrl}/grill_dep.png`,
+      departmentName: 'Grill Station',
+      emoji: '🥩',
+      preparationTime: 20,
+      currentLoad: 0,
+      assignedEmployees: []
+    },
+    { 
+      id: 'seafood', 
+      label: 'Seafood Station', 
+      image: `${baseUrl}/seafood_dep.png`,
+      departmentName: 'Seafood Station',
+      emoji: '🐟',
+      preparationTime: 18,
+      currentLoad: 0,
+      assignedEmployees: []
+    },
+    { 
+      id: 'pasta', 
+      label: 'Pasta Station', 
+      image: `${baseUrl}/pasta_dep.png`,
+      departmentName: 'Pasta Station',
+      emoji: '🍝',
+      preparationTime: 12,
+      currentLoad: 0,
+      assignedEmployees: []
+    },
+    { 
+      id: 'rice', 
+      label: 'Rice Station', 
+      image: `${baseUrl}/rice_dep.png`,
+      departmentName: 'Rice Station',
+      emoji: '🍚',
+      preparationTime: 14,
+      currentLoad: 0,
+      assignedEmployees: []
+    },
+    { 
+      id: 'general', 
+      label: 'General Kitchen', 
+      image: `${baseUrl}/general_dep.png`,
+      departmentName: 'General Kitchen',
+      emoji: '🧂',
+      preparationTime: 13,
+      currentLoad: 0,
+      assignedEmployees: []
+    },
+    { 
+      id: 'fryer', 
+      label: 'Fryer Station', 
+      image: `${baseUrl}/fry_dep.png`,
+      departmentName: 'Fryer Station',
+      emoji: '🍟',
+      preparationTime: 8,
+      currentLoad: 0,
+      assignedEmployees: []
+    },
+    { 
+      id: 'pizza', 
+      label: 'Pizza / Oven Station', 
+      image: `${baseUrl}/pizza_dep.png`,
+      departmentName: 'Pizza / Oven Station',
+      emoji: '🍕',
+      preparationTime: 16,
+      currentLoad: 0,
+      assignedEmployees: []
+    },
+    { 
+      id: 'pastry', 
+      label: 'Pastry & Desserts', 
+      image: `${baseUrl}/desserts_dep.png`,
+      departmentName: 'Pastry & Desserts',
+      emoji: '🍰',
+      preparationTime: 20,
+      currentLoad: 0,
+      assignedEmployees: []
+    },
+    { 
+      id: 'bakery', 
+      label: 'Bakery / Bread Corner', 
+      image: `${baseUrl}/bread_dep.png`,
+      departmentName: 'Bakery / Bread Corner',
+      emoji: '🥖',
+      preparationTime: 25,
+      currentLoad: 0,
+      assignedEmployees: []
+    },
+    { 
+      id: 'sushi', 
+      label: 'Sushi / Asian Corner', 
+      image: `${baseUrl}/sushi_dep.png`,
+      departmentName: 'Sushi / Asian Corner',
+      emoji: '🍣',
+      preparationTime: 22,
+      currentLoad: 0,
+      assignedEmployees: []
+    },
+    { 
+      id: 'barista', 
+      label: 'Drinks / Barista', 
+      image: `${baseUrl}/coffe_dep.png`,
+      departmentName: 'Drinks / Barista',
+      emoji: '☕️',
+      preparationTime: 5,
+      currentLoad: 0,
+      assignedEmployees: []
+    },
+    { 
+      id: 'cocktails', 
+      label: 'Cocktails / Mixology', 
+      image: `${baseUrl}/IMG_3789.jpg`, // Use unique image for cocktails
+      departmentName: 'Cocktails / Mixology',
+      emoji: '🍸',
+      preparationTime: 7,
+      currentLoad: 0,
+      assignedEmployees: []
+    },
+    { 
+      id: 'expedite', 
+      label: 'Expedite / Pass Station', 
+      image: `${baseUrl}/IMG_3778.jpg`, // Use unique image for expedite
+      departmentName: 'Expedite / Pass Station',
+      emoji: '🔔',
+      preparationTime: 3,
+      currentLoad: 0,
+      assignedEmployees: []
+    }
   ];
 }
 
 /**
  * Get tables for Kitchen Floor
- * Returns empty array - kitchen floor uses kitchen items instead
+ * Returns tables for the left side of the kitchen floor
  */
 export function getKitchenFloorTables(): Table[] {
-  return [];
+  const layout: Array<Table> = [];
+  const margin = 80;
+  const horizontalGap = 280;
+  const verticalGap = 60;
+  const maxCanvasHeight = 4000;
+
+  const tableShapes: Array<{ width: number; height: number; seats: number; shape: Table['shape'] }> = [
+    { width: 120, height: 127, seats: 2, shape: 'rectangular' },
+    { width: 150, height: 190, seats: 4, shape: 'rectangular' },
+    { width: 126, height: 283, seats: 6, shape: 'rectangular' },
+    { width: 150, height: 190, seats: 4, shape: 'rectangular' },
+    { width: 126, height: 283, seats: 6, shape: 'rectangular' },
+  ];
+
+  let tableIndex = 0;
+  let currentY = margin;
+
+  for (const shape of tableShapes) {
+    const table: Table = {
+      id: `kitchen-${(tableIndex + 1).toString().padStart(2, '0')}`,
+      label: `T${(tableIndex + 1).toString().padStart(2, '0')}`,
+      status: 'free',
+      width: shape.width,
+      height: shape.height,
+      seats: shape.seats,
+      shape: shape.shape,
+      x: margin,
+      y: currentY,
+    };
+    applyTableMetadata(table, tableIndex);
+    layout.push(table);
+    currentY += shape.height + verticalGap;
+    tableIndex++;
+  }
+
+  return layout;
 }
 
 /**

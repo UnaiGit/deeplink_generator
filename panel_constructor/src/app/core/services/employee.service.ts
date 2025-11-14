@@ -45,5 +45,15 @@ export class EmployeeService {
   getEmployeeById(id: string): Employee | undefined {
     return this.employeesSignal().find(employee => employee.id === id);
   }
+
+  updateEmployee(id: string, updates: Partial<Employee>): void {
+    const employees = this.employeesSignal();
+    const index = employees.findIndex(emp => emp.id === id);
+    if (index !== -1) {
+      const updated = [...employees];
+      updated[index] = { ...updated[index], ...updates };
+      this.employeesSignal.set(updated);
+    }
+  }
 }
 

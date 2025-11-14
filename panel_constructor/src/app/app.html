@@ -7,7 +7,11 @@
         />
          <app-status-legend />
 <div class="floor-area">
-      <app-floor-canvas [floorName]="selectedFloor()"></app-floor-canvas>
+      <app-floor-canvas 
+        [floorName]="selectedFloor()"
+        [showEmployees]="showEmployees()"
+        [showKitchenBuilder]="showKitchenBuilder()">
+      </app-floor-canvas>
   </div>
 
   <div class="footer-cards">
@@ -21,12 +25,12 @@
 </div>
 
 <!-- Notification Bell Icon - Always visible -->
-<button class="notification-bell-button" (click)="onNotificationIconClick()" title="Notifications">
+<!-- <button class="notification-bell-button" (click)="onNotificationIconClick()" title="Notifications">
   <img [src]="bellIcon" alt="Notifications" class="bell-icon-button" />
   @if (notifications().length > 0) {
     <span class="notification-badge">{{ notifications().length }}</span>
   }
-</button>
+</button> -->
 
 @if (showNotifications()) {
   <div class="notifications-sidebar" [attr.data-visible]="showNotifications()" [attr.data-count]="notifications().length">
