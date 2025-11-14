@@ -41,41 +41,56 @@ export class Reportcard implements OnInit, AfterViewInit {
 
   selectedPeriod: string = 'Daily';
 
-  reports: ReportItem[] = [
-    {
-      id: 1,
-      description: 'Improve image of your dishes and make titles more striking',
-      category: 'Marketing',
-      categoryColor: '#28A745',
-      categoryBgColor: '#E6F7ED',
-      thumbnail: '/images/dasproduct.png',
-    },
-    {
-      id: 2,
-      description: 'Improve image of your dishes and make titles more striking',
-      category: 'Finance',
-      categoryColor: '#007BFF',
-      categoryBgColor: '#E0F2F7',
-      thumbnail: '/images/dasproduct.png',
-    },
-    {
-      id: 3,
-      description: 'Improve image of your dishes and make titles more striking',
-      category: 'Feedback',
-      categoryColor: '#FD7E14',
-      categoryBgColor: '#FFF3E0',
-      thumbnail: '/images/dasproduct.png',
-    },
-  ];
+  reports: ReportItem[] = [];
 
   constructor(
     private translate: TranslateService,
     private themeService: ThemeService,
   ) {}
 
+  /**
+   * Get CSS variable value with fallback
+   */
+  private getCssVariable(variable: string, fallback: string = ''): string {
+    if (typeof document === 'undefined') return fallback;
+    const value = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    return value || fallback;
+  }
+
   ngOnInit() {
     this.initializeBarChart();
     this.updateSelectedPeriod();
+    this.updateReportColors();
+  }
+
+  private updateReportColors() {
+    // Update report colors with CSS variables
+    this.reports = [
+    {
+      id: 1,
+      description: 'Improve image of your dishes and make titles more striking',
+      category: 'Marketing',
+        categoryColor: this.getCssVariable('--success-green-alt', '#28A745'),
+        categoryBgColor: this.getCssVariable('--success-bg-light', '#E6F7ED'),
+      thumbnail: '/images/dasproduct.png',
+    },
+    {
+      id: 2,
+      description: 'Improve image of your dishes and make titles more striking',
+      category: 'Finance',
+        categoryColor: this.getCssVariable('--google-blue', '#007BFF'),
+        categoryBgColor: this.getCssVariable('--sky-blue-light-bg', '#E0F2F7'),
+      thumbnail: '/images/dasproduct.png',
+    },
+    {
+      id: 3,
+      description: 'Improve image of your dishes and make titles more striking',
+      category: 'Feedback',
+        categoryColor: this.getCssVariable('--orange', '#FD7E14'),
+        categoryBgColor: this.getCssVariable('--orange-light-bg', '#FFF3E0'),
+      thumbnail: '/images/dasproduct.png',
+    },
+  ];
   }
 
   ngAfterViewInit() {
@@ -107,10 +122,14 @@ export class Reportcard implements OnInit, AfterViewInit {
       patternBlue.setAttribute('patternUnits', 'userSpaceOnUse');
       patternBlue.setAttribute('patternTransform', 'rotate(45)');
 
+      const blueColor = this.getCssVariable('--google-blue', '#4285F4');
+      // Use white overlay with 0.2 opacity for the line
+      const whiteOverlay20 = 'rgba(255, 255, 255, 0.2)';
+
       const rectBlue = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       rectBlue.setAttribute('width', '6');
       rectBlue.setAttribute('height', '6');
-      rectBlue.setAttribute('fill', '#4285F4');
+      rectBlue.setAttribute('fill', blueColor);
       patternBlue.appendChild(rectBlue);
 
       const lineBlue = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -118,7 +137,7 @@ export class Reportcard implements OnInit, AfterViewInit {
       lineBlue.setAttribute('y1', '0');
       lineBlue.setAttribute('x2', '6');
       lineBlue.setAttribute('y2', '6');
-      lineBlue.setAttribute('stroke', 'rgba(255, 255, 255, 0.2)');
+      lineBlue.setAttribute('stroke', whiteOverlay20);
       lineBlue.setAttribute('stroke-width', '0.5');
       patternBlue.appendChild(lineBlue);
 
@@ -134,10 +153,14 @@ export class Reportcard implements OnInit, AfterViewInit {
       patternGrey.setAttribute('patternUnits', 'userSpaceOnUse');
       patternGrey.setAttribute('patternTransform', 'rotate(45)');
 
+      const grayColor = this.getCssVariable('--border-light-gray', '#E0E0E0');
+      // Use overlay with 0.08 opacity for the line
+      const overlayVeryLight08 = 'rgba(0, 0, 0, 0.08)';
+
       const rectGrey = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       rectGrey.setAttribute('width', '6');
       rectGrey.setAttribute('height', '6');
-      rectGrey.setAttribute('fill', '#E0E0E0');
+      rectGrey.setAttribute('fill', grayColor);
       patternGrey.appendChild(rectGrey);
 
       const lineGrey = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -145,7 +168,7 @@ export class Reportcard implements OnInit, AfterViewInit {
       lineGrey.setAttribute('y1', '0');
       lineGrey.setAttribute('x2', '6');
       lineGrey.setAttribute('y2', '6');
-      lineGrey.setAttribute('stroke', 'rgba(0, 0, 0, 0.08)');
+      lineGrey.setAttribute('stroke', overlayVeryLight08);
       lineGrey.setAttribute('stroke-width', '0.5');
       patternGrey.appendChild(lineGrey);
 
@@ -157,11 +180,14 @@ export class Reportcard implements OnInit, AfterViewInit {
       const allBars = svg.querySelectorAll('.apexcharts-bar-series path');
       const activeIndex = 4; // Thursday (5th bar, 0-indexed)
       
+      const blueColor = this.getCssVariable('--google-blue', '#4285F4');
+      const grayColor = this.getCssVariable('--border-light-gray', '#E0E0E0');
+      
       allBars.forEach((bar: any, index: number) => {
         const fillColor = bar.getAttribute('fill');
-        if (fillColor === '#4285F4' || (index === activeIndex && fillColor)) {
+        if (fillColor === blueColor || (index === activeIndex && fillColor)) {
           bar.setAttribute('fill', 'url(#diagonal-stripes-blue)');
-        } else if (fillColor === '#E0E0E0' || fillColor) {
+        } else if (fillColor === grayColor || fillColor) {
           bar.setAttribute('fill', 'url(#diagonal-stripes-grey)');
         }
       });
@@ -173,9 +199,10 @@ export class Reportcard implements OnInit, AfterViewInit {
     const data = [20, 32, 24, 44, 36, 28, 20];
     const activeIndex = 4; // Thursday
 
-    const isDarkMode = this.themeService.isDarkMode;
-    const axisColor = isDarkMode ? '#9ca3af' : '#6B7280';
-    const gridColor = isDarkMode ? '#374151' : '#E0E0E0';
+    const axisColor = this.getCssVariable('--text-color-medium-alt', '#6B7280');
+    const gridColor = this.getCssVariable('--border-light-gray', '#E0E0E0');
+    const blueColor = this.getCssVariable('--google-blue', '#4285F4');
+    const grayColor = this.getCssVariable('--border-light-gray', '#E0E0E0');
 
     this.barChartOptions = {
       series: [
@@ -196,7 +223,7 @@ export class Reportcard implements OnInit, AfterViewInit {
         },
       },
       colors: data.map((_, index) =>
-        index === activeIndex ? '#4285F4' : '#E0E0E0',
+        index === activeIndex ? blueColor : grayColor,
       ),
       plotOptions: {
         bar: {

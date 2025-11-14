@@ -143,7 +143,7 @@
   line-height: 1;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--shadow-light-overlay);
   }
 }
 
@@ -298,7 +298,7 @@ select.form-input {
     background: var(--white);
 
     .allergen-icon {
-      border: 2px solid var(--base-primary, rgba(45, 113, 247, 1));
+      border: 2px solid var(--base-primary);
     }
   }
 }
@@ -332,7 +332,7 @@ select.form-input {
   left: -2px;
   width: 14px;
   height: 14px;
-  background: var(--base-primary, rgba(45, 113, 247, 1));
+  background: var(--base-primary);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -430,9 +430,9 @@ select.form-input {
   }
 
   &.selected {
-    background: #e0f2fe; // Light blue background
-    border: 2px solid #0ea5e9; // Darker blue border
-    padding: 9px 11px; // Adjust for thicker border
+    background: var(--sky-blue-light-bg);
+    border: 2px solid var(--sky-blue);
+    padding: 9px 11px;
   }
 }
 
@@ -440,7 +440,7 @@ select.form-input {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 2px solid #9ca3af; // Light grey border for unselected
+  border: 2px solid var(--gray-500);
   background: transparent;
   transition: all 0.2s ease;
   display: flex;
@@ -449,13 +449,13 @@ select.form-input {
   flex-shrink: 0;
 
   .format-radio-option.selected & {
-    border-color: #0ea5e9; // Blue border when selected
-    background: #0ea5e9; // Blue fill when selected
+    border-color: var(--sky-blue);
+    background: var(--sky-blue);
   }
 
   &.filled {
-    border-color: #0ea5e9;
-    background: #0ea5e9;
+    border-color: var(--sky-blue);
+    background: var(--sky-blue);
   }
 }
 
@@ -597,16 +597,16 @@ select.form-input {
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: var(--base-primary-10, rgba(45, 113, 247, 0.1));
+  background: var(--base-primary-10);
   border: none;
   border-radius: 20px;
   font-size: 14px;
-  color: var(--base-primary, rgba(45, 113, 247, 1));
+  color: var(--base-primary);
   font-weight: 500;
 }
 
 .item-name {
-  color: var(--base-primary, rgba(45, 113, 247, 1));
+  color: var(--base-primary);
 }
 
 .remove-item-button {
@@ -618,7 +618,7 @@ select.form-input {
   background: transparent;
   border: none;
   font-size: 16px;
-  color: var(--base-primary, rgba(45, 113, 247, 1));
+  color: var(--base-primary);
   cursor: pointer;
   border-radius: 50%;
   transition: background-color 0.2s ease;
@@ -627,7 +627,7 @@ select.form-input {
   opacity: 0.9;
 
   &:hover {
-    background: var(--base-primary-10, rgba(45, 113, 247, 0.1));
+    background: var(--base-primary-10);
     opacity: 1;
   }
 }
@@ -664,7 +664,7 @@ select.form-input {
   line-height: 1;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--shadow-light-overlay);
   }
 }
 

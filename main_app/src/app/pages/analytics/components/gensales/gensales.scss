@@ -32,7 +32,7 @@
 }
 
 .sales-icon {
-  background: linear-gradient(180deg, #81aafa 0%, #2d71f7 100%);
+  background: var(--primary-blue-icon-gradient);
 }
 
 .icon-circle svg {
@@ -119,11 +119,11 @@
 }
 
 .sales-stat-indicator.total {
-  background: #2d71f7;
+  background: var(--sky-blue);
 }
 
 .sales-stat-indicator.average {
-  background: #ffbe4c;
+  background: var(--yellow-chart);
 }
 
 .sales-stat-content {
@@ -181,7 +181,7 @@
   font-family: "Manrope", sans-serif;
   font-size: 14px;
   font-weight: 600;
-  color: #2ecc71;
+  color: var(--success-color);
   display: flex;
   align-items: center;
   gap: 0.25rem;

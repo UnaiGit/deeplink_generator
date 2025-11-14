@@ -2,7 +2,7 @@
   background: var(--white);
   border-radius: 20px;
   padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px var(--shadow-light-overlay);
   height: 550px;
   display: flex;
   flex-direction: column;
@@ -29,7 +29,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var(--base-primary, #2d71f7);
+  background: var(--base-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,7 +49,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  background: var(--base-primary, #2d71f7);
+  background: var(--base-primary);
   border: none;
   border-radius: 8px;
   color: var(--white);
@@ -59,7 +59,7 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background: var(--primary-blue-hover-dark, #3d6ce8);
+    background: var(--primary-blue-hover-dark);
   }
 
   svg {
@@ -88,11 +88,11 @@
   }
   
   &::-webkit-scrollbar-thumb {
-    background: var(--gray-400, #ced4da);
+    background: var(--gray-400);
     border-radius: 3px;
     
     &:hover {
-      background: var(--gray-500, #adb5bd);
+      background: var(--gray-500);
     }
   }
 }
@@ -107,7 +107,7 @@
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px var(--shadow-light-overlay);
   }
 }
 
@@ -130,29 +130,29 @@
 
 // Color variants
 .alert-green {
-  background: #ecfdf5;
-  color: #065f46;
+  background: var(--success-bg-light);
+  color: var(--success-text-dark);
 
   .checkmark-icon {
-    color: #10b981;
+    color: var(--icon-green);
   }
 }
 
 .alert-pink {
-  background: #fdf2f8;
-  color: #831843;
+  background: var(--error-bg-light);
+  color: var(--error-text-dark);
 
   .checkmark-icon {
-    color: #ec4899;
+    color: var(--badge-red);
   }
 }
 
 .alert-yellow {
-  background: #fefce8;
-  color: #713f12;
+  background: var(--orange-light-bg);
+  color: var(--text-color-dark);
 
   .checkmark-icon {
-    color: #eab308;
+    color: var(--icon-orange);
   }
 }
 
@@ -177,7 +177,7 @@
 
 .empty-subtitle {
   font-size: 14px;
-  color: var(--text-color-medium, #667085);
+  color: var(--text-color-medium);
   text-align: center;
 }
 

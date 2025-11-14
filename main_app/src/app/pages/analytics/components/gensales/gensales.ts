@@ -58,6 +58,15 @@ export class Gensales implements OnInit {
     });
   }
 
+  /**
+   * Get CSS variable value with fallback
+   */
+  private getCssVariable(variable: string, fallback: string = ''): string {
+    if (typeof document === 'undefined') return fallback;
+    const value = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    return value || fallback;
+  }
+
   private initializeLineChart() {
     const months = [
       this.translate.instant('Jan'),
@@ -68,9 +77,10 @@ export class Gensales implements OnInit {
       this.translate.instant('Jun'),
     ];
 
-    const isDarkMode = this.themeService.isDarkMode;
-    const axisColor = isDarkMode ? '#9ca3af' : '#6B7280';
-    const gridColor = isDarkMode ? '#374151' : '#F3F4F6';
+    const axisColor = this.getCssVariable('--text-color-medium-alt', '#6B7280');
+    const gridColor = this.getCssVariable('--gray-100', '#F3F4F6');
+    const primaryBlue = this.getCssVariable('--primary-blue', '#2D71F7');
+    const white = this.getCssVariable('--white', '#FFFFFF');
 
     // Sales data matching the image: ~45 Jan, ~60 Feb, ~35 Mar, ~70 Apr, ~55 May, ~70 Jun
     const salesData = [45, 60, 35, 70, 55, 70];
@@ -92,7 +102,7 @@ export class Gensales implements OnInit {
           enabled: false,
         },
       },
-      colors: ['#2D71F7'],
+      colors: [primaryBlue],
       stroke: {
         curve: 'smooth',
         width: 3,
@@ -106,8 +116,8 @@ export class Gensales implements OnInit {
           {
             seriesIndex: 0,
             dataPointIndex: 4, // May
-            fillColor: '#2D71F7',
-            strokeColor: '#ffffff',
+            fillColor: primaryBlue,
+            strokeColor: white,
             size: 6,
           },
         ],
@@ -170,17 +180,17 @@ export class Gensales implements OnInit {
             [
               {
                 offset: 0,
-                color: '#2D71F7',
+                color: primaryBlue,
                 opacity: 1,
               },
               {
                 offset: 90.95,
-                color: '#2D71F7',
+                color: primaryBlue,
                 opacity: 0.1,
               },
               {
                 offset: 103.37,
-                color: '#FFFFFF',
+                color: white,
                 opacity: 0.4,
               },
             ],

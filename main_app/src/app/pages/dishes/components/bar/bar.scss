@@ -55,8 +55,8 @@
 
 .capacity-badge {
   padding: 4px 12px;
-  background: #E0F7F4;
-  color: #059669;
+  background: var(--success-bg-light);
+  color: var(--success-green-alt);
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
@@ -80,14 +80,12 @@
 .kitchen-column {
   display: flex;
   flex-direction: column;
-   gap: 10px;
+  gap: 10px;
   background: var(--greyscale-greyscale-25);
   border: 1px solid var(--greyscale-greyscale-50);
   border-radius: 12px;
   padding: 16px;
-  box-shadow:
-    0px 1px 2px 0px rgba(16, 24, 40, 0.06),
-    0px 1px 3px 0px rgba(16, 24, 40, 0.1);
+  box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.06), 0px 1px 3px 0px rgba(16, 24, 40, 0.1);
 }
 
 .column-header {
@@ -174,12 +172,12 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #8b5e1a; // brown tone
+  color: var(--dark-yellow);
   font-size: 14px;
   flex-shrink: 0;
 
   svg {
-    color: #8b5e1a;
+    color: var(--dark-yellow);
     width: 16px;
     height: 16px;
   }
@@ -195,7 +193,7 @@
 .table-number {
   font-size: 16px;
   font-weight: 600;
-  color: #9aa0a6;
+  color: var(--text-color-medium);
   position: relative;
 
   &::after {
@@ -212,8 +210,8 @@
 
 .priority-badge {
   padding: 6px 12px;
-  background: #fde2e7; // light pink
-  color: #e11d48; // rose-600
+  background: var(--error-bg-light);
+  color: var(--danger-color);
   border-radius: 9999px;
   font-size: 13px;
   font-weight: 600;
@@ -232,7 +230,7 @@
   border-left: none;
   border-radius: 0;
   font-size: 16px;
-  color: #8b5e1a;
+  color: var(--dark-yellow);
   line-height: 1.5;
 }
 
@@ -256,14 +254,14 @@
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  
+
   svg {
     width: 18px;
     height: 18px;
   }
 
   &:hover {
-    background: rgba(239, 68, 68, 0.06);
+    background: var(--red-shadow);
     border-color: var(--danger-color);
   }
 }
@@ -327,11 +325,11 @@
 }
 
 .btn-picked {
-  background: #10B981;
+  background: var(--icon-green);
   color: var(--text-color-light) !important;
 
   &:hover {
-    background: #059669;
+    background: var(--success-green-alt);
   }
 }
 
@@ -357,4 +355,3 @@
     flex-wrap: wrap;
   }
 }
-

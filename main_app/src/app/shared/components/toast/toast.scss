@@ -7,28 +7,28 @@
   gap: 12px;
   padding: 12px 16px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px var(--shadow-light-medium);
   z-index: 10000;
   animation: slideInRight 0.3s ease-out;
   min-width: 280px;
   max-width: 400px;
 
   &.success {
-    background: #f0fdf4;
-    border: 1px solid #86efac;
-    color: #166534;
+    background: var(--success-bg-light);
+    border: 1px solid var(--light-green-dot);
+    color: var(--success-text-dark);
   }
 
   &.error {
-    background: #fef2f2;
-    border: 1px solid #fca5a5;
-    color: #991b1b;
+    background: var(--error-bg-light);
+    border: 1px solid var(--badge-red);
+    color: var(--error-text-dark);
   }
 
   &.info {
-    background: #eff6ff;
-    border: 1px solid #93c5fd;
-    color: #1e40af;
+    background: var(--light-blue-bg);
+    border: 1px solid var(--Primary100);
+    color: var(--blue-button);
   }
 }
 

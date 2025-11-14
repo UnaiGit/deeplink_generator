@@ -94,43 +94,47 @@ export class DishModalPanel implements OnInit, OnChanges {
 
   categoryOptions: string[] = ['Meats', 'Seafood', 'Vegetarian', 'Pasta', 'Salads', 'Desserts', 'Beverages'];
 
-  allergens: Allergen[] = [
-    { id: 'lupin', name: 'Altramuces', icon: '🌱', color: '#10b981', selected: false },
-    { id: 'gluten', name: 'Contain Gluten', icon: '🌾', color: '#f59e0b', selected: false },
-    { id: 'pescado', name: 'Pescado', icon: '🐟', color: '#3b82f6', selected: false },
-    { id: 'apio', name: 'Apio', icon: '🥬', color: '#10b981', selected: false },
-    { id: 'grains', name: 'Grains De Sesamo', icon: '🌰', color: '#d97706', selected: false },
-    { id: 'lacteos', name: 'Lácteos', icon: '🥛', color: '#8b5cf6', selected: false },
-    { id: 'crustaceos', name: 'Crustáceos', icon: '🦐', color: '#06b6d4', selected: false },
-    { id: 'molluscs', name: 'Molluscs', icon: '🐚', color: '#f59e0b', selected: false },
-    { id: 'huevos', name: 'Huevos', icon: '🥚', color: '#fbbf24', selected: false },
-    { id: 'soja', name: 'Soja', icon: '🫘', color: '#22c55e', selected: false },
-  ];
+  get allergens(): Allergen[] {
+    return [
+      { id: 'lupin', name: 'Altramuces', icon: '🌱', color: this.getCssVariable('--icon-green'), selected: false },
+      { id: 'gluten', name: 'Contain Gluten', icon: '🌾', color: this.getCssVariable('--icon-orange'), selected: false },
+      { id: 'pescado', name: 'Pescado', icon: '🐟', color: this.getCssVariable('--icon-blue'), selected: false },
+      { id: 'apio', name: 'Apio', icon: '🥬', color: this.getCssVariable('--icon-green'), selected: false },
+      { id: 'grains', name: 'Grains De Sesamo', icon: '🌰', color: this.getCssVariable('--dark-yellow'), selected: false },
+      { id: 'lacteos', name: 'Lácteos', icon: '🥛', color: this.getCssVariable('--purple'), selected: false },
+      { id: 'crustaceos', name: 'Crustáceos', icon: '🦐', color: this.getCssVariable('--cyan'), selected: false },
+      { id: 'molluscs', name: 'Molluscs', icon: '🐚', color: this.getCssVariable('--icon-orange'), selected: false },
+      { id: 'huevos', name: 'Huevos', icon: '🥚', color: this.getCssVariable('--deep-yellow'), selected: false },
+      { id: 'soja', name: 'Soja', icon: '🫘', color: this.getCssVariable('--icon-green'), selected: false },
+    ];
+  }
 
-  extraGroups: ExtraGroup[] = [
-    {
-      name: 'Topping Pizza',
-      color: 'rgba(247, 45, 176, 0.1)', // Pink
-      textColor: 'rgba(247, 45, 176, 1)',
-      extras: [
-        { name: 'Brave Seouce', selected: true },
-        { name: 'Rum Sauce', selected: true },
-        { name: 'Mustard', selected: true },
-        { name: 'Chili', selected: true },
-        { name: 'Ketchup', selected: true },
-      ],
-    },
-    {
-      name: 'Topping Burger',
-      color: 'rgba(245, 224, 66, 0.2)', // Yellow
-      textColor: 'rgba(184, 134, 11, 1)',
-      extras: [
-        { name: 'Aioli', selected: true },
-        { name: 'Cheese', selected: true },
-        { name: 'Smoked Mayonnaise', selected: true },
-      ],
-    },
-  ];
+  get extraGroups(): ExtraGroup[] {
+    return [
+      {
+        name: 'Topping Pizza',
+        color: this.getCssVariable('--error-bg-light'),
+        textColor: this.getCssVariable('--badge-red'),
+        extras: [
+          { name: 'Brave Seouce', selected: true },
+          { name: 'Rum Sauce', selected: true },
+          { name: 'Mustard', selected: true },
+          { name: 'Chili', selected: true },
+          { name: 'Ketchup', selected: true },
+        ],
+      },
+      {
+        name: 'Topping Burger',
+        color: this.getCssVariable('--orange-light-bg'),
+        textColor: this.getCssVariable('--dark-yellow'),
+        extras: [
+          { name: 'Aioli', selected: true },
+          { name: 'Cheese', selected: true },
+          { name: 'Smoked Mayonnaise', selected: true },
+        ],
+      },
+    ];
+  }
 
   availableExtraGroups = [
     { id: '1', name: 'Hamburger Sauces', selected: true },
@@ -201,6 +205,12 @@ export class DishModalPanel implements OnInit, OnChanges {
     } else {
       this.resetForm();
     }
+  }
+
+  private getCssVariable(variable: string, fallback: string = ''): string {
+    if (typeof document === 'undefined') return fallback;
+    const value = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    return value || fallback;
   }
 
   ngOnChanges(): void {

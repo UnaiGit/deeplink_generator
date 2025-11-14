@@ -88,8 +88,8 @@ button[class*='btn-'] {
 .btn-primary {
   background: var(--primary-blue-gradient, linear-gradient(180deg, #578df9 0%, #2d71f7 100%));
   border: 1.5px solid var(--Primary100, rgba(171, 198, 252, 0.5));
-  box-shadow: 0px 2px 4px 0px var(--shadow-medium, rgba(0, 0, 0, 0.2)),
-    0px 0px 1px 0px var(--shadow-light, rgba(0, 0, 0, 0.1)), 1px 1px 1px 1px var(--Primary100) inset;
+  box-shadow: 0px 2px 4px 0px var(--tab-shadow-primary), 0px 0px 1px 0px var(--tab-shadow-secondary),
+    1px 1px 1px 1px var(--Primary100) inset;
   color: var(--text-color-light);
   position: relative;
 
@@ -100,7 +100,7 @@ button[class*='btn-'] {
     inset: 0;
     border-radius: inherit;
     padding: 1.5px;
-    background: linear-gradient(180deg, #abc6fc 0%, #2d71f7 100%);
+    background: var(--primary-blue-gradient-border);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -110,16 +110,16 @@ button[class*='btn-'] {
   }
 
   &:hover:not(:disabled) {
-    background: linear-gradient(180deg, #4a7df8 0%, #1f5ef6 100%);
+    background: var(--primary-blue-gradient-hover);
     transform: translateY(-1px);
-    box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.25), 0px 0px 1px 0px rgba(0, 0, 0, 0.1),
+    box-shadow: 0px 3px 6px 0px var(--shadow-dark), 0px 0px 1px 0px var(--shadow-light-overlay),
       1px 1px 1px 1px var(--Primary100) inset;
   }
 
   &:active:not(:disabled) {
     transform: translateY(0);
-    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.2), 0px 0px 1px 0px rgba(0, 0, 0, 0.1),
-      1px 1px 1px 1px var(--Primary100) inset;
+    box-shadow: 0px 1px 2px 0px var(--tab-shadow-primary),
+      0px 0px 1px 0px var(--tab-shadow-secondary), 1px 1px 1px 1px var(--Primary100) inset;
   }
 }
 
@@ -129,7 +129,7 @@ button[class*='btn-'] {
   color: var(--text-gray-dark);
   border: 1px solid var(--border-light-gray);
   border-image: none;
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 1px 2px var(--shadow-light-overlay);
 
   &:hover:not(:disabled) {
     background: var(--gray-100);
@@ -143,7 +143,7 @@ button[class*='btn-'] {
   color: var(--text-color-light);
   border: 1.5px solid var(--danger-color);
   border-image: none;
-  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2), 0px 0px 1px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 2px 4px 0px var(--tab-shadow-primary), 0px 0px 1px 0px var(--tab-shadow-secondary);
 
   &:hover:not(:disabled) {
     background: var(--danger-hover);
@@ -153,15 +153,15 @@ button[class*='btn-'] {
 
 // Success variant
 .btn-success {
-  background: #10b981;
+  background: var(--icon-green);
   color: var(--text-color-light);
-  border: 1.5px solid #10b981;
+  border: 1.5px solid var(--icon-green);
   border-image: none;
-  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2), 0px 0px 1px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 2px 4px 0px var(--tab-shadow-primary), 0px 0px 1px 0px var(--tab-shadow-secondary);
 
   &:hover:not(:disabled) {
-    background: #059669;
-    border-color: #059669;
+    background: var(--success-green-alt);
+    border-color: var(--success-green-alt);
   }
 }
 

@@ -29,9 +29,9 @@
   border: 2px solid transparent;
   padding: 10px 16px;
   border-radius: 20px;
-  background: var(--gray-100, #f8f9fa);
+  background: var(--gray-100);
   cursor: pointer;
-  color: var(--text-color-dark, #333843);
+  color: var(--text-color-dark);
   transition: all 0.3s ease;
   flex-shrink: 0;
   white-space: nowrap;
@@ -41,7 +41,7 @@
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 2px 6px var(--shadow-light-overlay, rgba(0, 0, 0, 0.15));
+    box-shadow: 0 2px 6px var(--shadow-light-medium);
   }
 
   &:active {
@@ -59,7 +59,7 @@
   flex-shrink: 0;
 
   &.has-icon {
-    background: var(--primary-blue, #2d71f7);
+    background: var(--primary-blue);
   }
 
   img {
@@ -78,75 +78,75 @@
 
 .table-number {
   font-weight: 600;
-  color: var(--text-color-dark, #333843);
+  color: var(--text-color-dark);
 }
 
 .table-separator {
-  color: var(--text-color-medium, #667085);
+  color: var(--text-color-medium);
   font-size: 12px;
 }
 
 .table-clients {
-  color: var(--text-color-medium, #667085);
+  color: var(--text-color-medium);
   font-weight: 400;
 }
 
 // Color variants
 .table-pill.color-blue {
-  background: var(--sky-blue-light-bg, #e0f2fe);
-  border: 2px solid var(--sky-blue, #0ea5e9);
+  background: var(--sky-blue-light-bg);
+  border: 2px solid var(--sky-blue);
 
   .table-icon {
-    background: var(--sky-blue, #0ea5e9);
+    background: var(--sky-blue);
   }
 
   &.active {
-    box-shadow: 0 2px 8px var(--sky-blue-shadow, rgba(14, 165, 233, 0.2));
-    border-color: var(--sky-blue, #0ea5e9);
+    box-shadow: 0 2px 8px var(--sky-blue-shadow);
+    border-color: var(--sky-blue);
   }
 
   &:not(.active) {
-    border-color: var(--sky-blue, #0ea5e9);
+    border-color: var(--sky-blue);
     opacity: 0.7;
   }
 }
 
 .table-pill.color-green {
-  background: var(--success-bg-light, #ecfdf5);
-  border: 2px solid var(--success-green, #2ecc71);
+  background: var(--success-bg-light);
+  border: 2px solid var(--success-green);
 
   .table-icon {
-    background: var(--success-green, #2ecc71);
+    background: var(--success-green);
   }
 
   &.active {
-    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.2);
-    border-color: var(--success-green, #2ecc71);
+    box-shadow: 0 2px 8px var(--success-green-opaque-20);
+    border-color: var(--success-green);
     opacity: 1;
   }
 
   &:not(.active) {
-    border-color: var(--success-green, #2ecc71);
+    border-color: var(--success-green);
     opacity: 0.7;
   }
 }
 
 .table-pill.color-orange {
-  background: var(--orange-light-bg, #fff7ed);
-  border: 2px solid var(--orange, #e9380b);
+  background: var(--orange-light-bg);
+  border: 2px solid var(--orange);
 
   .table-icon {
-    background: var(--orange, #e9380b);
+    background: var(--orange);
   }
 
   &.active {
-    box-shadow: 0 2px 8px rgba(233, 56, 11, 0.2);
-    border-color: var(--orange, #e9380b);
+    box-shadow: 0 2px 8px var(--overlay-light);
+    border-color: var(--orange);
     opacity: 1;
   }
 
   &:not(.active) {
-    border-color: var(--orange, #e9380b);
+    border-color: var(--orange);
     opacity: 0.7;
   }
 }
@@ -156,7 +156,7 @@
   border: 2px solid rgba(255, 105, 180, 0.5);
 
   .table-icon {
-    background: var(--danger-color, #ef4444);
+    background: var(--danger-color);
   }
 
   &.active {
@@ -241,16 +241,16 @@
 // Dark mode support
 [data-theme='dark'] {
   .table-pill {
-    background: var(--gray-100, #374151);
-    color: var(--text-color-dark, #f3f4f6);
+    background: var(--gray-100);
+    color: var(--text-color-dark);
 
     .table-number {
-      color: var(--text-color-dark, #f3f4f6);
+      color: var(--text-color-dark);
     }
 
     .table-separator,
     .table-clients {
-      color: var(--text-color-medium, #9ca3af);
+      color: var(--text-color-medium);
     }
   }
 }

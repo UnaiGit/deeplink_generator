@@ -56,6 +56,15 @@ export class Taxes implements OnInit {
     });
   }
 
+  /**
+   * Get CSS variable value with fallback
+   */
+  private getCssVariable(variable: string, fallback: string = ''): string {
+    if (typeof document === 'undefined') return fallback;
+    const value = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    return value || fallback;
+  }
+
   private initializeLineChart() {
     const months = [
       this.translate.instant('Jan'),
@@ -66,9 +75,12 @@ export class Taxes implements OnInit {
       this.translate.instant('Jun'),
     ];
 
-    const isDarkMode = this.themeService.isDarkMode;
-    const axisColor = isDarkMode ? '#9ca3af' : '#6B7280';
-    const gridColor = isDarkMode ? '#374151' : '#F3F4F6';
+    const axisColor = this.getCssVariable('--text-color-medium-alt', '#6B7280');
+    const gridColor = this.getCssVariable('--gray-100', '#F3F4F6');
+    const successGreen = this.getCssVariable('--success-green', '#2ecc71');
+    const red = this.getCssVariable('--red', '#dc3545');
+    const primaryBlue = this.getCssVariable('--primary-blue', '#2D71F7');
+    const white = this.getCssVariable('--white', '#FFFFFF');
 
     // Benefit data (green line) and Tribute data (red line)
     const benefitData = [60, 70, 65, 80, 120, 90];
@@ -95,7 +107,7 @@ export class Taxes implements OnInit {
           enabled: false,
         },
       },
-      colors: ['#2ecc71', '#dc3545'],
+      colors: [successGreen, red],
       stroke: {
         curve: 'smooth',
         width: 3,
@@ -109,8 +121,8 @@ export class Taxes implements OnInit {
           {
             seriesIndex: 0,
             dataPointIndex: 4, // May
-            fillColor: '#2D71F7',
-            strokeColor: '#ffffff',
+            fillColor: primaryBlue,
+            strokeColor: white,
             size: 6,
           },
         ],
@@ -172,34 +184,34 @@ export class Taxes implements OnInit {
             [
               {
                 offset: 0,
-                color: '#2ecc71',
+                color: successGreen,
                 opacity: 1,
               },
               {
                 offset: 90.95,
-                color: '#2ecc71',
+                color: successGreen,
                 opacity: 0.1,
               },
               {
                 offset: 103.37,
-                color: '#FFFFFF',
+                color: white,
                 opacity: 0.4,
               },
             ],
             [
               {
                 offset: 0,
-                color: '#dc3545',
+                color: red,
                 opacity: 1,
               },
               {
                 offset: 90.95,
-                color: '#dc3545',
+                color: red,
                 opacity: 0.1,
               },
               {
                 offset: 103.37,
-                color: '#FFFFFF',
+                color: white,
                 opacity: 0.4,
               },
             ],

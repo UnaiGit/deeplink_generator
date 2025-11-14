@@ -122,10 +122,11 @@
 .dept-badge {
   padding: 4px 12px;
   background: #e0f7f4;
-  color: #059669;
+
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
+  color: var(--success-teal);
 }
 
 .card-body {
@@ -368,8 +369,8 @@
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: var(--icon-blue);
+    box-shadow: 0 0 0 3px var(--blue-button-shadow);
   }
 }
 
@@ -413,7 +414,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px var(--shadow-light-overlay);
   z-index: 10;
 }
 
@@ -472,8 +473,8 @@
 .btn-save {
   width: 100%;
   padding: 14px;
-  background: #3b82f6;
-  color: white;
+  background: var(--icon-blue);
+  color: var(--white);
   border: none;
   border-radius: 8px;
   font-size: 16px;
@@ -482,7 +483,7 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background: #2563eb;
+    background: var(--blue-button-hover);
   }
 
   &:disabled {
