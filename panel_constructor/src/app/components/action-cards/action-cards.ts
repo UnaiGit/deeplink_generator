@@ -19,7 +19,7 @@ export interface ActionCardClickContext {
   styleUrl: './action-cards.scss',
 })
 export class ActionCards {
-  buildClick = output<void>();
+  buildClick = output<ActionCardClickContext>();
   employeesClick = output<ActionCardClickContext>();
   floorsClick = output<ActionCardClickContext>();
 
@@ -30,7 +30,7 @@ export class ActionCards {
     switch (cardId) {
       case 'build':
         console.log('Build button is clicked');
-        this.buildClick.emit();
+        this.buildClick.emit(this.getClickContext(event));
         break;
       case 'employees':
         console.log('Employees button is clicked');
@@ -55,7 +55,7 @@ export class ActionCards {
     }
     const rect = target.getBoundingClientRect();
     return {
-      x: rect.left + rect.width / 2,
+      x: rect.left,
       y: rect.top,
       width: rect.width,
       height: rect.height,

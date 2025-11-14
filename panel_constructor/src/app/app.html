@@ -12,7 +12,7 @@
 
   <div class="footer-cards">
     <app-action-cards 
-      (buildClick)="onBuildClick()" 
+      (buildClick)="onBuildClick($event)" 
       (employeesClick)="onEmployeesClick($event)"
       (floorsClick)="onFloorsClick($event)">
     </app-action-cards>
@@ -54,6 +54,14 @@
   (close)="onCloseFloors()"
   (floorSelect)="onFloorChange($event)">
 </app-floors>
+
+<app-kitchen-builder
+  [isOpen]="showKitchenBuilder()"
+  [items]="kitchenItems()"
+  [anchor]="kitchenBuilderAnchor()"
+  (close)="onCloseKitchenBuilder()"
+  (save)="onSaveKitchenBuilder()">
+</app-kitchen-builder>
 
 <app-toast
   [toast]="toastService.toast()"

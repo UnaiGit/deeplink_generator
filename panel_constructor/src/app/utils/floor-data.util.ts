@@ -388,8 +388,10 @@ export type { KitchenItem } from '../core/interfaces/kitchen.interface';
  */
 export function getKitchenFloorItems(): KitchenItem[] {
   return [
-    { id: 'seafood', label: 'Seafood', image: 'http://localhost:4201/kitchen_data/IMG_3787.jpg' },
+    { id: 'kitchen-1', label: 'Kitchen Station 1', image: 'http://localhost:4201/kitchen_data/IMG_3794.jpg' },
+    { id: 'kitchen-2', label: 'Kitchen Station 2', image: 'http://localhost:4201/kitchen_data/IMG_3790.jpg' },
     { id: 'bar', label: 'Bar', image: 'http://localhost:4201/kitchen_data/IMG_3789.jpg' },
+    { id: 'seafood', label: 'Seafood', image: 'http://localhost:4201/kitchen_data/IMG_3787.jpg' },
     { id: 'pastry', label: 'Pastry', image: 'http://localhost:4201/kitchen_data/IMG_3786.jpg' },
     { id: 'sushi', label: 'Sushi', image: 'http://localhost:4201/kitchen_data/IMG_3784.jpg' },
     { id: 'grill', label: 'Grill', image: 'http://localhost:4201/kitchen_data/IMG_3782.jpg' },
@@ -397,6 +399,8 @@ export function getKitchenFloorItems(): KitchenItem[] {
     { id: 'chef', label: 'Chef Station', image: 'http://localhost:4201/kitchen_data/IMG_3778.jpg' },
     { id: 'prep', label: 'Prep Area', image: 'http://localhost:4201/kitchen_data/IMG_3777.jpg' },
     { id: 'dessert', label: 'Desserts', image: 'http://localhost:4201/kitchen_data/IMG_3776.jpg' },
+    { id: 'kitchen-3', label: 'Kitchen Station 3', image: 'http://localhost:4201/kitchen_data/IMG_3775.jpg' },
+    { id: 'kitchen-4', label: 'Kitchen Station 4', image: 'http://localhost:4201/kitchen_data/IMG_3773.jpg' },
   ];
 }
 
