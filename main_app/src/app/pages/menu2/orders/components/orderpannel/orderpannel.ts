@@ -48,6 +48,7 @@ export class Orderpannel implements OnInit, OnChanges {
 
   couponCode = '';
   selectedClient: string = 'all';
+  selectedClients: Set<string> = new Set(['all']); // Multiple client selection
   selectAllItems = false;
   selectedItems: Set<number | string> = new Set();
   orderState: 'draft' | 'placed' | 'sent-to-kitchen' | 'in-service' = 'draft';
@@ -63,10 +64,26 @@ export class Orderpannel implements OnInit, OnChanges {
     // Initialize clients if not provided
     if (this.clients.length === 0) {
       this.clients = [
-        { id: 'kim', name: 'Kim' },
-        { id: 'alex', name: 'Alex' },
-        { id: 'naomi', name: 'Naomi' },
-        { id: 'john', name: 'John' },
+        { 
+          id: 'kim', 
+          name: 'Kim',
+          avatar: '/images/avatar.png'
+        },
+        { 
+          id: 'alex', 
+          name: 'Alex',
+          avatar: '/images/avatar1.png'
+        },
+        { 
+          id: 'naomi', 
+          name: 'Naomi',
+          avatar: '/images/avatar2.png'
+        },
+        { 
+          id: 'john', 
+          name: 'John',
+          avatar: '/images/avatar3.png'
+        },
       ];
     }
   }
@@ -281,8 +298,39 @@ export class Orderpannel implements OnInit, OnChanges {
   }
 
   onClientSelect(clientId: string): void {
-    this.selectedClient = clientId;
-    this.clientSelected.emit(clientId);
+    // Handle "all" selection
+    if (clientId === 'all') {
+      if (this.selectedClients.has('all')) {
+        // If "all" is already selected, deselect it and select all clients
+        this.selectedClients.clear();
+        this.clients.forEach(client => this.selectedClients.add(client.id));
+      } else {
+        // Select "all" and deselect individual clients
+        this.selectedClients.clear();
+        this.selectedClients.add('all');
+      }
+    } else {
+      // Handle individual client selection
+      if (this.selectedClients.has(clientId)) {
+        this.selectedClients.delete(clientId);
+      } else {
+        this.selectedClients.delete('all'); // Remove "all" when selecting individual client
+        this.selectedClients.add(clientId);
+      }
+      
+      // If no clients selected, select "all" by default
+      if (this.selectedClients.size === 0) {
+        this.selectedClients.add('all');
+      }
+    }
+    
+    // Update selectedClient for backward compatibility
+    this.selectedClient = this.selectedClients.has('all') ? 'all' : Array.from(this.selectedClients)[0];
+    this.clientSelected.emit(Array.from(this.selectedClients).join(','));
+  }
+
+  isClientSelected(clientId: string): boolean {
+    return this.selectedClients.has(clientId);
   }
 
   onSelectAllChange(checked: boolean): void {

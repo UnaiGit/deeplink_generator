@@ -6,6 +6,11 @@ import { CategoryFilterComponent } from '../../../shared/components/category-fil
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card';
 import { Orderpannel } from './components/orderpannel/orderpannel';
 import { UnsyncedModalComponent } from './components/unsynced-modal/unsynced-modal';
+import { 
+  ProductDetailModalComponent, 
+  ProductDetailData, 
+  ProductDetailResult 
+} from './components/product-detail-modal/product-detail-modal';
 import { store, selectCartState, selectTableCart } from '../../../store/store';
 import { 
   addToCart as addToCartAction, 
@@ -36,6 +41,7 @@ export interface Product {
     ProductCardComponent,
     Orderpannel,
     UnsyncedModalComponent,
+    ProductDetailModalComponent,
   ],
   templateUrl: './orders.html',
   styleUrl: './orders.scss',
@@ -53,6 +59,10 @@ export class Orders implements OnInit, OnDestroy {
   showPanel = false;
   showUnsyncedModal = false;
   pendingTableSwitch: string | number | null = null;
+  
+  // Product Detail Modal
+  showProductModal = false;
+  selectedProductData: ProductDetailData | null = null;
 
   // Categories
   categories = ['Foods', 'Desserts', 'Drinks'];
@@ -373,6 +383,56 @@ export class Orders implements OnInit, OnDestroy {
 
   onRemoveFromOrder(): void {
     // When items are removed, check if cart is empty and reset state
+    this.updateCartForTable();
+  }
+
+  // Product Detail Modal Methods
+  onProductZoom(product: Product): void {
+    this.openProductModal(product);
+  }
+
+  openProductModal(product: Product): void {
+    this.selectedProductData = {
+      id: product.id.toString(),
+      name: product.title,
+      image: product.image,
+      category: product.category,
+      basePrice: product.price,
+      variants: [
+        { id: 'regular', name: 'Regular', price: 0, isIncluded: true },
+        { id: 'large', name: 'Large', price: 0.50, isIncluded: false }
+      ],
+      sauces: [
+        { id: 'tomato', name: 'Tomato', price: 0, isIncluded: true },
+        { id: 'arrabiata', name: 'Arrabiata (spicy)', price: 0.50, isIncluded: false }
+      ],
+      toppings: [
+        { id: 'cheese', name: 'Extra Cheese', price: 0, isIncluded: true },
+        { id: 'mushroom', name: 'Mushroom', price: 0.50, isIncluded: false },
+        { id: 'olives', name: 'Olives', price: 0.50, isIncluded: false }
+      ],
+      maxToppings: 3
+    };
+    this.showProductModal = true;
+  }
+
+  onProductModalClose(): void {
+    this.showProductModal = false;
+    this.selectedProductData = null;
+  }
+
+  onProductModalAddToCart(result: ProductDetailResult): void {
+    // Add product to cart with the selected options
+    store.dispatch(addToCartAction({ 
+      id: parseInt(result.productId), 
+      name: this.selectedProductData?.name || '', 
+      image: this.selectedProductData?.image || '', 
+      price: result.totalPrice / result.quantity, 
+      quantity: result.quantity,
+      tableId: this.activeTable 
+    }));
+    
+    // Update the local cart reference
     this.updateCartForTable();
   }
 }

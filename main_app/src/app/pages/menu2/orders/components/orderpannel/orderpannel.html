@@ -35,7 +35,7 @@
             <button
                 type="button"
                 class="client-btn"
-                [class.active]="selectedClient === 'all'"
+                [class.active]="isClientSelected('all')"
                 (click)="onClientSelect('all')">
                 {{ 'All' | translate }}
             </button>
@@ -43,11 +43,11 @@
                 *ngFor="let client of clients"
                 type="button"
                 class="client-btn"
-                [class.active]="selectedClient === client.id"
+                [class.active]="isClientSelected(client.id)"
                 (click)="onClientSelect(client.id)">
                 <img *ngIf="client.avatar" [src]="client.avatar"
                     [alt]="client.name" class="client-avatar" />
-                <span>{{ client.name }}</span>
+                {{ client.name }}
             </button>
         </div>
 

@@ -68,8 +68,8 @@ export class SpecialChargeModalComponent implements OnInit {
     customClass: 'special-charge-modal'
   };
 
-  // Client selection
-  selectedClientFilter: string = 'all';
+  // Client selection (multiple)
+  selectedClientFilter: Set<string> = new Set(['all']);
   
   // Mode
   mode: 'individual' | 'company' = 'individual';
@@ -110,15 +110,69 @@ export class SpecialChargeModalComponent implements OnInit {
         this.selectedPayers.add(this.specialChargeData.clients[0].id);
         this.selectedPayers.add(this.specialChargeData.clients[1].id);
       }
+      
+      // Validate split on initialization
+      this.validateSplit();
     }
   }
 
   onClientFilterClick(clientId: string): void {
-    this.selectedClientFilter = clientId;
+    // Handle "all" selection
+    if (clientId === 'all') {
+      if (this.selectedClientFilter.has('all')) {
+        // If "all" is already selected, deselect it and select all clients
+        this.selectedClientFilter.clear();
+        this.specialChargeData?.clients?.forEach(client => this.selectedClientFilter.add(client.id));
+      } else {
+        // Select "all" and deselect individual clients
+        this.selectedClientFilter.clear();
+        this.selectedClientFilter.add('all');
+      }
+    } else {
+      // Handle individual client selection
+      if (this.selectedClientFilter.has(clientId)) {
+        this.selectedClientFilter.delete(clientId);
+      } else {
+        this.selectedClientFilter.delete('all'); // Remove "all" when selecting individual client
+        this.selectedClientFilter.add(clientId);
+      }
+      
+      // If no clients selected, select "all" by default
+      if (this.selectedClientFilter.size === 0) {
+        this.selectedClientFilter.add('all');
+      }
+    }
   }
 
-  onModeToggle(newMode: 'individual' | 'company'): void {
-    this.mode = newMode;
+  isClientFilterSelected(clientId: string): boolean {
+    return this.selectedClientFilter.has(clientId);
+  }
+
+  getSelectedClients(): Client[] {
+    if (!this.specialChargeData?.clients) return [];
+    
+    // If "all" is selected, don't show per-person coupons
+    if (this.selectedClientFilter.has('all')) {
+      return [];
+    }
+    
+    // Only return individually selected clients
+    return this.specialChargeData.clients.filter(client => 
+      this.selectedClientFilter.has(client.id)
+    );
+  }
+
+  getPayerClients(): Client[] {
+    if (!this.specialChargeData?.clients) return [];
+    
+    // Return clients based on selected payers
+    return this.specialChargeData.clients.filter(client => 
+      this.selectedPayers.has(client.id)
+    );
+  }
+
+  onModeToggle(): void {
+    this.mode = this.mode === 'individual' ? 'company' : 'individual';
   }
 
   onPayerToggle(clientId: string): void {
@@ -138,8 +192,14 @@ export class SpecialChargeModalComponent implements OnInit {
   validateSplit(): void {
     this.splitError = '';
     
-    if (this.splitType === '50-50' && this.selectedPayers.size !== 2) {
-      this.splitError = `Split mismatch. For 50/50 select exactly 2 payers. For Divide N, select N payers or adjust N.`;
+    if (this.splitType === '50-50') {
+      if (this.selectedPayers.size !== 2) {
+        this.splitError = `Split mismatch. For 50/50 select exactly 2 payers. For Divide N, select N payers or adjust N.`;
+      }
+    } else if (this.splitType === 'divide-between') {
+      if (this.selectedPayers.size < 2) {
+        this.splitError = `Split mismatch. For 50/50 select exactly 2 payers. For Divide N, select N payers or adjust N.`;
+      }
     }
   }
 
