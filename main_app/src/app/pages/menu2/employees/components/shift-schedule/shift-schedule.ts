@@ -53,26 +53,30 @@ export class ShiftSchedule implements OnInit, OnDestroy {
   constructor(private translate: TranslateService) {}
   
   // Role color mapping matching the design
-  roleColors: { [key: string]: string } = {
-    'Kitchen': '#2d71f7',      // Blue
-    'Clients': '#40c4aa',      // Teal
-    'Management': '#ffbe4c',   // Orange
-    'Not working': '#9ca3af',  // Grey
-    // Fallback for existing roles
-    'Waiter': '#40c4aa',      // Teal (Clients)
-    'Cooking': '#2d71f7',      // Blue (Kitchen)
-    'Delivery': '#40c4aa',     // Teal (Clients)
-    'Cashier': '#ffbe4c',     // Orange
-    'Manager': '#ffbe4c',     // Orange (Management)
-  };
+  get roleColors(): { [key: string]: string } {
+    return {
+      'Kitchen': this.getCssVariable('--primary-blue'),
+      'Clients': this.getCssVariable('--success-teal'),
+      'Management': this.getCssVariable('--yellow-chart'),
+      'Not working': this.getCssVariable('--gray-500'),
+      // Fallback for existing roles
+      'Waiter': this.getCssVariable('--success-teal'),
+      'Cooking': this.getCssVariable('--primary-blue'),
+      'Delivery': this.getCssVariable('--success-teal'),
+      'Cashier': this.getCssVariable('--yellow-chart'),
+      'Manager': this.getCssVariable('--yellow-chart'),
+    };
+  }
 
   // Role labels for legend
-  roleLabels = [
-    { name: 'Kitchen', color: '#2d71f7' },
-    { name: 'Clients', color: '#40c4aa' },
-    { name: 'Management', color: '#ffbe4c' },
-    { name: 'Not working', color: '#9ca3af' }
-  ];
+  get roleLabels() {
+    return [
+      { name: 'Kitchen', color: this.getCssVariable('--primary-blue') },
+      { name: 'Clients', color: this.getCssVariable('--success-teal') },
+      { name: 'Management', color: this.getCssVariable('--yellow-chart') },
+      { name: 'Not working', color: this.getCssVariable('--gray-500') }
+    ];
+  }
 
   // Generate performance metrics for shifts
   getPerformanceMetrics(role: string): { primary: string; secondary: string } {
@@ -203,7 +207,13 @@ export class ShiftSchedule implements OnInit, OnDestroy {
   }
 
   getRoleColor(role: string): string {
-    return this.roleColors[role] || '#2d71f7';
+    return this.roleColors[role] || this.getCssVariable('--primary-blue');
+  }
+
+  private getCssVariable(variable: string, fallback: string = ''): string {
+    if (typeof document === 'undefined') return fallback;
+    const value = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    return value || fallback;
   }
 
   getShiftsForEmployeeAndTime(employeeName: string, timeSlot: string): CalendarSchedulerEvent[] {

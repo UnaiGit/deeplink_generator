@@ -89,7 +89,7 @@ export class Chart implements OnInit {
     const labels = [this.translate.instant('Starters'), this.translate.instant('First course'), this.translate.instant('Desserts')];
 
     const isDarkMode = this.themeService.isDarkMode;
-    const textColor = isDarkMode ? '#f3f4f6' : '#333333';
+    const textColor = isDarkMode ? this.getCssVariable('--text-color-light') : this.getCssVariable('--text-color-dark');
 
     this.donutChartOptions = {
       series: [8, 6, 3],
@@ -102,7 +102,7 @@ export class Chart implements OnInit {
         },
       },
       labels: labels,
-      colors: ['#2D71F7', '#40C4AA', '#81AAFA'],
+      colors: [this.getCssVariable('--primary-blue'), this.getCssVariable('--success-teal'), this.getCssVariable('--primary-blue-light')],
       legend: {
         position: 'right',
         fontSize: '16px',
@@ -194,8 +194,8 @@ export class Chart implements OnInit {
     ];
 
     const isDarkMode = this.themeService.isDarkMode;
-    const axisColor = isDarkMode ? '#9ca3af' : '#6B7280';
-    const gridColor = isDarkMode ? '#374151' : '#F3F4F6';
+    const axisColor = isDarkMode ? this.getCssVariable('--gray-500') : this.getCssVariable('--text-gray-medium-alt');
+    const gridColor = isDarkMode ? this.getCssVariable('--gray-700') : this.getCssVariable('--gray-150');
 
     this.lineChartOptions = {
       series: [
@@ -218,7 +218,7 @@ export class Chart implements OnInit {
           enabled: false,
         },
       },
-      colors: ['#2D71F7', '#FFBE4C'],
+      colors: [this.getCssVariable('--primary-blue'), this.getCssVariable('--yellow-chart')],
       stroke: {
         curve: 'smooth',
         width: 3,
@@ -286,34 +286,34 @@ export class Chart implements OnInit {
             [
               {
                 offset: 0,
-                color: '#2D71F7',
+                color: this.getCssVariable('--primary-blue'),
                 opacity: 1,
               },
               {
                 offset: 90.95,
-                color: '#2D71F7',
+                color: this.getCssVariable('--primary-blue'),
                 opacity: 0.1,
               },
               {
                 offset: 103.37,
-                color: '#FFFFFF',
+                color: this.getCssVariable('--white'),
                 opacity: 0.4,
               },
             ],
             [
               {
                 offset: 0,
-                color: '#FFBE4C',
+                color: this.getCssVariable('--yellow-chart'),
                 opacity: 1,
               },
               {
                 offset: 90.95,
-                color: '#FFBE4C',
+                color: this.getCssVariable('--yellow-chart'),
                 opacity: 0.1,
               },
               {
                 offset: 103.37,
-                color: '#FFFFFF',
+                color: this.getCssVariable('--white'),
                 opacity: 0.4,
               },
             ],
@@ -349,5 +349,11 @@ export class Chart implements OnInit {
   onPeriodChange(period: string) {
     this.selectedPeriod = period;
     // You can update chart data here based on selected period
+  }
+
+  private getCssVariable(variable: string, fallback: string = ''): string {
+    if (typeof document === 'undefined') return fallback;
+    const value = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    return value || fallback;
   }
 }

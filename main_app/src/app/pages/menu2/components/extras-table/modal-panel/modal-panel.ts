@@ -5,8 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { ModalMode } from '@/types/menu2/modes.type';
 
 import { Allergen, Ingredient } from '@/types/interfaces/menu2/modals';
-import { BaseModalComponent } from '../../../../../shared/components/modal/base-modal';
-import { ModalConfig } from '../../../../../shared/components/modal/modal-config.type';
+import { BaseModalComponent } from '@/app/shared/components/modal/base-modal';
+import { ModalConfig } from '@/app/shared/components/modal/modal-config.type';
 
 @Component({
   selector: 'app-extras-modal-panel',
@@ -57,21 +57,23 @@ export class ExtrasModalPanel implements OnInit, OnChanges {
   formatOptions: string[] = ['Multiselector', 'Single Selector', 'Text Input', 'Number Input'];
   categoryOptions: string[] = ['Meals', 'Drinks', 'Desserts', 'Sauces', 'Sides'];
 
-  allergens: Allergen[] = [
-    { id: 'lupin', name: 'Altramuces (Lupin)', icon: '✓', color: '#3b82f6', selected: false },
-    { id: 'gluten', name: 'Contiene Gluten (Gluten)', icon: '🌾', color: '#f97316', selected: false },
-    { id: 'fish', name: 'Pescado (Fish)', icon: '🐟', color: '#3b82f6', selected: false },
-    { id: 'celery', name: 'Apio (Celery)', icon: '🥬', color: '#22c55e', selected: false },
-    { id: 'sesame', name: 'Granos De Sesamo (Sesame Seeds)', icon: '🌰', color: '#a16207', selected: false },
-    { id: 'dairy', name: 'Lacteos (Dairy)', icon: '🥛', color: '#a16207', selected: false },
-    { id: 'peanuts', name: 'Cacahuetes (Peanuts)', icon: '🥜', color: '#a16207', selected: false },
-    { id: 'soy', name: 'Soja (Soy)', icon: '🌱', color: '#22c55e', selected: false },
-    { id: 'crustaceans', name: 'Crustaceos (Crustaceans)', icon: '🦀', color: '#3b82f6', selected: false },
-    { id: 'molluscs', name: 'Moluscos (Molluscs)', icon: '🐚', color: '#60a5fa', selected: false },
-    { id: 'nuts', name: 'Frutos De Cascara (Tree Nuts)', icon: '🌰', color: '#ef4444', selected: false },
-    { id: 'mustard', name: 'Mostaza (Mustard)', icon: '🌿', color: '#eab308', selected: false },
-    { id: 'eggs', name: 'Huevos (Eggs)', icon: '🥚', color: '#f97316', selected: false },
-  ];
+  get allergens(): Allergen[] {
+    return [
+      { id: 'lupin', name: 'Altramuces (Lupin)', icon: '✓', color: this.getCssVariable('--icon-blue'), selected: false },
+      { id: 'gluten', name: 'Contiene Gluten (Gluten)', icon: '🌾', color: this.getCssVariable('--orange'), selected: false },
+      { id: 'fish', name: 'Pescado (Fish)', icon: '🐟', color: this.getCssVariable('--icon-blue'), selected: false },
+      { id: 'celery', name: 'Apio (Celery)', icon: '🥬', color: this.getCssVariable('--icon-green'), selected: false },
+      { id: 'sesame', name: 'Granos De Sesamo (Sesame Seeds)', icon: '🌰', color: this.getCssVariable('--dark-yellow'), selected: false },
+      { id: 'dairy', name: 'Lacteos (Dairy)', icon: '🥛', color: this.getCssVariable('--dark-yellow'), selected: false },
+      { id: 'peanuts', name: 'Cacahuetes (Peanuts)', icon: '🥜', color: this.getCssVariable('--dark-yellow'), selected: false },
+      { id: 'soy', name: 'Soja (Soy)', icon: '🌱', color: this.getCssVariable('--icon-green'), selected: false },
+      { id: 'crustaceans', name: 'Crustaceos (Crustaceans)', icon: '🦀', color: this.getCssVariable('--icon-blue'), selected: false },
+      { id: 'molluscs', name: 'Moluscos (Molluscs)', icon: '🐚', color: this.getCssVariable('--primary-blue-light'), selected: false },
+      { id: 'nuts', name: 'Frutos De Cascara (Tree Nuts)', icon: '🌰', color: this.getCssVariable('--danger-color'), selected: false },
+      { id: 'mustard', name: 'Mostaza (Mustard)', icon: '🌿', color: this.getCssVariable('--icon-orange'), selected: false },
+      { id: 'eggs', name: 'Huevos (Eggs)', icon: '🥚', color: this.getCssVariable('--orange'), selected: false },
+    ];
+  }
 
   ingredientSearch: string = '';
   ingredientQuantity: string = '';
@@ -80,6 +82,12 @@ export class ExtrasModalPanel implements OnInit, OnChanges {
   showFormatDropdown: boolean = false;
 
   constructor(private el: ElementRef) {}
+
+  private getCssVariable(variable: string, fallback: string = ''): string {
+    if (typeof document === 'undefined') return fallback;
+    const value = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    return value || fallback;
+  }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {

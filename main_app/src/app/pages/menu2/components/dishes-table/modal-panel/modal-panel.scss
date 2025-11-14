@@ -279,7 +279,7 @@ select.form-input {
     background: var(--white);
 
     .allergen-icon {
-      border: 2px solid var(--base-primary, rgba(45, 113, 247, 1));
+      border: 2px solid var(--base-primary);
     }
   }
 }
@@ -311,7 +311,7 @@ select.form-input {
   transform: translate(-50%, -50%);
   width: 16px;
   height: 16px;
-  background: var(--base-primary, rgba(45, 113, 247, 1));
+  background: var(--base-primary);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -470,7 +470,7 @@ select.form-input {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--overlay-medium);
   border: none;
   border-radius: 50%;
   font-size: 20px;
@@ -479,7 +479,7 @@ select.form-input {
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.9);
+    background: var(--overlay-dark);
   }
 }
 
@@ -617,11 +617,11 @@ select.form-input {
   align-items: center;
   gap: 8px;
   padding: 8px 14px;
-  background: var(--base-primary-10, rgba(45, 113, 247, 0.1));
+  background: var(--base-primary-10);
   border: none;
   border-radius: 20px;
   font-size: 13px;
-  color: var(--base-primary, rgba(45, 113, 247, 1));
+  color: var(--base-primary);
   position: relative;
 
   &.new-ingredient {
@@ -645,7 +645,7 @@ select.form-input {
 
 .ingredient-text {
   font-weight: 500;
-  color: var(--base-primary, rgba(45, 113, 247, 1));
+  color: var(--base-primary);
 }
 
 .remove-ingredient-button {
@@ -657,7 +657,7 @@ select.form-input {
   background: transparent;
   border: none;
   font-size: 16px;
-  color: var(--base-primary, rgba(45, 113, 247, 1));
+  color: var(--base-primary);
   cursor: pointer;
   border-radius: 50%;
   transition: background-color 0.2s ease;
@@ -665,7 +665,7 @@ select.form-input {
   line-height: 1;
 
   &:hover {
-    background: rgba(45, 113, 247, 0.2);
+    background: var(--base-primary-20);
   }
 }
 
@@ -847,7 +847,7 @@ select.form-input {
   align-items: center;
   gap: 6px;
   padding: 10px 18px;
-  background: var(--base-primary, rgba(45, 113, 247, 1));
+  background: var(--base-primary);
   border: none;
   border-radius: 100px;
   font-size: 14px;
@@ -857,7 +857,7 @@ select.form-input {
   transition: all 0.2s ease;
 
   &:hover {
-    background: var(--base-primary-hover, rgba(35, 103, 237, 1));
+    background: var(--primary-blue-hover-dark);
   }
 
   .plus-icon {
@@ -886,7 +886,7 @@ select.form-input {
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px var(--shadow-very-light);
 }
 
 .search-ingredients-title {
@@ -936,7 +936,7 @@ select.form-input {
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px var(--shadow-light-overlay);
   max-height: 300px;
   overflow-y: auto;
   z-index: 1000;
@@ -962,7 +962,7 @@ select.form-input {
   }
 
   &.selected {
-    background: var(--base-primary-10, rgba(45, 113, 247, 0.1));
+    background: var(--base-primary-10);
     border: 1px solid transparent;
   }
 }
@@ -974,7 +974,7 @@ select.form-input {
 }
 
 .ingredient-dropdown-item .check-icon {
-  color: var(--base-primary, rgba(45, 113, 247, 1));
+  color: var(--base-primary);
   flex-shrink: 0;
 }
 
@@ -1001,16 +1001,16 @@ select.form-input {
   }
 
   &:hover {
-    border-color: var(--base-primary, rgba(45, 113, 247, 0.5));
+    border-color: var(--base-primary-20);
   }
 
   &.selected {
-    background: var(--base-primary-10, rgba(45, 113, 247, 0.1));
-    border-color: var(--base-primary, rgba(45, 113, 247, 1));
+    background: var(--base-primary-10);
+    border-color: var(--base-primary);
 
     .radio-circle {
-      background: var(--base-primary, rgba(45, 113, 247, 1));
-      border-color: var(--base-primary, rgba(45, 113, 247, 1));
+      background: var(--base-primary);
+      border-color: var(--base-primary);
     }
 
     .radio-text {
@@ -1056,7 +1056,7 @@ select.form-input {
 // Add Search Ingredient Button
 .add-search-ingredient-button {
   padding: 12px 24px;
-  background: var(--base-primary, rgba(45, 113, 247, 1));
+  background: var(--base-primary);
   border: none;
   border-radius: 100px;
   font-size: 14px;
@@ -1072,7 +1072,7 @@ select.form-input {
   margin-top: 16px;
 
   &:hover {
-    background: var(--base-primary-hover, rgba(35, 103, 237, 1));
+    background: var(--primary-blue-hover-dark);
   }
 
   .add-icon {
@@ -1101,7 +1101,7 @@ select.form-input {
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px var(--shadow-light-overlay);
   z-index: 1000;
   padding: 12px;
   max-height: 400px;
@@ -1162,7 +1162,7 @@ select.form-input {
     border-color: transparent;
 
     .radio-circle-small {
-      background: var(--base-primary, rgba(45, 113, 247, 1));
+      background: var(--base-primary);
       border-color: var(--base-primary, rgba(45, 113, 247, 1));
 
       &::after {
@@ -1205,8 +1205,8 @@ select.form-input {
 
 // Validation Error Styling
 .error-input {
-  border-color: var(--error-color, #ef4444) !important;
-  background-color: rgba(239, 68, 68, 0.05) !important;
+  border-color: var(--danger-color) !important;
+  background-color: var(--error-bg-light) !important;
 }
 
 .error-message {
@@ -1215,12 +1215,12 @@ select.form-input {
   gap: 6px;
   margin-top: 6px;
   font-size: 12px;
-  color: var(--error-color, #ef4444);
+  color: var(--danger-color);
   font-weight: 500;
 
   svg {
     flex-shrink: 0;
-    color: var(--error-color, #ef4444);
+    color: var(--danger-color);
   }
 }
 
@@ -1246,7 +1246,7 @@ select.form-input {
   background: var(--white);
   border: 1px solid var(--gray-300);
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px var(--shadow-medium);
   z-index: 1000;
   max-height: 500px;
   overflow-y: auto;
@@ -1731,7 +1731,7 @@ input:checked + .toggle-slider-small {
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0px 2px 4px var(--shadow-medium), 0px 0px 1px var(--shadow-light-overlay),
-    1px 1px 1px 1px rgba(87, 141, 249, 0.3) inset;
+    1px 1px 1px 1px var(--Primary100) inset;
   position: relative;
   isolation: isolate;
 
@@ -1774,7 +1774,7 @@ input:checked + .toggle-slider-small {
   width: 100%;
   background: var(--white);
   border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px var(--shadow-medium);
   display: flex;
   flex-direction: column;
   z-index: 1000 !important;

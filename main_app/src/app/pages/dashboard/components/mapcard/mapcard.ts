@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { TranslateModule } from '@ngx-translate/core';
 import { Location } from '@/types/interfaces/dashboard/location.interface';
@@ -10,7 +10,7 @@ import { Button } from '@/app/shared/components/button/button';
   templateUrl: './mapcard.html',
   styleUrl: './mapcard.scss',
 })
-export class Mapcard {
+export class Mapcard implements OnInit {
   // Center map on Spain
   mapCenter: google.maps.LatLngLiteral = { lat: 40.4168, lng: -3.7038 };
   mapZoom = 6;
@@ -20,29 +20,54 @@ export class Mapcard {
     mapTypeControl: false,
     streetViewControl: false,
     fullscreenControl: false,
+    styles: []
+  };
+
+  ngOnInit() {
+    this.updateMapStyles();
+  }
+
+  /**
+   * Get CSS variable value with fallback
+   */
+  private getCssVariable(variable: string, fallback: string = ''): string {
+    if (typeof document === 'undefined') return fallback;
+    const value = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    return value || fallback;
+  }
+
+  private updateMapStyles() {
+    const geometryColor = this.getCssVariable('--gray-150', '#f5f5f5');
+    const waterColor = this.getCssVariable('--gray-200', '#e9ecef');
+    const roadColor = this.getCssVariable('--white', '#ffffff');
+    const labelColor = this.getCssVariable('--text-color-medium-alt', '#9ca3af');
+
+    this.mapOptions = {
+      ...this.mapOptions,
     styles: [
       {
         featureType: 'all',
         elementType: 'geometry',
-        stylers: [{ color: '#f5f5f5' }]
+          stylers: [{ color: geometryColor }]
       },
       {
         featureType: 'water',
         elementType: 'geometry',
-        stylers: [{ color: '#e9ecef' }]
+          stylers: [{ color: waterColor }]
       },
       {
         featureType: 'road',
         elementType: 'geometry',
-        stylers: [{ color: '#ffffff' }]
+          stylers: [{ color: roadColor }]
       },
       {
         featureType: 'road',
         elementType: 'labels.text.fill',
-        stylers: [{ color: '#9ca3af' }]
+          stylers: [{ color: labelColor }]
       }
     ]
   };
+  }
 
   locations: Location[] = [
     {
@@ -113,6 +138,7 @@ export class Mapcard {
 
   getMarkerOptions(location: Location): google.maps.MarkerOptions {
     // Create custom circular marker with colored pin
+    const white = this.getCssVariable('--white', '#ffffff');
     return {
       position: { lat: location.lat, lng: location.lng },
       icon: {
@@ -120,7 +146,7 @@ export class Mapcard {
         scale: 20,
         fillColor: location.pinColor,
         fillOpacity: 1,
-        strokeColor: '#ffffff',
+        strokeColor: white,
         strokeWeight: 3
       },
       title: location.address,

@@ -48,12 +48,20 @@ export class FoodStatus implements OnInit {
     });
   }
 
+  /**
+   * Get CSS variable value with fallback
+   */
+  private getCssVariable(variable: string, fallback: string = ''): string {
+    if (typeof document === 'undefined') return fallback;
+    const value = getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    return value || fallback;
+  }
+
   private initializeStackedBarChart() {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-    const isDarkMode = this.themeService.isDarkMode;
-    const axisColor = isDarkMode ? '#9ca3af' : '#6B7280';
-    const gridColor = isDarkMode ? '#374151' : '#F3F4F6';
+    const axisColor = this.getCssVariable('--text-color-medium-alt', '#6B7280');
+    const gridColor = this.getCssVariable('--gray-100', '#F3F4F6');
 
     // Data matching the image: 
     // Stacking order (bottom to top): Fresh (Teal) -> Available (Grey) -> Expired (Red)
@@ -83,7 +91,11 @@ export class FoodStatus implements OnInit {
           show: false,
         },
       },
-      colors: ['#40C4AA', '#E5E7EB', '#DC3545'],
+      colors: [
+        this.getCssVariable('--success-teal', '#40C4AA'),
+        this.getCssVariable('--border-light-gray', '#E5E7EB'),
+        this.getCssVariable('--red', '#DC3545'),
+      ],
       plotOptions: {
         bar: {
           horizontal: false,
@@ -153,36 +165,36 @@ export class FoodStatus implements OnInit {
             [
               {
                 offset: 0,
-                color: '#6EE7B7',
+                color: this.getCssVariable('--success-teal-light', '#6EE7B7'),
                 opacity: 1,
               },
               {
                 offset: 100,
-                color: '#34D399',
+                color: this.getCssVariable('--success-teal', '#34D399'),
                 opacity: 1,
               },
             ],
             [
               {
                 offset: 0,
-                color: '#E0E0E0',
+                color: this.getCssVariable('--border-light-gray', '#E0E0E0'),
                 opacity: 1,
               },
               {
                 offset: 100,
-                color: '#B0B0B0',
+                color: this.getCssVariable('--gray-500', '#B0B0B0'),
                 opacity: 1,
               },
             ],
             [
               {
                 offset: 0,
-                color: '#FF6B6B',
+                color: this.getCssVariable('--danger-color', '#FF6B6B'),
                 opacity: 1,
               },
               {
                 offset: 100,
-                color: '#E03B3B',
+                color: this.getCssVariable('--red-dark', '#E03B3B'),
                 opacity: 1,
               },
             ],

@@ -9,6 +9,7 @@
 
 // Get the base URL dynamically based on the current origin (port)
 const getBaseUrl = (): string => {
+  console.log("this is the window", window.location , document.location);
   if (typeof window !== 'undefined') {
     return window.location.origin;
   }
