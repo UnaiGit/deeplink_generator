@@ -1,0 +1,53 @@
+@if (isOpen()) {
+  <div class="kitchen-builder-overlay"
+       [class.is-anchored]="anchor() !== null"
+       (click)="onClose()">
+    <div class="kitchen-builder-modal"
+         role="dialog"
+         aria-modal="true"
+         aria-label="Kitchens"
+         [class.is-anchored]="anchor() !== null"
+         [style.left.px]="anchor()?.x ?? null"
+         [style.top.px]="anchor()?.y ?? null"
+         (click)="$event.stopPropagation()">
+      <div class="kitchen-builder-header">
+        <div class="header-title">
+          <span class="title-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="4" y="4" width="6" height="6" rx="1.5"></rect>
+              <rect x="14" y="4" width="6" height="6" rx="1.5"></rect>
+              <rect x="4" y="14" width="6" height="6" rx="1.5"></rect>
+              <rect x="14" y="14" width="6" height="6" rx="1.5"></rect>
+            </svg>
+          </span>
+          <span>Kitchens</span>
+        </div>
+        <button class="close-button" (click)="onClose()" aria-label="Close kitchens panel">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="kitchen-builder-list">
+        @for (item of items(); track item.id) {
+          <div class="kitchen-list-item">
+            <span class="kitchen-name">{{ item.label }}</span>
+            <button class="reorder-handle" type="button" aria-label="Reorder kitchen">
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="kitchen-builder-footer">
+        <button class="secondary" type="button" (click)="onClose()">Cancel</button>
+        <button class="primary" type="button" (click)="onSave()">Save</button>
+      </div>
+    </div>
+  </div>
+}
+

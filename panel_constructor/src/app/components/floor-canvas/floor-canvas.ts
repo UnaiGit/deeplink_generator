@@ -110,8 +110,21 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   private kitchenItems: KitchenLayoutItem[] = [];
   private kitchenImages: Map<string, HTMLImageElement> = new Map();
   private selectedKitchenItemId = signal<string | null>(null);
-  private readonly KITCHEN_DISPLAY_COUNT = 3;
+  private readonly KITCHEN_DISPLAY_COUNT = 3; // Display 3 images at a time
   private kitchenStartIndex = 0;
+  private kitchenAnimationState: {
+    isAnimating: boolean;
+    progress: number; // 0 to 1
+    direction: 'next' | 'prev' | null;
+    targetIndex: number;
+    animationFrameId: number | null;
+  } = {
+    isAnimating: false,
+    progress: 0,
+    direction: null,
+    targetIndex: 0,
+    animationFrameId: null
+  };
 
   // Zoom state
   zoomLevel = signal<number>(0.75);
@@ -423,23 +436,69 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   }
 
   showNextKitchenItem(): void {
-    if (!this.kitchenCatalog.length || this.floorName() !== 'kitchen') {
+    if (!this.kitchenCatalog.length || this.floorName() !== 'kitchen' || this.kitchenAnimationState.isAnimating) {
       return;
     }
-    // Shift: first removed, second becomes first, third becomes second, new becomes third
-    this.kitchenStartIndex = (this.kitchenStartIndex + 1) % this.kitchenCatalog.length;
-    this.selectedKitchenItemId.set(null);
-    this.drawFloorCanvas('kitchen');
+    const targetIndex = (this.kitchenStartIndex + 1) % this.kitchenCatalog.length;
+    this.startKitchenAnimation('next', targetIndex);
   }
 
   showPreviousKitchenItem(): void {
-    if (!this.kitchenCatalog.length || this.floorName() !== 'kitchen') {
+    if (!this.kitchenCatalog.length || this.floorName() !== 'kitchen' || this.kitchenAnimationState.isAnimating) {
       return;
     }
-    // Shift backwards: last removed, first becomes second, second becomes third, previous becomes first
-    this.kitchenStartIndex = (this.kitchenStartIndex - 1 + this.kitchenCatalog.length) % this.kitchenCatalog.length;
+    const targetIndex = (this.kitchenStartIndex - 1 + this.kitchenCatalog.length) % this.kitchenCatalog.length;
+    this.startKitchenAnimation('prev', targetIndex);
+  }
+
+  private startKitchenAnimation(direction: 'next' | 'prev', targetIndex: number): void {
+    this.kitchenAnimationState = {
+      isAnimating: true,
+      progress: 0,
+      direction,
+      targetIndex,
+      animationFrameId: null
+    };
     this.selectedKitchenItemId.set(null);
+    this.animateKitchenTransition();
+  }
+
+  private animateKitchenTransition(): void {
+    const duration = 400; // Animation duration in milliseconds
+    const startTime = performance.now();
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing function for smooth animation (ease-in-out)
+      const easedProgress = progress < 0.5
+        ? 2 * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+      this.kitchenAnimationState.progress = easedProgress;
+
+      // Redraw with animation progress
+      this.drawFloorCanvas('kitchen');
+
+      if (progress < 1) {
+        this.kitchenAnimationState.animationFrameId = requestAnimationFrame(animate);
+      } else {
+        // Animation complete - update index
+        this.kitchenStartIndex = this.kitchenAnimationState.targetIndex;
+        this.kitchenAnimationState = {
+          isAnimating: false,
+          progress: 0,
+          direction: null,
+          targetIndex: 0,
+          animationFrameId: null
+        };
+        // Final redraw without animation
     this.drawFloorCanvas('kitchen');
+      }
+    };
+
+    this.kitchenAnimationState.animationFrameId = requestAnimationFrame(animate);
   }
 
   private restoreCanvasOffsetForFloor(floor: FloorType | string): void {
@@ -1669,13 +1728,15 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       y: table.y,
       occupiedChairs: table.occupiedChairs ? [...table.occupiedChairs] : undefined,
     };
+    const initialCapacity = this.clampCapacity(table.capacity ?? table.seats ?? 6);
     this.tableConfigData = {
       width: table.widthGrid ?? 4,
       height: table.heightGrid ?? 4,
-      capacity: this.clampCapacity(table.capacity ?? table.seats ?? 6),
+      capacity: initialCapacity,
       maxStay: table.maxStayMinutes ? String(table.maxStayMinutes) : ''
     };
-    this.lastPreviewCapacity = null;
+    // Initialize lastPreviewCapacity to the current capacity so we can detect changes
+    this.lastPreviewCapacity = initialCapacity;
     this.previewTableConfiguration();
     this.nfcState = {
       read: false,
@@ -1750,7 +1811,11 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
     if (!this.tableConfigTable) {
       return;
     }
-    const previewCapacity = this.clampCapacity(this.tableConfigData.capacity);
+    // Ensure capacity is a number (range inputs can sometimes return strings)
+    const capacityValue = typeof this.tableConfigData.capacity === 'string' 
+      ? parseInt(this.tableConfigData.capacity, 10) 
+      : this.tableConfigData.capacity;
+    const previewCapacity = this.clampCapacity(capacityValue);
     const capacityChanged = this.lastPreviewCapacity !== previewCapacity;
 
     this.tableConfigTable.capacity = previewCapacity;
@@ -1882,6 +1947,11 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Cancel any pending animation
+    if (this.kitchenAnimationState.animationFrameId !== null) {
+      cancelAnimationFrame(this.kitchenAnimationState.animationFrameId);
+      this.kitchenAnimationState.animationFrameId = null;
+    }
     if (this.resizeHandler) {
       window.removeEventListener('resize', this.resizeHandler);
     }
@@ -2012,18 +2082,124 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
 
     const displayCount = Math.min(this.KITCHEN_DISPLAY_COUNT, totalItems);
     const spacing = 30;
-    const cardWidth = 200; // Smaller size
-    const cardHeight = 200; // Smaller size
+    const cardWidth = 220; // Card width
+    const cardHeight = 280; // Card height (includes info pill + image + padding)
+    const imageHeight = 200; // Image area height
     const horizontalPadding = 60; // Right alignment with padding
     const totalHeight = displayCount * cardHeight + (displayCount - 1) * spacing;
-    const startY = Math.max(60, (canvasHeight - totalHeight) / 2);
+    const baseStartY = Math.max(60, (canvasHeight - totalHeight) / 2);
     const startX = canvasWidth - horizontalPadding - cardWidth; // Right-aligned
 
+    const isAnimating = this.kitchenAnimationState.isAnimating;
+    const progress = this.kitchenAnimationState.progress;
+    const direction = this.kitchenAnimationState.direction;
+    const slideDistance = cardHeight + spacing;
+
     const layoutItems: KitchenLayoutItem[] = [];
+
+    if (isAnimating && direction) {
+      // During animation, show both old and new items with interpolation
+      if (direction === 'next') {
+        // Next animation: first slides out up, second->first, third->second, new slides in from bottom
+        // Draw the old first item sliding out (up)
+        const oldFirstIndex = this.kitchenStartIndex % totalItems;
+        const oldFirstItem = this.kitchenCatalog[oldFirstIndex];
+        const oldFirstFromY = baseStartY;
+        const oldFirstToY = baseStartY - slideDistance;
+        const oldFirstY = oldFirstFromY + (oldFirstToY - oldFirstFromY) * progress;
+        layoutItems.push({
+          ...oldFirstItem,
+          x: startX,
+          y: oldFirstY,
+          width: cardWidth,
+          height: cardHeight,
+        });
+
+        // Draw the three visible items moving up
+        for (let i = 0; i < displayCount; i++) {
+          const newIndex = (this.kitchenAnimationState.targetIndex + i) % totalItems;
+          const catalogItem = this.kitchenCatalog[newIndex];
+          
+          let y: number;
+          if (i === 0) {
+            // First position: second item moving up (from position 1 to 0)
+            const fromY = baseStartY + slideDistance;
+            const toY = baseStartY;
+            y = fromY + (toY - fromY) * progress;
+          } else if (i === 1) {
+            // Second position: third item moving up (from position 2 to 1)
+            const fromY = baseStartY + 2 * slideDistance;
+            const toY = baseStartY + slideDistance;
+            y = fromY + (toY - fromY) * progress;
+          } else {
+            // Third position: new item sliding in from bottom
+            const fromY = baseStartY + 3 * slideDistance;
+            const toY = baseStartY + 2 * slideDistance;
+            y = fromY + (toY - fromY) * progress;
+          }
+
+          layoutItems.push({
+            ...catalogItem,
+            x: startX,
+            y,
+            width: cardWidth,
+            height: cardHeight, // Full card height including label
+          });
+        }
+      } else {
+        // Previous animation: third slides out down, second->third, first->second, new slides in from top
+        // Draw the old third item sliding out (down)
+        const oldThirdIndex = (this.kitchenStartIndex + 2) % totalItems;
+        const oldThirdItem = this.kitchenCatalog[oldThirdIndex];
+        const oldThirdFromY = baseStartY + 2 * slideDistance;
+        const oldThirdToY = baseStartY + 3 * slideDistance;
+        const oldThirdY = oldThirdFromY + (oldThirdToY - oldThirdFromY) * progress;
+        layoutItems.push({
+          ...oldThirdItem,
+          x: startX,
+          y: oldThirdY,
+          width: cardWidth,
+          height: cardHeight,
+        });
+
+        // Draw the three visible items moving down
+        for (let i = 0; i < displayCount; i++) {
+          const newIndex = (this.kitchenAnimationState.targetIndex + i) % totalItems;
+          const catalogItem = this.kitchenCatalog[newIndex];
+          
+          let y: number;
+          if (i === 0) {
+            // First position: new item sliding in from top
+            const fromY = baseStartY - slideDistance;
+            const toY = baseStartY;
+            y = fromY + (toY - fromY) * progress;
+          } else if (i === 1) {
+            // Second position: first item moving down (from position 0 to 1)
+            const fromY = baseStartY;
+            const toY = baseStartY + slideDistance;
+            y = fromY + (toY - fromY) * progress;
+          } else {
+            // Third position: second item moving down (from position 1 to 2)
+            const fromY = baseStartY + slideDistance;
+            const toY = baseStartY + 2 * slideDistance;
+            y = fromY + (toY - fromY) * progress;
+          }
+
+          layoutItems.push({
+            ...catalogItem,
+            x: startX,
+            y,
+            width: cardWidth,
+            height: cardHeight, // Full card height including label
+          });
+        }
+      }
+    } else {
+      // No animation - normal display
     for (let i = 0; i < displayCount; i++) {
       const index = (this.kitchenStartIndex + i) % totalItems;
       const catalogItem = this.kitchenCatalog[index];
-      const y = startY + i * (cardHeight + spacing);
+        const y = baseStartY + i * slideDistance;
       layoutItems.push({
         ...catalogItem,
         x: startX,
@@ -2031,6 +2207,7 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
         width: cardWidth,
         height: cardHeight,
       });
+      }
     }
 
     this.kitchenItems = layoutItems;
@@ -2041,35 +2218,36 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
       const img = this.kitchenImages.get(item.id);
       const isSelected = this.selectedKitchenItemId() === item.id;
       
-      if (img && img.complete) {
-        // Draw image with rounded corners
-        const radius = 16;
+      const radius = 12;
         const x = item.x;
         const y = item.y;
         const width = item.width;
-        const height = item.height;
+      const cardHeight = item.height;
+      const infoPillHeight = 28;
+      const infoPillTopPadding = 20;
+      const infoPillGap = 16;
+      const imageHeight = 200;
         
-        // Draw shadow
-        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
-        this.ctx.shadowBlur = 10;
+      // Draw card background with light gray
+      this.ctx.shadowColor = 'rgba(0, 0, 0, 0.08)';
+      this.ctx.shadowBlur = 8;
         this.ctx.shadowOffsetX = 0;
-        this.ctx.shadowOffsetY = 4;
+      this.ctx.shadowOffsetY = 2;
         
-        // Draw rounded rectangle background
         this.ctx.beginPath();
         this.ctx.moveTo(x + radius, y);
         this.ctx.lineTo(x + width - radius, y);
         this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-        this.ctx.lineTo(x + width, y + height - radius);
-        this.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        this.ctx.lineTo(x + radius, y + height);
-        this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      this.ctx.lineTo(x + width, y + cardHeight - radius);
+      this.ctx.quadraticCurveTo(x + width, y + cardHeight, x + width - radius, y + cardHeight);
+      this.ctx.lineTo(x + radius, y + cardHeight);
+      this.ctx.quadraticCurveTo(x, y + cardHeight, x, y + cardHeight - radius);
         this.ctx.lineTo(x, y + radius);
         this.ctx.quadraticCurveTo(x, y, x + radius, y);
         this.ctx.closePath();
         
-        // Fill with white background
-        this.ctx.fillStyle = '#ffffff';
+      // Fill with light gray background
+      this.ctx.fillStyle = '#f3f4f6';
         this.ctx.fill();
         
         // Reset shadow
@@ -2078,59 +2256,69 @@ export class FloorCanvas implements AfterViewInit, OnDestroy {
         this.ctx.shadowOffsetX = 0;
         this.ctx.shadowOffsetY = 0;
         
-        // Draw image with clipping for rounded corners
-        this.ctx.save();
-        this.ctx.beginPath();
-        this.ctx.moveTo(x + radius, y);
-        this.ctx.lineTo(x + width - radius, y);
-        this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-        this.ctx.lineTo(x + width, y + height - radius);
-        this.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        this.ctx.lineTo(x + radius, y + height);
-        this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-        this.ctx.lineTo(x, y + radius);
-        this.ctx.quadraticCurveTo(x, y, x + radius, y);
-        this.ctx.closePath();
-        this.ctx.clip();
-        
-        // Draw the image
-        this.ctx.drawImage(img, x, y, width, height);
-        this.ctx.restore();
-        
-        // Draw selection border if selected
-        if (isSelected) {
-          this.ctx.strokeStyle = '#407bff';
-          this.ctx.lineWidth = 3;
-          this.ctx.beginPath();
-          this.ctx.moveTo(x + radius, y);
-          this.ctx.lineTo(x + width - radius, y);
-          this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-          this.ctx.lineTo(x + width, y + height - radius);
-          this.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-          this.ctx.lineTo(x + radius, y + height);
-          this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-          this.ctx.lineTo(x, y + radius);
-          this.ctx.quadraticCurveTo(x, y, x + radius, y);
-          this.ctx.closePath();
-          this.ctx.stroke();
-        }
+      // Draw info pill
+      const pillText = item.label;
+      this.ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      const pillPaddingX = 14;
+      const textMetrics = this.ctx.measureText(pillText);
+      const pillWidth = Math.min(width - 32, textMetrics.width + pillPaddingX * 2);
+      const pillX = x + (width - pillWidth) / 2;
+      const pillY = y + infoPillTopPadding;
+      const pillRadius = infoPillHeight / 2;
 
-        // Draw label below image
-        this.ctx.fillStyle = '#0f172a';
-        this.ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'top';
-        const labelY = y + height + 12;
-        this.ctx.fillText(item.label, x + width / 2, labelY);
+      this.ctx.fillStyle = '#34d399';
+        this.ctx.beginPath();
+      this.ctx.moveTo(pillX + pillRadius, pillY);
+      this.ctx.lineTo(pillX + pillWidth - pillRadius, pillY);
+      this.ctx.quadraticCurveTo(pillX + pillWidth, pillY, pillX + pillWidth, pillY + pillRadius);
+      this.ctx.lineTo(pillX + pillWidth, pillY + infoPillHeight - pillRadius);
+      this.ctx.quadraticCurveTo(pillX + pillWidth, pillY + infoPillHeight, pillX + pillWidth - pillRadius, pillY + infoPillHeight);
+      this.ctx.lineTo(pillX + pillRadius, pillY + infoPillHeight);
+      this.ctx.quadraticCurveTo(pillX, pillY + infoPillHeight, pillX, pillY + infoPillHeight - pillRadius);
+      this.ctx.lineTo(pillX, pillY + pillRadius);
+      this.ctx.quadraticCurveTo(pillX, pillY, pillX + pillRadius, pillY);
+        this.ctx.closePath();
+      this.ctx.fill();
+        
+      this.ctx.fillStyle = '#0f172a';
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.fillText(pillText, pillX + pillWidth / 2, pillY + infoPillHeight / 2);
+
+      const imagePaddingX = 18;
+      const imageX = x + imagePaddingX;
+      const imageWidth = width - imagePaddingX * 2;
+      const imageY = pillY + infoPillHeight + infoPillGap;
+
+      if (img && img.complete) {
+        this.ctx.drawImage(img, imageX, imageY, imageWidth, imageHeight);
       } else {
         // Draw placeholder while image loads
         this.ctx.fillStyle = '#e5e7eb';
-        this.ctx.fillRect(item.x, item.y, item.width, item.height);
+        this.ctx.fillRect(imageX, imageY, imageWidth, imageHeight);
         this.ctx.fillStyle = '#9ca3af';
         this.ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
-        this.ctx.fillText('Loading…', item.x + item.width / 2, item.y + item.height / 2);
+        this.ctx.fillText('Loading…', imageX + imageWidth / 2, imageY + imageHeight / 2);
+      }
+        
+        // Draw selection border if selected
+        if (isSelected) {
+          this.ctx.strokeStyle = '#407bff';
+        this.ctx.lineWidth = 2;
+          this.ctx.beginPath();
+          this.ctx.moveTo(x + radius, y);
+          this.ctx.lineTo(x + width - radius, y);
+          this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        this.ctx.lineTo(x + width, y + cardHeight - radius);
+        this.ctx.quadraticCurveTo(x + width, y + cardHeight, x + width - radius, y + cardHeight);
+        this.ctx.lineTo(x + radius, y + cardHeight);
+        this.ctx.quadraticCurveTo(x, y + cardHeight, x, y + cardHeight - radius);
+          this.ctx.lineTo(x, y + radius);
+          this.ctx.quadraticCurveTo(x, y, x + radius, y);
+          this.ctx.closePath();
+          this.ctx.stroke();
       }
     });
   }

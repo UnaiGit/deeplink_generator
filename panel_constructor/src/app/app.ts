@@ -15,10 +15,13 @@ import { Floors } from "./components/floors/floors";
 import { Toast } from "./components/toast/toast";
 import { ToastService } from "./core/services/toast.service";
 import { ICON_PATHS } from './core/constants/icon.constants';
+import { KitchenBuilder } from './components/kitchen-builder/kitchen-builder';
+import { getKitchenFloorItems } from './utils/floor-data.util';
+import { KitchenItem } from './core/interfaces/kitchen.interface';
 
 @Component({
   selector: 'app-root',
-  imports: [FloorTabs, StatusLegend, FloorCanvas, Notifications, ActionCards, StatsCards, Departments, Employees, Floors, Toast],
+  imports: [FloorTabs, StatusLegend, FloorCanvas, Notifications, ActionCards, StatsCards, Departments, Employees, Floors, Toast, KitchenBuilder],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -32,11 +35,14 @@ export class App implements OnInit, OnDestroy {
     selectedFloor = signal<FloorType | string>('main');
   protected readonly title = signal('panel_constructor');
   showDepartments = signal<boolean>(false);
+  showKitchenBuilder = signal<boolean>(false);
   showNotifications = signal<boolean>(true); // Initially visible, then auto-hide
   showEmployees = signal<boolean>(false);
   employeesAnchor = signal<ActionCardClickContext | null>(null);
   showFloors = signal<boolean>(false);
   floorsAnchor = signal<ActionCardClickContext | null>(null);
+  kitchenItems = signal<KitchenItem[]>(getKitchenFloorItems());
+  kitchenBuilderAnchor = signal<ActionCardClickContext | null>(null);
   
   // Icon paths
   bellIcon = ICON_PATHS.bell;
@@ -156,7 +162,22 @@ export class App implements OnInit, OnDestroy {
     console.log('Mute notifications for 10 minutes');
   }
 
-  onBuildClick(): void {
+  onBuildClick(anchor?: ActionCardClickContext): void {
+    if (this.selectedFloor() === 'kitchen') {
+      const currentlyOpenKitchen = this.showKitchenBuilder();
+      if (currentlyOpenKitchen) {
+        this.showKitchenBuilder.set(false);
+        this.kitchenBuilderAnchor.set(null);
+      } else {
+        this.showDepartments.set(false);
+        this.showEmployees.set(false);
+        this.showFloors.set(false);
+        this.kitchenBuilderAnchor.set(anchor ?? null);
+        this.showKitchenBuilder.set(true);
+      }
+      return;
+    }
+
     const currentlyOpen = this.showDepartments();
     console.log('Build button clicked - toggling departments', currentlyOpen);
     if (currentlyOpen) {
@@ -202,6 +223,16 @@ export class App implements OnInit, OnDestroy {
 
   onCloseDepartments(): void {
     this.showDepartments.set(false);
+  }
+
+  onCloseKitchenBuilder(): void {
+    this.showKitchenBuilder.set(false);
+    this.kitchenBuilderAnchor.set(null);
+  }
+
+  onSaveKitchenBuilder(): void {
+    this.showKitchenBuilder.set(false);
+    this.kitchenBuilderAnchor.set(null);
   }
 
   onCloseEmployees(): void {
