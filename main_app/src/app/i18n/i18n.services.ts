@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 
-import deDE from '../../translations/de-De.json';
-import enUS from '../../translations/en-US.json';
-import esES from '../../translations/es-ES.json';
-import frFR from '../../translations/fr-FR.json';
-import itIT from '../../translations/it-IT.json';
-import { environment } from './../../environments/environment';
+import deDE from '@/translations/de-De.json';
+import enUS from '@/translations/en-US.json';
+import esES from '@/translations/es-ES.json';
+import frFR from '@/translations/fr-FR.json';
+import itIT from '@/translations/it-IT.json';
+import { environment } from '@/environments/environment';
 const languageKey = 'language';
 
 @Injectable({

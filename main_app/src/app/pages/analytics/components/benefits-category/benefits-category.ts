@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ThemeService } from '../../../../shared/services/theme';
+import { ThemeService } from '@/app/shared/services/theme';
 import {
   ChartComponent as ApexChartComponent,
   ApexChart,

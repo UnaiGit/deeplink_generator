@@ -7,49 +7,60 @@
  * All icons are located in: public/icons/
  */
 
+// Get the base URL dynamically based on the current origin (port)
+const getBaseUrl = (): string => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  // Fallback for SSR or non-browser environments
+  return 'http://localhost:4201';
+};
+
+const BASE_URL = getBaseUrl();
+
 export const ICON_PATHS = {
   // Notification & Alert Icons
-  bell: 'http://localhost:4201/icons/bell.svg',
-  
+  bell: `${BASE_URL}/icons/bell.svg`,
+
   // Time & Clock Icons
-  clock: 'http://localhost:4201/icons/clock.svg',
-  
+  clock: `${BASE_URL}/icons/clock.svg`,
+
   // Payment Icons
-  card: 'http://localhost:4201/icons/card.svg',
-  
+  card: `${BASE_URL}/icons/card.svg`,
+
   // Action Icons
-  build: 'http://localhost:4201/icons/build.svg',
-  employees: 'http://localhost:4201/icons/employees.svg',
-  floors: 'http://localhost:4201/icons/floors.svg',
-  reservations: 'http://localhost:4201/icons/reservations.svg',
-  
+  build: `${BASE_URL}/icons/build.svg`,
+  employees: `${BASE_URL}/icons/employees.svg`,
+  floors: `${BASE_URL}/icons/floors.svg`,
+  reservations: `${BASE_URL}/icons/reservations.svg`,
+
   // Stats Icons
-  chart: 'http://localhost:4201/icons/chart.svg',
-  checkmark: 'http://localhost:4201/icons/checkmark.svg',
-  
+  chart: `${BASE_URL}/icons/chart.svg`,
+  checkmark: `${BASE_URL}/icons/checkmark.svg`,
+
   // Notification Icons
-  calendar: 'http://localhost:4201/icons/calender.svg',
-  chef: 'http://localhost:4201/icons/chef_cap.svg',
-  money: 'http://localhost:4201/icons/payment.svg',
-  refresh: 'http://localhost:4201/icons/refresh.svg',
-  
+  calendar: `${BASE_URL}/icons/calender.svg`,
+  chef: `${BASE_URL}/icons/chef_cap.svg`,
+  money: `${BASE_URL}/icons/payment.svg`,
+  refresh: `${BASE_URL}/icons/refresh.svg`,
+
   // Table Status Icons
-  lock: 'http://localhost:4201/icons/lock.svg',
-  antenna: 'http://localhost:4201/icons/antenna.svg',
-  time: 'http://localhost:4201/icons/time.svg',
+  lock: `${BASE_URL}/icons/lock.svg`,
+  antenna: `${BASE_URL}/icons/antenna.svg`,
+  time: `${BASE_URL}/icons/time.svg`,
 
   // Builder Bar Icons
-  builderBar: 'http://localhost:4201/builder_bar/builderIcon.svg',
-  builderEmployee: 'http://localhost:4201/builder_bar/builderbarEmployee.svg',
-  builderFloor: 'http://localhost:4201/builder_bar/floorLayer.svg',
+  builderBar: `${BASE_URL}/builder_bar/builderIcon.svg`,
+  builderEmployee: `${BASE_URL}/builder_bar/builderbarEmployee.svg`,
+  builderFloor: `${BASE_URL}/builder_bar/floorLayer.svg`,
 
   // Department Icons
-  departmentsManager: 'http://localhost:4201/builder_bar/manager.svg',
-  departmentsStockroom: 'http://localhost:4201/builder_bar/stockroom.svg',
-  departmentsMarketing: 'http://localhost:4201/builder_bar/markeeting.svg',
-  departmentsTable: 'http://localhost:4201/builder_bar/table.svg',
-  departmentsHR: 'http://localhost:4201/builder_bar/manager.svg',
-  departmentsReception: 'http://localhost:4201/builder_bar/departments.svg',
+  departmentsManager: `${BASE_URL}/builder_bar/manager.svg`,
+  departmentsStockroom: `${BASE_URL}/builder_bar/stockroom.svg`,
+  departmentsMarketing: `${BASE_URL}/builder_bar/markeeting.svg`,
+  departmentsTable: `${BASE_URL}/builder_bar/table.svg`,
+  departmentsHR: `${BASE_URL}/builder_bar/manager.svg`,
+  departmentsReception: `${BASE_URL}/builder_bar/departments.svg`,
 } as const;
 
 /**

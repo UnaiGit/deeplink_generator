@@ -1,7 +1,7 @@
-/* Global styles entry; import theme layers */
-@import './theme/_variables';
-@import './theme/_base';
-@import './theme/_layout';
-@import './theme/_utilities';
-@import './theme/_mixins';
-@import './theme/theme';
+/* Global styles entry; use theme layers */
+@use './theme/variables';
+@use './theme/base';
+@use './theme/layout';
+@use './theme/utilities';
+@use './theme/mixins';
+@use './theme/theme';

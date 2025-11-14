@@ -2,7 +2,7 @@ import { Component, ElementRef, HostListener, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { I18nService } from './i18n.services';
-import { environment } from '../../environments/environment';
+import { environment } from '@/environments/environment';
 
 @Component({
   selector: 'app-language-selector',

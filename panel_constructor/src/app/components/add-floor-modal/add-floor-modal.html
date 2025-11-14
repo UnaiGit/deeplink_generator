@@ -115,7 +115,7 @@
             <div class="input-row">
               <div class="input-wrapper currency-wrapper">
                 <div class="input-icon">
-                  <span>{{ selectedCurrency?.symbol || '$' }}</span>
+                  <span>{{ selectedCurrency.symbol || '$' }}</span>
                 </div>
                 <select class="form-input" [(ngModel)]="formData.currency">
                   @for (currency of currencies; track currency.code) {
@@ -168,7 +168,7 @@
             <div class="input-row">
               <div class="input-wrapper currency-wrapper">
                 <div class="input-icon">
-                  <span>{{ selectedCurrency?.symbol || '$' }}</span>
+                  <span>{{ selectedCurrency.symbol || '$' }}</span>
                 </div>
                 <select class="form-input" [(ngModel)]="formData.currency">
                   @for (currency of currencies; track currency.code) {

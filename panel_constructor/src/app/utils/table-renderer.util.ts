@@ -16,7 +16,7 @@ export class TableRenderer {
   private readonly CHAIR_VERTICAL_GAP = 4;
   private readonly CHAIR_SIDE_OFFSET = 2;
   private readonly LEFT_CHAIR_VERTICAL_ADJUST = 4;
-  
+
   // Icon image cache
   private iconCache: Map<string, HTMLImageElement> = new Map();
   private iconLoadPromises: Map<string, Promise<HTMLImageElement>> = new Map();
@@ -41,7 +41,7 @@ export class TableRenderer {
       ICON_PATHS.card,
       ICON_PATHS.refresh,
     ];
-    
+
     iconPaths.forEach(path => {
       this.loadIcon(path);
     });
@@ -63,10 +63,7 @@ export class TableRenderer {
 
     // Convert absolute URL to relative path if needed
     let iconPath = path;
-    console.log("this is the path",path);
-    if (path.startsWith('http://localhost:4201/')) {
-      iconPath = path.replace('http://localhost:4201', '');
-    }
+    console.log("this is the path", path);
 
     // Create new promise to load image
     const promise = new Promise<HTMLImageElement>((resolve, reject) => {
@@ -274,7 +271,7 @@ export class TableRenderer {
     options: { isHovered: boolean; isDragTarget: boolean; isSelected: boolean }
   ): void {
     const shape = table.shape || 'rectangular';
-    
+
     // Match provided CSS: solid neutral table body
     const borderColor = options.isSelected ? '#4285f4' : '#bfc2c7';
     const fillColor = '#dcdde1';
@@ -307,7 +304,7 @@ export class TableRenderer {
   /**
    * Draw chairs around the table
    */
-   private drawChairs(table: Table): void {
+  private drawChairs(table: Table): void {
     const seats = Math.max(0, Math.floor(table.seats ?? 0));
     if (seats <= 0) {
       return;
@@ -349,20 +346,20 @@ export class TableRenderer {
     const leftX = table.x - this.CHAIR_SIDE_OFFSET - chairWidth + horizontalAdjust;
     for (let index = 0; index < leftSideCount; index++) {
       const baseY = baseStartY + index * (chairHeight + verticalGap);
-        const isOccupied = occupiedChairs.includes(chairNumber);
+      const isOccupied = occupiedChairs.includes(chairNumber);
       this.drawChair(leftX, baseY + leftAdjust, chairWidth, chairHeight, isOccupied, 'left');
-        chairNumber++;
-      }
+      chairNumber++;
+    }
 
     const rightX = table.x + table.width + this.CHAIR_SIDE_OFFSET - horizontalAdjust;
     for (let index = 0; index < rightSideCount; index++) {
       const baseY = baseStartY + index * (chairHeight + verticalGap);
-        const isOccupied = occupiedChairs.includes(chairNumber);
+      const isOccupied = occupiedChairs.includes(chairNumber);
       this.drawChair(rightX, baseY, chairWidth, chairHeight, isOccupied, 'right');
-        chairNumber++;
+      chairNumber++;
     }
   }
- 
+
   /**
    * Draw a single chair using images - dynamically switches between available and occupied
    * Chairs are rectangular (length > width)
@@ -377,28 +374,28 @@ export class TableRenderer {
     side: 'top' | 'bottom' | 'left' | 'right'
   ): void {
     this.ctx.save();
- 
+
     // Set fill color based on occupied status and theme
     if (isOccupied) {
       this.ctx.fillStyle = this.getChairColor('occupied-fill');
     } else {
       this.ctx.fillStyle = this.getChairColor('available-fill');
     }
- 
+
     const radii = this.getChairCornerRadii(side);
     this.drawRoundedRectWithRadii(x, y, width, height, radii);
     this.ctx.fill();
- 
+
     const strokeColor = isOccupied
       ? this.getChairColor('occupied-border')
       : this.getChairColor('available-border');
 
     if (strokeColor && strokeColor !== 'transparent') {
       this.ctx.strokeStyle = strokeColor;
-    this.ctx.lineWidth = 1;
-    this.ctx.stroke();
+      this.ctx.lineWidth = 1;
+      this.ctx.stroke();
     }
- 
+
     this.ctx.restore();
   }
 
@@ -513,7 +510,7 @@ export class TableRenderer {
 
     // Determine which icon to show based on status
     let iconPath: string | null = null;
-    
+
     // Priority: indicators first, then status
     if (table.indicators?.dishReady) {
       iconPath = ICON_PATHS.bell; // Bell icon for dish ready
@@ -560,7 +557,7 @@ export class TableRenderer {
       if (cachedIcon) {
         // Draw the icon image centered below the label
         const iconX = centerX - iconSize / 2;
-        
+
         // Draw icon (SVG icons should already have proper colors)
         this.ctx.drawImage(cachedIcon, iconX, iconY, iconSize, iconSize);
       } else {
@@ -584,13 +581,13 @@ export class TableRenderer {
     const iconSize = 16; // Size of each icon
     const iconSpacing = 4; // Spacing between icons
     const padding = 8; // Padding from table edge
-    
+
     // Position icons in top-right corner (3 icons: edit, rotate, delete)
     const iconsX = table.x + table.width - padding - iconSize * 3 - iconSpacing * 2;
     const iconsY = table.y + padding;
-    
+
     this.ctx.save();
-    
+
     // Draw simple square placeholders for edit/rotate/delete until replaced with icon font
     this.ctx.fillStyle = 'rgba(255,255,255,0.9)';
     this.ctx.strokeStyle = 'rgba(15, 23, 42, 0.35)';
@@ -632,10 +629,10 @@ export class TableRenderer {
     const iconSize = 16;
     const iconSpacing = 4;
     const padding = 8;
-    
+
     const iconsX = table.x + table.width - padding - iconSize * 3 - iconSpacing * 2;
     const iconsY = table.y + padding;
-    
+
     return {
       edit: {
         x: iconsX,
