@@ -117,31 +117,69 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  border: 1px solid var(--border-color, #eef2f7);
+  height: 32px;
+  border: 1px solid var(--gray-300, #d1d5db);
   border-radius: 20px;
-  background: var(--card-bg, #ffffff);
-  color: var(--text-color-dark, #333843);
+  background: var(--greyscale-greyscale-50, rgba(236, 239, 243, 1));
+  color: var(--text-color-dark, #374151);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background 0.2s ease, color 0.2s ease, border 0.2s ease;
+  white-space: nowrap;
+  position: relative;
+  box-sizing: border-box;
 
-  &:hover {
-    background: var(--gray-100, #f8f9fa);
+  .client-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  &:hover:not(.active) {
+    border-color: var(--primary-blue, #3b82f6);
   }
 
   &.active {
-    background: var(--primary-blue, #2d71f7);
-    color: var(--white, #ffffff);
-    border-color: var(--primary-blue, #2d71f7);
-  }
-}
+    background: linear-gradient(
+      180deg,
+      var(--primary-blue-light, #578df9) 0%,
+      var(--primary-blue, #2d71f7) 100%
+    );
+    color: var(--white, #fff);
+    border: 1px solid;
+    border-image-source: linear-gradient(
+      180deg,
+      var(--Primary100, rgba(171, 198, 252, 1)) 0%,
+      var(--primary-blue, #2d71f7) 100%
+    );
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2), 0px 0px 1px 0px rgba(0, 0, 0, 0.1),
+      1px 1px 1px 1px var(--Primary100, rgba(171, 198, 252, 1)) inset;
 
-.client-avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  object-fit: cover;
+    // Gradient border using pseudo-element for better rounded corner support
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 20px;
+      padding: 1px;
+      background: linear-gradient(
+        180deg,
+        var(--Primary100, rgba(171, 198, 252, 1)) 0%,
+        var(--primary-blue, #2d71f7) 100%
+      );
+      -webkit-mask: linear-gradient(var(--white, #fff) 0 0) content-box,
+        linear-gradient(var(--white, #fff) 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(var(--white, #fff) 0 0) content-box,
+        linear-gradient(var(--white, #fff) 0 0);
+      mask-composite: exclude;
+      pointer-events: none;
+      z-index: -1;
+    }
+  }
 }
 
 // Status Indicators

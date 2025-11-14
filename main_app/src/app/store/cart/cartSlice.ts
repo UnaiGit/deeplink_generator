@@ -116,18 +116,19 @@ const cartSlice = createSlice({
         price: number;
         tableId?: number | string;
         category?: string;
+        quantity?: number;
       }>
     ) => {
-      const { id, name, image, price, tableId, category } = action.payload;
+      const { id, name, image, price, tableId, category, quantity = 1 } = action.payload;
       
       if (tableId !== undefined) {
         // Table-specific cart
         const tableCart = getTableCart(state, tableId);
         const existing = tableCart.find((i) => i.id === id);
         if (existing) {
-          existing.quantity += 1;
+          existing.quantity += quantity;
         } else {
-          tableCart.push({ id, name, image, price, quantity: 1, tableId, category });
+          tableCart.push({ id, name, image, price, quantity, tableId, category });
         }
         setTableCart(state, tableId, tableCart);
         recalcTotals(state, tableId);
@@ -135,9 +136,9 @@ const cartSlice = createSlice({
         // Global cart (for backward compatibility)
       const existing = state.cartItems.find((i) => i.id === id);
       if (existing) {
-        existing.quantity += 1;
+        existing.quantity += quantity;
       } else {
-        state.cartItems.push({ id, name, image, price, quantity: 1, category });
+        state.cartItems.push({ id, name, image, price, quantity, category });
       }
       recalcTotals(state);
       }

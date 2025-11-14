@@ -1,0 +1,161 @@
+<app-base-modal
+  [isOpen]="isOpen"
+  [config]="modalConfig"
+  (close)="onClose()">
+
+  <div class="product-detail-modal-content">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2 class="modal-title">{{ productData?.name }}</h2>
+      <button type="button" class="close-btn" (click)="onClose()">
+        <img src="/icons/close.svg" alt="Close" />
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+      <!-- Product Image -->
+      <div class="product-image-section">
+        <img [src]="productData?.image" [alt]="productData?.name"
+          class="product-image" />
+      </div>
+
+      <!-- Category & Price -->
+      <div class="product-info-header">
+        <span class="category-badge">{{ productData?.category }}</span>
+        <span class="product-price">${{ productData?.basePrice?.toFixed(2)
+          }}</span>
+      </div>
+
+      <!-- Variant Section -->
+      <div class="section variant-section"
+        *ngIf="(productData?.variants?.length || 0) > 0">
+        <h3 class="section-title">{{ 'Variant' | translate }}</h3>
+        <div class="options-group">
+          <label
+            *ngFor="let variant of productData?.variants"
+            class="option-item"
+            [class.active]="selectedVariant?.id === variant.id">
+            <input
+              type="radio"
+              [name]="'variant'"
+              [value]="variant.id"
+              [checked]="selectedVariant?.id === variant.id"
+              (change)="onVariantSelect(variant)" />
+            <div class="option-content">
+              <span class="option-label">{{ variant.name }}</span>
+              <span class="option-price" *ngIf="variant.isIncluded">{{
+                'Included'
+                | translate }}</span>
+              <span class="option-price" *ngIf="!variant.isIncluded">+${{
+                variant.price.toFixed(2) }}</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Sauce Section -->
+      <div class="section sauce-section"
+        *ngIf="(productData?.sauces?.length || 0) > 0">
+        <h3 class="section-title">{{ 'Sauce' | translate }} *</h3>
+        <div class="options-group">
+          <label
+            *ngFor="let sauce of productData?.sauces"
+            class="option-item"
+            [class.active]="selectedSauce?.id === sauce.id">
+            <input
+              type="radio"
+              [name]="'sauce'"
+              [value]="sauce.id"
+              [checked]="selectedSauce?.id === sauce.id"
+              (change)="onSauceSelect(sauce)" />
+            <div class="option-content">
+              <span class="option-label">{{ sauce.name }}</span>
+              <span class="option-price" *ngIf="sauce.isIncluded">{{ 'Included'
+                | translate }}</span>
+              <span class="option-price" *ngIf="!sauce.isIncluded">+${{
+                sauce.price.toFixed(2) }}</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Toppings Section -->
+      <div class="section toppings-section"
+        *ngIf="(productData?.toppings?.length || 0) > 0">
+        <h3 class="section-title">
+          {{ 'Toppings' | translate }}
+          <span *ngIf="productData?.maxToppings">(max {{
+            productData?.maxToppings }})</span>
+        </h3>
+        <div class="options-group">
+          <label
+            *ngFor="let topping of productData?.toppings"
+            class="option-item checkbox-item"
+            [class.active]="isToppingSelected(topping.id)"
+            [class.disabled]="!isToppingSelected(topping.id) && !canSelectMoreToppings()">
+            <input
+              type="checkbox"
+              [checked]="isToppingSelected(topping.id)"
+              [disabled]="!isToppingSelected(topping.id) && !canSelectMoreToppings()"
+              (change)="onToppingToggle(topping)" />
+            <div class="option-content">
+              <span class="option-label">{{ topping.name }}</span>
+              <span class="option-price" *ngIf="topping.isIncluded">{{
+                'Included'
+                | translate }}</span>
+              <span class="option-price" *ngIf="!topping.isIncluded">+${{
+                topping.price.toFixed(2) }}</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="section notes-section">
+        <h3 class="section-title">{{ 'Notes (optional)' | translate }}</h3>
+        <div class="notes-input-wrapper">
+          <img src="/icons/note.svg" alt="Notes" class="notes-icon" />
+          <input
+            type="text"
+            class="notes-input"
+            [placeholder]="'ex : without onion' | translate"
+            [(ngModel)]="notes" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <div class="quantity-section">
+        <span class="quantity-label">{{ 'Item quantity' | translate }}</span>
+        <div class="quantity-controls">
+          <button
+            type="button"
+            class="qty-btn minus"
+            (click)="decreaseQuantity()">
+            <img src="/icons/minus.svg" alt="-" />
+          </button>
+          <span class="quantity-value">{{ quantity }}</span>
+          <button type="button" class="qty-btn plus"
+            (click)="increaseQuantity()">
+            <img src="/icons/plus.svg" alt="+" />
+          </button>
+        </div>
+      </div>
+
+      <div class="footer-actions">
+        <div class="price-display">
+          <span class="price-label">{{ 'Price :' | translate }}</span>
+          <span class="price-value">${{ getTotalPrice().toFixed(2) }}</span>
+        </div>
+        <app-button
+          [variant]="'primary'"
+          [type]="'button'"
+          (clicked)="onAddToCart()">
+          {{ 'Add to cart' | translate }}
+        </app-button>
+      </div>
+    </div>
+  </div>
+</app-base-modal>

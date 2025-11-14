@@ -46,7 +46,8 @@
             [image]="product.image"
             [currentQty]="getQty(product.id)"
             (add)="addToCart(product, $event)"
-            (decrease)="decProduct(product)">
+            (decrease)="decProduct(product)"
+            (zoom)="onProductZoom(product)">
           </app-product-card>
         </ng-container>
       </div>
@@ -83,4 +84,12 @@
     (cancel)="onModalCancel()"
     (switch)="onModalSwitch()">
   </app-unsynced-modal>
+
+  <!-- Product Detail Modal -->
+  <app-product-detail-modal
+    [isOpen]="showProductModal"
+    [productData]="selectedProductData"
+    (close)="onProductModalClose()"
+    (addToCart)="onProductModalAddToCart($event)">
+  </app-product-detail-modal>
 </div>

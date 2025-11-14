@@ -2,7 +2,7 @@
   [isOpen]="isOpen"
   [config]="modalConfig"
   (close)="onClose()">
-  
+
   <div class="special-charge-modal-content">
     <!-- Header -->
     <div class="modal-header">
@@ -17,10 +17,14 @@
     <div class="modal-body">
       <!-- Table Info -->
       <div class="table-info">
-        <img src="/icons/table.svg" alt="Table" class="table-icon" />
+        <div class="table-icon-wrapper">
+          <img src="/icons/tableicon.svg" alt="Table" class="table-icon" />
+        </div>
         <div class="table-details">
-          <span class="table-number">{{ 'Table' | translate }} {{ specialChargeData?.tableNumber }}</span>
-          <span class="client-count">• {{ specialChargeData?.clients?.length }} {{ 'clients' | translate }}</span>
+          <span class="table-number">{{ 'Table' | translate }} {{
+            specialChargeData?.tableNumber }}</span>
+          <span class="client-count">• {{ specialChargeData?.clients?.length }}
+            {{ 'clients' | translate }}</span>
         </div>
       </div>
 
@@ -29,7 +33,7 @@
         <button
           type="button"
           class="client-filter-btn"
-          [class.active]="selectedClientFilter === 'all'"
+          [class.active]="isClientFilterSelected('all')"
           (click)="onClientFilterClick('all')">
           {{ 'All' | translate }}
         </button>
@@ -37,9 +41,10 @@
           *ngFor="let client of specialChargeData?.clients"
           type="button"
           class="client-filter-btn"
-          [class.active]="selectedClientFilter === client.id"
+          [class.active]="isClientFilterSelected(client.id)"
           (click)="onClientFilterClick(client.id)">
-          <img *ngIf="client.avatar" [src]="client.avatar" [alt]="client.name" class="client-avatar" />
+          <img *ngIf="client.avatar" [src]="client.avatar" [alt]="client.name"
+            class="client-avatar" />
           {{ client.name }}
         </button>
       </div>
@@ -48,27 +53,34 @@
       <div class="summary-section">
         <h3 class="section-title">{{ 'Summary' | translate }}</h3>
         <div class="summary-items">
-          <div class="summary-item" *ngFor="let item of specialChargeData?.orderItems">
+          <div class="summary-item"
+            *ngFor="let item of specialChargeData?.orderItems">
             <span class="item-name">{{ item.name }} ×{{ item.quantity }}</span>
-            <span class="item-price">${{ (item.price * item.quantity).toFixed(2) }}</span>
+            <span class="item-price">${{ (item.price * item.quantity).toFixed(2)
+              }}</span>
           </div>
         </div>
 
         <div class="summary-totals">
           <div class="summary-row">
             <span class="summary-label">{{ 'Sub Total' | translate }}</span>
-            <span class="summary-value">${{ specialChargeData?.subTotal?.toFixed(2) }}</span>
+            <span class="summary-value">${{
+              specialChargeData?.subTotal?.toFixed(2) }}</span>
           </div>
           <div class="summary-row">
             <span class="summary-label">{{ 'Discount' | translate }}</span>
-            <span class="summary-value discount">-${{ specialChargeData?.discount?.toFixed(2) }}</span>
+            <span class="summary-value discount">-${{
+              specialChargeData?.discount?.toFixed(2) }}</span>
           </div>
           <div class="summary-row">
             <span class="summary-label">{{ 'Tax' | translate }} (10%)</span>
-            <span class="summary-value">${{ specialChargeData?.tax?.toFixed(2) }}</span>
+            <span class="summary-value">${{ specialChargeData?.tax?.toFixed(2)
+              }}</span>
           </div>
-          <div class="discount-applied-row" *ngIf="(specialChargeData?.discount || 0) > 0">
-            <span class="discount-label">{{ 'Discount Applied' | translate }}</span>
+          <div class="discount-applied-row"
+            *ngIf="(specialChargeData?.discount || 0) > 0">
+            <span class="discount-label">{{ 'Discount Applied' | translate
+              }}</span>
             <img src="/icons/arrow-right.svg" alt=">" class="chevron-icon" />
           </div>
         </div>
@@ -77,21 +89,15 @@
       <!-- Mode Toggle -->
       <div class="mode-section">
         <h3 class="section-title">{{ 'Mode' | translate }}</h3>
-        <div class="mode-toggle">
-          <button
-            type="button"
-            class="mode-btn"
-            [class.active]="mode === 'individual'"
-            (click)="onModeToggle('individual')">
-            {{ 'Individual' | translate }}
-          </button>
-          <button
-            type="button"
-            class="mode-btn"
-            [class.active]="mode === 'company'"
-            (click)="onModeToggle('company')">
-            {{ 'Company' | translate }}
-          </button>
+        <div class="mode-toggle-wrapper">
+          <span class="mode-label">{{ 'Individual' | translate }}</span>
+          <div class="mode-toggle" (click)="onModeToggle()">
+            <div class="toggle-track" [class.active]="mode === 'company'">
+              <div class="toggle-handle"
+                [class.active]="mode === 'company'"></div>
+            </div>
+          </div>
+          <span class="mode-label">{{ 'Company' | translate }}</span>
         </div>
       </div>
 
@@ -107,7 +113,8 @@
               class="payer-btn"
               [class.selected]="isPayerSelected(client.id)"
               (click)="onPayerToggle(client.id)">
-              <img *ngIf="client.avatar" [src]="client.avatar" [alt]="client.name" class="client-avatar" />
+              <img *ngIf="client.avatar" [src]="client.avatar"
+                [alt]="client.name" class="client-avatar" />
               {{ client.name }}
             </button>
           </div>
@@ -138,7 +145,7 @@
         <!-- Coupons -->
         <div class="coupons-section">
           <h3 class="section-title">{{ 'Coupons' | translate }}</h3>
-          
+
           <!-- Global Coupons -->
           <div class="coupon-group">
             <label class="coupon-label">{{ 'Global' | translate }}</label>
@@ -155,22 +162,27 @@
           </div>
 
           <!-- Per Person Coupons -->
-          <div class="per-person-coupons">
-            <div class="coupon-row" *ngFor="let client of specialChargeData?.clients">
-              <label class="coupon-label">{{ client.name }}</label>
-              <input
-                type="number"
-                class="coupon-input-small"
-                [(ngModel)]="perPersonCoupons[client.id]"
-                min="0"
-                step="1" />
+          <div class="per-person-coupons"
+            *ngIf="getSelectedClients().length > 0">
+            <div class="coupon-grid">
+              <div class="coupon-item"
+                *ngFor="let client of getSelectedClients()">
+                <label class="coupon-label">{{ client.name }}</label>
+                <input
+                  type="number"
+                  class="coupon-input-small"
+                  [(ngModel)]="perPersonCoupons[client.id]"
+                  min="0"
+                  step="1" />
+              </div>
             </div>
           </div>
 
           <!-- Per Line Coupons -->
           <div class="per-line-coupons">
             <label class="coupon-label">{{ 'Per line' | translate }}</label>
-            <div class="coupon-row" *ngFor="let item of specialChargeData?.orderItems">
+            <div class="coupon-row"
+              *ngFor="let item of specialChargeData?.orderItems">
               <span class="item-name">{{ item.name }}</span>
               <input
                 type="number"
@@ -195,7 +207,8 @@
               class="payer-btn"
               [class.selected]="isPayerSelected(client.id)"
               (click)="onPayerToggle(client.id)">
-              <img *ngIf="client.avatar" [src]="client.avatar" [alt]="client.name" class="client-avatar" />
+              <img *ngIf="client.avatar" [src]="client.avatar"
+                [alt]="client.name" class="client-avatar" />
               {{ client.name }}
             </button>
           </div>
@@ -206,7 +219,8 @@
           <div class="form-group">
             <label class="form-label">{{ 'Legal name' | translate }}</label>
             <div class="input-wrapper">
-              <img src="/icons/building.svg" alt="Building" class="input-icon" />
+              <img src="/icons/build.svg" alt="Document"
+                class="input-icon" />
               <input
                 type="text"
                 class="form-input"
@@ -218,7 +232,8 @@
           <div class="form-group">
             <label class="form-label">{{ 'VAT/TIN' | translate }}</label>
             <div class="input-wrapper">
-              <img src="/icons/document.svg" alt="Document" class="input-icon" />
+              <img src="/icons/box.svg" alt="Document"
+                class="input-icon" />
               <input
                 type="text"
                 class="form-input"
@@ -230,12 +245,12 @@
           <div class="form-group">
             <label class="form-label">{{ 'Invoice email' | translate }}</label>
             <div class="input-wrapper">
-              <img src="/icons/mail.svg" alt="Mail" class="input-icon" />
+              <img src="/icons/file.svg" alt="Mail" class="input-icon" />
               <input
                 type="email"
                 class="form-input"
                 [(ngModel)]="invoiceEmail"
-                placeholder="Input invoice email" />
+                placeholder="Input Invoice email" />
             </div>
           </div>
         </div>
@@ -243,7 +258,7 @@
         <!-- Coupons (same as individual) -->
         <div class="coupons-section">
           <h3 class="section-title">{{ 'Coupons' | translate }}</h3>
-          
+
           <div class="coupon-group">
             <label class="coupon-label">{{ 'Global' | translate }}</label>
             <div class="coupon-input-wrapper">
@@ -258,21 +273,26 @@
             <p class="coupon-note">(prorated across selection)</p>
           </div>
 
-          <div class="per-person-coupons">
-            <div class="coupon-row" *ngFor="let client of specialChargeData?.clients">
-              <label class="coupon-label">{{ client.name }}</label>
-              <input
-                type="number"
-                class="coupon-input-small"
-                [(ngModel)]="perPersonCoupons[client.id]"
-                min="0"
-                step="1" />
+          <div class="per-person-coupons"
+            *ngIf="getPayerClients().length > 0">
+            <div class="coupon-grid">
+              <div class="coupon-item"
+                *ngFor="let client of getPayerClients()">
+                <label class="coupon-label">{{ client.name }}</label>
+                <input
+                  type="number"
+                  class="coupon-input-small"
+                  [(ngModel)]="perPersonCoupons[client.id]"
+                  min="0"
+                  step="1" />
+              </div>
             </div>
           </div>
 
           <div class="per-line-coupons">
             <label class="coupon-label">{{ 'Per line' | translate }}</label>
-            <div class="coupon-row" *ngFor="let item of specialChargeData?.orderItems">
+            <div class="coupon-row"
+              *ngFor="let item of specialChargeData?.orderItems">
               <span class="item-name">{{ item.name }}</span>
               <input
                 type="number"
@@ -290,7 +310,8 @@
     <div class="modal-footer">
       <div class="total-section">
         <span class="total-label">{{ 'TOTAL' | translate }}</span>
-        <span class="total-value">${{ specialChargeData?.total?.toFixed(2) }}</span>
+        <span class="total-value">${{ specialChargeData?.total?.toFixed(2)
+          }}</span>
       </div>
 
       <div class="footer-actions">
@@ -308,4 +329,3 @@
     </div>
   </div>
 </app-base-modal>
-
