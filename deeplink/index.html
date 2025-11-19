@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HotelTwin · Plantillas de Deep Links</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <div>
+        <h1>HotelTwin · Deep Link Templates</h1>
+        <p class="subtitle">Configure templates, map internal variables, and generate ready-to-use deep links.</p>
+      </div>
+      <div class="header-actions">
+        <button id="clearCurrent" class="ghost">New template</button>
+        <button id="saveTemplate" class="primary">Save template</button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="steps">
+        <button class="step-btn active" data-step="1">1. Basic info</button>
+        <button class="step-btn" data-step="2">2. Mapping</button>
+        <button class="step-btn" data-step="3">3. Preview</button>
+      </div>
+    </section>
+
+    <section class="panel step step-1">
+      <h2>1. Basic info</h2>
+      <div class="grid">
+        <label>
+          Name
+          <input id="tplName" aria-label="Template name" type="text" placeholder="SynXis - Demo Hotel">
+        </label>
+        <label>
+          Quick template
+          <select id="quickTemplate">
+            <option value="">— Select —</option>
+            <option value="melia">Meliá Booking</option>
+            <option value="synxis">SynXis</option>
+          </select>
+        </label>
+        <label class="full">
+          Example deep link (exampleUrl)
+          <input id="tplExampleUrl" aria-label="Example URL" type="text" placeholder="https://reservations.synxis.com/search?arrive=2025-12-05&depart=2025-12-08&adult=2&child=1&promo=HOTELTWIN&currency=EUR">
+          <small class="hint">Paste a full URL; protocol will be added if missing.</small>
+        </label>
+      </div>
+      <div class="actions">
+        <button class="primary" data-next-step="2">Next: Mapping</button>
+        <span id="parseStatus" class="status"></span>
+      </div>
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="panel step step-2" style="display:none">
+      <h2>2. Link slots & mapping</h2>
+      <p class="hint">Pick the internal variable for each slot. Date formats show only when mapping check-in/out; auto-suggestions are applied after parsing.</p>
+      <div class="compact-controls">
+        <input id="slotFilter" aria-label="Filter slots" type="text" placeholder="Filter slots by name/value...">
+        <span class="muted">Compact view</span>
+      </div>
+      <div class="grid">
+      <div id="parsedSummary" class="parsed-summary"></div>
+      <div class="mapping-block">
+        <h3>Slot list</h3>
+        <div id="allSlots" class="table" role="table"></div>
+      </div>
+      <div class="actions">
+        <button class="secondary" data-prev-step="1">Back</button>
+        <button class="primary" data-next-step="3">Next: Preview</button>
+      </div>
+    </section>
+
+    <section class="panel step step-3" style="display:none">
+      <h2>3. Saved templates</h2>
+      <div id="savedTemplates" class="saved-list"></div>
+    </section>
+
+    <section class="panel step step-3" style="display:none">
+      <h2>4. Preview</h2>
+      <p class="hint">Use internal values (standard format). Generate and validate the resulting deep link.</p>
+      <div class="grid">
+        <label>checkIn (YYYY-MM-DD)<input id="pvCheckIn" type="text" placeholder="2025-12-05"></label>
+        <label>checkOut (YYYY-MM-DD)<input id="pvCheckOut" type="text" placeholder="2025-12-08"></label>
+        <label>adults<input id="pvAdults" type="number" min="1" value="2"></label>
+        <label>children<input id="pvChildren" type="number" min="0" value="1"></label>
+        <label>promoCode<input id="pvPromo" type="text" placeholder="HOTELTWIN"></label>
+        <label>currency<input id="pvCurrency" type="text" placeholder="EUR"></label>
+        <label>hotelId<input id="pvHotelId" type="text" placeholder="ABC123"></label>
+        <label>nights<input id="pvNights" type="number" min="1" placeholder="3"></label>
+      </div>
+      <div class="actions">
+        <button id="generatePreview" class="primary">Generate deep link</button>
+        <span id="previewStatus" class="status"></span>
+      </div>
+      <div id="previewResult" class="preview"></div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
