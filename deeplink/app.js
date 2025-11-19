@@ -28,6 +28,46 @@ const COMMON_TEMPLATES = {
     exampleUrl:
       "https://reservations.synxis.com/search?arrive=2025-12-05&depart=2025-12-08&adult=2&child=1&promo=HOTELTWIN&currency=EUR",
   },
+  amadeus: {
+    name: "Amadeus / TravelClick iHotelier",
+    exampleUrl:
+      "https://example-hotel.com/book?dateIn=2025-12-05&dateOut=2025-12-08&adults=2&children=1&rooms=1&rateplanID=BAR&roomTypeID=DLX&referID=TRACK123",
+  },
+  bookassist: {
+    name: "Bookassist",
+    exampleUrl:
+      "https://bookassist.com/booking?date_in=2025-12-05&nn=3&adults=2&rms=1&price_group=SUMMER&vgo=1&utm_source=meta",
+  },
+  windsufrer: {
+    name: "SHR Windsurfer",
+    exampleUrl:
+      "https://booking.myhotel.com/?sbe_startDate=2025-12-05&sbe_endDate=2025-12-08&sbe_adults=2&sbe_children=1&sbe_rooms=1&sbe_promoCode=TEST",
+  },
+  mews: {
+    name: "Mews Distributor",
+    exampleUrl:
+      "https://myhotel.mews.li/distributor/dc?mewsStart=2025-12-05&mewsEnd=2025-12-08&mewsAdultCount=2&mewsChildCount=1&mewsRoom=DLX&mewsVoucherCode=PROMO",
+  },
+  planet: {
+    name: "Planet / D-EDGE (HotSoft)",
+    exampleUrl:
+      "https://booking.planet.example/?Arrival=2025-12-05&Departure=2025-12-08&NroOfAdults=2&NroOfRooms=1&PromotionalCode=CODE123&PrimaryReport=PR1",
+  },
+  clock: {
+    name: "Clock PMS+",
+    exampleUrl:
+      "https://wbe.clock-software.com/myhotel/reserve?arrival=2025-12-05&departure=2025-12-08&room_type_ids=DLX&rate_ids=BAR&bonus_code=CODE&submit=true",
+  },
+  cloudbeds: {
+    name: "Cloudbeds",
+    exampleUrl:
+      "https://hotels.cloudbeds.com/reservation/abcd1234?checkin=2025-12-05&checkout=2025-12-08&adults=2&kids=1&promo=PROMO&rate_plan=BAR",
+  },
+  reservhotel: {
+    name: "ReservHotel / Tambourine",
+    exampleUrl:
+      "https://reservhotel.com/booking?ADATE=2025-12-05&DDATE=2025-12-08&ADULTS=2&CHILD=1&ROOMS=1&PC=PROMO&AFF=AFFID",
+  },
 };
 
 function createEmptyTemplate() {
